@@ -85,7 +85,6 @@ public class AWTViewPort extends ViewPort
     @Override
     public void start()
     {
-        System.out.println("start!");
         inner = new Thread(() -> 
         {
 
