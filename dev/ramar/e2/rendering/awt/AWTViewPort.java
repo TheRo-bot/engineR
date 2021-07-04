@@ -4,6 +4,7 @@ import dev.ramar.e2.rendering.*;
 
 import dev.ramar.e2.structures.WindowSettings;
 
+import dev.ramar.e2.rendering.awt.drawing.stateless.AWTStatelessDrawer;
 
 import java.util.*;
 
@@ -20,8 +21,8 @@ import java.awt.image.BufferStrategy;
 
 public class AWTViewPort extends ViewPort
 {
+    private static Color DEFAULT_COLOR = new Color(0, 0, 0, 255);
 
-    private JFrame frame;
 
     public AWTViewPort()
     {
@@ -29,41 +30,35 @@ public class AWTViewPort extends ViewPort
         ((AWTDrawManager)draw).withViewPort(this);
     }
 
+    public AWTWindow getAWTWindow()
+    {
+        return (AWTWindow)window;
+    }
+
 
     @Override
     public void init(WindowSettings ws)
     {
+
         System.out.println("init!");
-        frame = new JFrame(ws.getTitle());
+        getAWTWindow().init(ws);
 
-        frame.addWindowListener(new WindowAdapter()
+
+        window.onClose.add(() ->
         {
-            public void windowClosing(WindowEvent we)
-            {
-                onClose();
-            }
+            System.out.println("Window closed! stopping..");
+            long time = System.currentTimeMillis();
+            stop();
+            System.out.println("stopped! (took " + (System.currentTimeMillis() - time) + "ms)");
         });
-        frame.setSize(1280, 720);
-        frame.setDefaultLookAndFeelDecorated(false);
-        // frame.setUndecorated(false);
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-        frame.setExtendedState(JFrame.NORMAL); 
+        Graphics2D g2d = getAWTWindow().getDrawGraphics();
 
-        frame.add(new Canvas());
-        frame.createBufferStrategy(3);
+        g2d.setColor(new Color(0, 0, 0, 255));
+
+        g2d.fillRect(0, 0, ws.screenW, ws.screenH);
+
         super.init(ws);
-
-        BufferStrategy bs = frame.getBufferStrategy();
-        Graphics2D g2d = (Graphics2D)bs.getDrawGraphics();
-
-        g2d.setColor(new Color(150, 150, 150, 255));
-        g2d.fillRect(0, 0, 1280, 720);
-        g2d.dispose();
-
-        bs.show();
-        bs.show();
 
     }
 
@@ -93,17 +88,28 @@ public class AWTViewPort extends ViewPort
         System.out.println("start!");
         inner = new Thread(() -> 
         {
-            try
-            {
-                while(! inner.isInterrupted() )
-                {
-                    System.out.println("loop!");
-                    Thread.sleep(200);
-                }
-            }
-            catch(InterruptedException e) {}
 
-            onClose();
+            long lastTime = System.currentTimeMillis();
+            int timeToSecond = 0, frameCount = 0;
+            while(! inner.isInterrupted() )
+            {
+                render();
+                frameCount++;
+
+                long thisTime = System.currentTimeMillis();
+                long diffTime = thisTime - lastTime;
+                timeToSecond += diffTime;
+                if( timeToSecond >= 1000 )
+                {
+
+                    System.out.println("FPS: " + frameCount);
+                    frameCount = 0;
+                    timeToSecond = 0;
+                }
+
+                lastTime = thisTime;
+            }
+
         });
 
         inner.start();
@@ -114,7 +120,6 @@ public class AWTViewPort extends ViewPort
     @Override
     public void stop()
     {
-
         super.stop();
     }
 
@@ -126,45 +131,32 @@ public class AWTViewPort extends ViewPort
     }
 
 
-
-
-    /* Listener Callbacks
-    -==---------------------
-    */  
-
-    public static class CloseListeners
+    public AWTStatelessDrawer getAWTLess()
     {
-        public interface CloseListener
-        {
-            public void onClose();
-        }
-
-        private static final List<CloseListener> listeners = new ArrayList<>();
-
-        public static void add(CloseListener cl)
-        {
-            listeners.add(cl);
-        }
-
-        public static void remove(CloseListener cl)
-        {
-            listeners.remove(cl);
-        }
-
-
-        private static void onClose()
-        {
-            for( CloseListener cl : listeners )
-                cl.onClose();
-        }
+        return (AWTStatelessDrawer)draw.stateless;
     }
 
 
-    private void onClose()
+    /* Rendering Methods
+    -==--------------------
+    */
+
+    private void render()
     {
-        CloseListeners.onClose();
-        closed = true;
+        BufferStrategy bs = getAWTWindow().getBufferStrategy();
+        Graphics2D g2d = (Graphics2D)bs.getDrawGraphics();
+
+        getAWTLess().setupDrawing(g2d);
+        g2d.setColor(DEFAULT_COLOR);
+        g2d.fillRect(0, 0, window.width(), window.height());
+        draw.stateless.drawAt(0, 0, draw);
+
+        getAWTLess().shutdownDrawing();
+        g2d.dispose();
+        bs.show();
     }
+
+
 
 
 

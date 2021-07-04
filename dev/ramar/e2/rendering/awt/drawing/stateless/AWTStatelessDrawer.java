@@ -8,6 +8,10 @@ import dev.ramar.e2.rendering.awt.AWTViewPort;
 
 import java.util.*;
 
+
+import java.awt.Graphics2D;
+
+
 public class AWTStatelessDrawer extends StatelessDrawer
 {
 
@@ -25,6 +29,30 @@ public class AWTStatelessDrawer extends StatelessDrawer
         {
             vp = avp;
             ((AWTRectDrawer)rect).withViewPort(vp);
+        }
+    }
+
+
+    private Graphics2D graphics;
+
+    public Graphics2D getGraphics()
+    {   return graphics;   }
+
+
+    public void setupDrawing(Graphics2D g2d)
+    {
+        synchronized(this)
+        {
+            graphics = g2d;
+        }
+    }
+
+
+    public void shutdownDrawing()
+    {
+        synchronized(this)
+        {
+            graphics = null;
         }
     }
 }

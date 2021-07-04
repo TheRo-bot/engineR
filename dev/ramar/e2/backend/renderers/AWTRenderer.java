@@ -300,7 +300,10 @@ public class AWTRenderer extends Canvas implements RenderManager, ViewPort, Cont
       	{
 			bufferStrategy = screen.getBufferStrategy();
 			if( bufferStrategy == null )
+			{
 			    screen.createBufferStrategy(3);
+			    bufferStrategy = screen.getBufferStrategy();
+			}
       	}
 
       	graphics = (Graphics2D)bufferStrategy.getDrawGraphics();

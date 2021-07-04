@@ -3,6 +3,7 @@ package dev.ramar.e2.rendering;
 
 import dev.ramar.e2.structures.WindowSettings;
 
+
 public abstract class ViewPort
 {
     public final DrawManager draw;
