@@ -43,7 +43,7 @@ public class Screen extends Canvas
 		});
 
 
-		Dimension d = new Dimension(ws.getWindowWidth(), ws.getWindowHeight());
+		Dimension d = new Dimension(ws.screenW, ws.screenH);
 
 		if( !ws.fullscreen() )
 		{

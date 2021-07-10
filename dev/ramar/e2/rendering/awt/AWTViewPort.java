@@ -148,7 +148,7 @@ public class AWTViewPort extends ViewPort
         getAWTLess().setupDrawing(g2d);
         g2d.setColor(DEFAULT_COLOR);
         g2d.fillRect(0, 0, window.width(), window.height());
-        draw.stateless.drawAt(0, 0, draw);
+        draw.stateless.drawAt(0, 0, this);
 
         getAWTLess().shutdownDrawing();
         g2d.dispose();

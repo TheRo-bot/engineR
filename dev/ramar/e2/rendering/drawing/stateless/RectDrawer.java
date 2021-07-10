@@ -2,6 +2,12 @@ package dev.ramar.e2.rendering.drawing.stateless;
 
 import dev.ramar.e2.structures.Colour;
 
+
+
+/*
+Abstract Class: RectDrawer
+ - A Drawing class for rectangles
+*/
 public abstract class RectDrawer
 {
     protected static Colour DEFAULT_COLOR = new Colour(0, 0, 0, 255);
@@ -13,13 +19,20 @@ public abstract class RectDrawer
     }
 
 
-
+    /* Inner Class: RectMods
+    -==-------------------
+     Handles any modifications someone may want to make for a 
+     rectangle. editing this class should make changes to all
+     implementing RectDrawers (assuming it's within the bounds
+     of the current implementation)
+    */
     public class RectMods
     {
         private int times;
         private double offX = 0, offY = 0;
         private Colour colour = new Colour(-1, -1, -1, -1);
-        private boolean withFill = false;
+        private boolean withFill = false,
+                        deletable = true;
 
         public RectMods(int times)
         {
@@ -41,6 +54,17 @@ public abstract class RectDrawer
                    "[times, offset, colour] -> [" + times + ", (" + offX + ", " + offY + "), (" +
                     colour.getRed() + ", " + colour.getGreen() + ", " +
                     colour.getBlue() + ", " + colour.getAlpha() + ")]";
+        }
+
+
+        public void doDelete(boolean b)
+        {
+            deletable = b;
+        }
+
+        public boolean isPermanent()
+        {
+            return deletable;
         }
 
 
@@ -157,8 +181,12 @@ public abstract class RectDrawer
         // we don't need to worry about deleting 
         // currMods if times < 0
         if( currMods != null )
+        {
             currMods.times--;
-        exp = currMods;
+            if( currMods.times > 0 || currMods.isPermanent() )
+                exp = currMods;
+        }
+
         return exp;
     }
 
