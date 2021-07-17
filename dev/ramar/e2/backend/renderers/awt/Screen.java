@@ -50,7 +50,6 @@ public class Screen extends Canvas
 			frame.setPreferredSize( d );
 			frame.setMaximumSize( d );
 			frame.setMinimumSize( d );
-			// frame.setResizable(false);	
 			frame.setLocationRelativeTo(null);			
 			// frame.setSize(1000, 1000);
 

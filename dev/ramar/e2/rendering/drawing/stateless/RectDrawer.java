@@ -55,7 +55,7 @@ public abstract class RectDrawer
                     colour.getRed() + ", " + colour.getGreen() + ", " +
                     colour.getBlue() + ", " + colour.getAlpha() + ")]";
         }
-
+ 
 
         public void doDelete(boolean b)
         {
@@ -88,6 +88,11 @@ public abstract class RectDrawer
             
             colour.set(r, g, b, a);
             return this;
+        }
+
+        public RectMods withColour(Colour c)
+        {
+            return withColour(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
         }
 
         public RectMods withFill()

@@ -34,13 +34,15 @@ public class E2Main
         vp.start();
         List<Drawable> temps = new ArrayList<>();
 
-        int tempCount = 100;
+        int tempCount = 4000;
         int[][] positions = new int[tempCount][2];
         for( int ii = 0; ii < positions.length; ii++ )
         {
             positions[ii][0] = vp.window.width() / 2;
             positions[ii][1] = vp.window.height() / 2;
         }
+
+
         vp.draw.stateless.perm.add((double x, double y, ViewPort vp) ->
         {
             vp.draw.stateless.rect.withMod().

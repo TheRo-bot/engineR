@@ -8,6 +8,7 @@ import dev.ramar.e2.rendering.ViewPort;
 import dev.ramar.e2.rendering.DrawManager;
 
 import dev.ramar.utils.ValuePair;
+import dev.ramar.utils.HiddenList;
 
 import java.util.*;
 
@@ -25,53 +26,40 @@ public abstract class StatelessDrawer
 
     // protected final List<Drawable> drawables = new ArrayList<>();
 
-    protected final List<TempDrawable> temps = new ArrayList();
-
-
     protected StatelessDrawer(RectDrawer rd)
     {
         rect = rd;
     }
 
 
-    public final HiddenList<Drawable>     perm = new HiddenList<>();
-    public final HiddenList<TempDrawable> temp = new HiddenList<>();
+    public final DrawableList     perm = new DrawableList();
+    public final TempDrawableList temp = new TempDrawableList();
 
-    public class HiddenList<E>
+    /* Defined HiddenLists
+    -===---------------------
+     These extendsions of HiddenList exposes the actual list to
+     this file and this file only, which is useful since only this
+     file should know about it, but we still want outside users
+     to change the state of the class 
+    */
+
+    public class DrawableList extends HiddenList<Drawable>
     {
-        private final List<E> list = new ArrayList<>();
-
-        public void add(E e)
+        private List<Drawable> getList()
         {
-            synchronized(this)
-            {
-                list.add(e);
-            }
-        }
-
-        public void remove(E e)
-        {
-            synchronized(this)
-            {
-                list.remove(e);
-            }
-        }
-
-        public void remove(int i)
-        {
-            synchronized(this)
-            {
-                list.remove(i);
-            }
-        }
-
+            return list;
+        } 
     }
 
 
-    public class Temps
+    public class TempDrawableList extends HiddenList<TempDrawable>
     {
-
+        private List<TempDrawable> getList()
+        {
+            return list;
+        } 
     }
+
 
 
 
@@ -79,16 +67,16 @@ public abstract class StatelessDrawer
     {
         synchronized(perm)
         {
-            for( Drawable d : perm.list )
+            for( Drawable d : perm.getList() )
                 d.drawAt(x, y, vp);
         }
 
-        int beforeSize = temp.list.size();
+        int beforeSize = temp.getList().size();
         synchronized(temp)
         {
-            for( int ii = 0; ii < temp.list.size(); ii++ )
+            for( int ii = 0; ii < temp.getList().size(); ii++ )
             {
-                TempDrawable td = temp.list.get(ii);
+                TempDrawable td = temp.getList().get(ii);
 
                 if( !td.continueDraw() )
                 {
@@ -101,8 +89,8 @@ public abstract class StatelessDrawer
             }
         }
 
-        if( beforeSize != temp.list.size() )
-            System.out.println(beforeSize + " -> " + temp.list.size());
+        if( beforeSize != temp.getList().size() )
+            System.out.println(beforeSize + " -> " + temp.getList().size());
     }
 
 }

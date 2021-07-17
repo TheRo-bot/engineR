@@ -8,6 +8,7 @@ import java.util.*;
 
 import javax.swing.JFrame;
 
+import java.awt.Dimension;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -57,14 +58,24 @@ public class AWTWindow extends Window
             }
         });
 
+        if( ws.fullscreen() )
+        {
+            frame.setSize(ws.screenW, ws.screenH);
+            frame.setResizable(false);   
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+            frame.setUndecorated(true);
 
-        frame.setSize(ws.screenW, ws.screenH);
-        frame.setDefaultLookAndFeelDecorated(false);
-        // frame.setUndecorated(false);
+            Dimension d = new Dimension(ws.screenW, ws.screenH);
+        }
+        else
+        {
+            frame.setSize(ws.screenW, ws.screenH);
+            frame.setDefaultLookAndFeelDecorated(false);
+            frame.setExtendedState(JFrame.NORMAL); 
+        }
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
-        frame.setExtendedState(JFrame.NORMAL); 
 
         canvas = new Canvas();
         frame.add(canvas);
