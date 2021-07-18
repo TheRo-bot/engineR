@@ -8,6 +8,7 @@ public abstract class ViewPort
 {
     public final DrawManager draw;
     public final Window window;
+    public final GUIManager guis;
 
     protected enum State
     {
@@ -22,9 +23,22 @@ public abstract class ViewPort
     {
         draw = dm;
         window = w;
+        guis = new GUIManager();
+        guis.withViewPort(this);
     }
 
+
+    protected ViewPort(DrawManager dm, Window w, GUIManager gui)
+    {
+        draw = dm;
+        window = w;
+        guis = gui;
+        guis.withViewPort(this);
+    }
+
+
     public abstract void waitForClose();
+
 
     public void init(WindowSettings ws)
     {
