@@ -70,8 +70,8 @@ public abstract class RectDrawer
 
         public RectMods withOffset(double x, double y)
         {
-            offX = x;
-            offY = y;
+            offX += x;
+            offY += y;
             return this;
         }
 

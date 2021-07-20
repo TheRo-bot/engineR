@@ -37,7 +37,20 @@ public abstract class ViewPort
     }
 
 
-    public abstract void waitForClose();
+    public void waitForClose()
+    {
+        if( window != null )
+        {
+            try
+            {
+                while(! window.onClose.hasHappened())
+                {
+                    Thread.sleep(100);
+                }
+            }
+            catch(InterruptedException e) {}
+        }
+    }
 
 
     public void init(WindowSettings ws)

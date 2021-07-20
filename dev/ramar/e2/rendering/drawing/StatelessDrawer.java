@@ -1,6 +1,6 @@
 package dev.ramar.e2.rendering.drawing;
 
-import dev.ramar.e2.rendering.drawing.stateless.RectDrawer;
+import dev.ramar.e2.rendering.drawing.stateless.*;
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.TempDrawable;
 
@@ -23,12 +23,14 @@ Abstract Class: StatelessDrawer
 public abstract class StatelessDrawer
 {
     public final RectDrawer rect;
+    public final ImageDrawer image;
 
     // protected final List<Drawable> drawables = new ArrayList<>();
 
-    protected StatelessDrawer(RectDrawer rd)
+    protected StatelessDrawer(RectDrawer rd, ImageDrawer id)
     {
         rect = rd;
+        image = id;
     }
 
 

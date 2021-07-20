@@ -2,7 +2,7 @@ package dev.ramar.e2.rendering.awt.drawing.stateless;
 
 import dev.ramar.e2.rendering.drawing.StatelessDrawer;
 
-import dev.ramar.e2.rendering.awt.drawing.stateless.AWTRectDrawer;
+import dev.ramar.e2.rendering.awt.drawing.stateless.*;
 
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 
@@ -19,7 +19,8 @@ public class AWTStatelessDrawer extends StatelessDrawer
 
     public AWTStatelessDrawer()
     {
-        super(new AWTRectDrawer());
+        super(new AWTRectDrawer(),
+              new AWTImageDrawer());
     }
 
 
@@ -29,6 +30,7 @@ public class AWTStatelessDrawer extends StatelessDrawer
         {
             vp = avp;
             ((AWTRectDrawer)rect).withViewPort(vp);
+            ((AWTImageDrawer)image).withViewPort(vp);
         }
     }
 

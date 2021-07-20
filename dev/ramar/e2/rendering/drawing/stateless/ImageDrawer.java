@@ -1,5 +1,6 @@
 package dev.ramar.e2.rendering.drawing.stateless;
 
+import dev.ramar.e2.rendering.Image;
 
 public abstract class ImageDrawer
 {
@@ -7,9 +8,10 @@ public abstract class ImageDrawer
     public static class ImageMods
     {
 
-        private int times;
+        private int times = 0;
         private double offX = 0, offY = 0;
         private boolean deletable = false;
+        private double scaleX = 0, scaleY = 0, rotZ = 0;
 
         public enum HoriOff
         {
@@ -53,21 +55,21 @@ public abstract class ImageDrawer
 
         public ImageMods withOffset(double x, double y)
         {
-            offX = x;
-            offY = y;
+            offX += x;
+            offY += y;
             return this;
         }
 
 
-        public ImageMods withPosDescription(int hori, int vert)
+        public ImageMods withAlignment(int hori, int vert)
         {
-            withHoriDescription(hori);
-            withVertDescription(vert);
+            withHoriAlignment(hori);
+            withVertAlignment(vert);
             return this;
         }
 
 
-        public ImageMods withHoriDescription(int hori)
+        public ImageMods withHoriAlignment(int hori)
         {
             horiPos = hori < 0  ? HoriOff.LEFT : 
                       hori == 0 ? HoriOff.MIDDLE :
@@ -75,11 +77,24 @@ public abstract class ImageDrawer
             return this;
         }
 
-        public ImageMods withVertDescription(int vert)
+        public ImageMods withVertAlignment(int vert)
         {
             vertPos = vert < 0  ? VertOff.TOP :
                       vert == 0 ? VertOff.MIDDLE :
                                   VertOff.BOTTOM;
+            return this;
+        }
+
+        public ImageMods withScale(double xAm, double yAm)
+        {
+            scaleX = xAm;
+            scaleY = yAm;
+            return this;
+        }
+
+        public ImageMods withRotation(double zAm)
+        {
+            rotZ = zAm;
             return this;
         }
 
@@ -95,16 +110,36 @@ public abstract class ImageDrawer
         }
 
 
+        public double modScaleX(double x)
+        {
+            return scaleX + x;
+        }
+
+
+        public double modScaleY(double y)
+        {
+            return scaleY + y;
+        }
+
+
+
+        public double modRotZ(double z)
+        {
+            return z + rotZ;
+        }
+
+
+
         public int getHoriAlignment()
         {
             switch(horiPos)
             {
                 case LEFT:
                     return -1;
-                case MIDDLE:
-                    return 0;
                 case RIGHT:
                     return 1;
+                default:
+                    return 0;
             } 
         }
 
@@ -114,10 +149,10 @@ public abstract class ImageDrawer
             {
                 case TOP:
                     return -1;
-                case MIDDLE:
-                    return 0;
                 case BOTTOM:
                     return 1;
+                default:
+                    return 0;
             } 
         }
 
@@ -152,15 +187,16 @@ public abstract class ImageDrawer
         // currMods if times < 0
         if( currMods != null )
         {
-            currMods.times--;
             if( currMods.times > 0 || currMods.isPermanent() )
                 exp = currMods;
+            currMods.times--;
         }
 
         return exp;
     }
 
 
-    public abstract void cpos(double x, double y, Image i);
+    public abstract void pos_c(double x, double y, Image i);
 
+    public abstract void pos_tl(double x, double y, Image i);
 }

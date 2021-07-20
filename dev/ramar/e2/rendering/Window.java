@@ -8,15 +8,27 @@ import java.util.*;
 public abstract class Window
 {
 
-    public KeyController keys;
-    public MouseController mouse;
+    public final KeyController keys;
+    public final MouseController mouse;
 
-    public CloseListeners onClose = new CloseListeners();
+    public final CloseListeners onClose = new CloseListeners();
 
     public abstract int width();
 
     public abstract int height();
 
+    protected Window()
+    {
+        keys = null;
+        mouse = null;
+        System.out.println("WARNING: Window running control-less!");
+    }
+
+    protected Window(KeyController keys, MouseController mouse)
+    {
+        this.keys = keys;
+        this.mouse = mouse;
+    }
 
 
     /* Listener Callbacks
@@ -25,21 +37,35 @@ public abstract class Window
 
     /* CloseListener
     -===----------------
-     Listener for when the 
+     Listener for when the window closes.
+     This is a one-off event, the provided
+     method hasHappened() lets you check if
+     a close has already been initiated 
     */
 
     public static class CloseListeners
     {
         private final List<CloseListener> listeners = new ArrayList<>();
+        private boolean happened = false;
 
-        public CloseListeners()
+        public CloseListeners() 
         {
-            }
+            add(() ->
+            {
+                happened = true;
+            });
+        }
 
         public interface CloseListener
         {
             public void onClose();
         }
+
+        public boolean hasHappened()
+        {
+            return happened;
+        }
+
 
 
         public void add(CloseListener cl)

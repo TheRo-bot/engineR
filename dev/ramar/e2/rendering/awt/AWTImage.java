@@ -7,12 +7,21 @@ import dev.ramar.e2.rendering.awt.drawing.stateless.AWTStatelessDrawer;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.io.*;
+
+import java.awt.image.AffineTransformOp;
+
+import java.awt.geom.AffineTransform;
 
 public class AWTImage extends Image
 {
     private BufferedImage image;
+    private AffineTransformOp op = null;
 
+    private double rotationAm = 0.0,
+                   xScaleAm = 1.0,
+                   yScaleAm = 1.0;
 
     public AWTImage(File file)
     {
@@ -24,13 +33,23 @@ public class AWTImage extends Image
         {}
     }   
 
+    public AWTImage(BufferedImage bi)
+    {
+        image = bi;
+    }
+
+    public AWTImage(InputStream is) throws IOException
+    {
+        image = ImageIO.read(is);
+    }
+
 
     @Override
     public int getWidth()
     {
         if( image == null )
             return 0;
-        return image.getWidth();
+        return (int)(image.getWidth() * xScaleAm);
 
     }
     
@@ -39,17 +58,7 @@ public class AWTImage extends Image
     {
         if( image == null )
             return 0;
-        return image.getHeight();
-    }
-
-
-    @Override
-    public void drawAt(double xOff, double yOff, ViewPort vp)
-    {
-        if( vp instanceof AWTViewPort )
-        {
-            AWTStatelessDrawer sless = (AWTStatelessDrawer)vp.draw.stateless;
-        }
+        return (int)(image.getHeight() * yScaleAm);
     }
 
 
@@ -58,4 +67,65 @@ public class AWTImage extends Image
     {
         return image;
     }
+
+
+    public BufferedImageOp getImageOp()
+    {
+        return (BufferedImageOp)op;
+    }
+
+    @Override
+    public void scale(double xAm, double yAm)
+    {
+        AffineTransform at = new AffineTransform();
+        at.scale(xAm, yAm);
+
+        xScaleAm += xAm;
+        yScaleAm += yAm;
+
+        if( op == null )
+            op = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+        else
+        {
+            op.getTransform().concatenate(at);
+        }
+    }
+
+
+    @Override
+    public void rotate(double zAm)
+    {
+        AffineTransform at = new AffineTransform();
+        at.rotate(zAm);
+        rotationAm += zAm;
+
+        if( op == null )
+            op = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+        else
+        {
+            op.getTransform().concatenate(at);
+        }
+    }
+
+    @Override
+    public double getScaleX()
+    {
+        return xScaleAm;
+    }
+
+
+    @Override
+    public double getScaleY()
+    {
+        return yScaleAm;
+    }
+
+
+    @Override
+    public double getRotZ()
+    {
+        return rotationAm;
+    }
+
+
 }

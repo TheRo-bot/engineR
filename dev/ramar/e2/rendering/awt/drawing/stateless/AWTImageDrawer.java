@@ -1,9 +1,19 @@
 package dev.ramar.e2.rendering.awt.drawing.stateless;
 
 
+import dev.ramar.e2.rendering.awt.AWTViewPort;
+
 import dev.ramar.e2.rendering.drawing.stateless.ImageDrawer;
 import dev.ramar.e2.rendering.drawing.stateless.ImageDrawer.ImageMods;
 
+import dev.ramar.e2.rendering.Image;
+import dev.ramar.e2.rendering.awt.AWTImage;
+
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImageOp;
+
+import java.awt.image.AffineTransformOp;
+import java.awt.geom.AffineTransform;
 
 public class AWTImageDrawer extends ImageDrawer
 {
@@ -32,35 +42,84 @@ public class AWTImageDrawer extends ImageDrawer
     }
 
 
+
     @Override
-    public void cpos(double x, double y, Image i)
+    public void pos_c(double x, double y, Image i)
     {
         Graphics2D g2d = getViewPortGraphics();
 
         ImageMods mod = getMod();
 
-        int horilignment = mod.getHoriAlignment(),
+
+        int horilignment = 0,
+            vertlignment = 0;
+
+        double scaleX = i.getScaleX(), 
+               scaleY = i.getScaleY(),
+               rotZ = i.getRotZ();
+
+        double width = i.getWidth(),
+               height = i.getHeight();
+
+        if( mod != null )
+        {
+            horilignment = mod.getHoriAlignment();
             vertlignment = mod.getVertAlignment();
+
+            x = mod.modX(x);
+            y = mod.modY(y);
+
+            scaleX = mod.modScaleX(scaleX);
+            scaleY = mod.modScaleY(scaleY);
+            rotZ = mod.modRotZ(rotZ);
+        }
+
+        // ideally we also include rotation in these calcs
+        // but eh
+        width  *= scaleX;
+        height *= scaleY;
 
         // left, center, right
              // left ? do nothing
         x += horilignment < 0  ? 0 :
              // middle ? take half width
-             horilignment == 0 ? -i.getWidth()/2 :
+             horilignment == 0 ? -width/2 :
              // right ? take whole width
-                                 -i.getWidth();
+                                 -width;
 
             // top ? do nothing
         y += vertlignment < 0  ? 0 :
             // middle ? half height
-             vertlignment == 0 ? -i.getHeight()/2 :
+             vertlignment == 0 ? -height/2 :
             // right? whole height
-                                 -i.getHeight();
+                                 -height;
 
 
-        x = mod.modX(x);
-        y = mod.modY(y);
+        double rotAncX = 0, rotAncY = 0;
 
-        g2d.drawImage(i.getBufferedImage(), null, x, y);
+
+        rotAncX = horilignment <  0 ? 0: 
+                  horilignment == 0 ? width / 2:
+                                      width;
+        rotAncY = vertlignment <  0 ? 0: 
+                  vertlignment == 0 ? height / 2:
+                                      height;
+
+        AffineTransform at = new AffineTransform();
+
+        at.translate(rotAncX, rotAncY);
+        at.rotate(Math.toRadians(rotZ));
+        at.translate(-rotAncX, -rotAncY);
+        at.scale(scaleX, scaleY);
+
+        g2d.drawImage(i.getBufferedImage(), new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR),
+                      (int)x, (int)y);
     }
+
+
+    public void pos_tl(double x, double y, Image i)
+    {
+        pos_c(x + i.getWidth() / 2, y + i.getHeight() / 2, i);
+    }
+
 }

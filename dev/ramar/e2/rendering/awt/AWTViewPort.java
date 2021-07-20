@@ -6,6 +6,8 @@ import dev.ramar.e2.structures.WindowSettings;
 
 import dev.ramar.e2.rendering.awt.drawing.stateless.AWTStatelessDrawer;
 
+import dev.ramar.e2.structures.Vec2;
+
 import java.util.*;
 
 import javax.swing.JFrame;
@@ -23,6 +25,7 @@ public class AWTViewPort extends ViewPort
 {
     private static Color DEFAULT_COLOR = new Color(0, 0, 0, 255);
 
+    private Vec2 worldCenter = new Vec2(0, 0);
 
     public AWTViewPort()
     {
@@ -64,23 +67,6 @@ public class AWTViewPort extends ViewPort
 
 
     private Thread inner;
-    private boolean closed = false;
-
-    public void waitForClose()
-    {
-        if( inner != null )
-        {
-            try
-            {
-                while(!closed)
-                {
-                    Thread.sleep(100);
-                }
-            }
-            catch(InterruptedException e) {}
-        }
-    }
-
 
     @Override
     public void start()
@@ -146,9 +132,11 @@ public class AWTViewPort extends ViewPort
         Graphics2D g2d = (Graphics2D)bs.getDrawGraphics();
 
         getAWTLess().setupDrawing(g2d);
-        g2d.setColor(DEFAULT_COLOR);
-        g2d.fillRect(0, 0, window.width(), window.height());
-        draw.stateless.drawAt(0, 0, this);
+
+        draw.stateless.rect.withMod().withColour(0, 0, 0, 255).withFill();
+        draw.stateless.rect.poslen(0, 0, window.width(), window.height());
+
+        draw.stateless.drawAt(worldCenter.getX() + window.width() / 2, worldCenter.getY() + window.height() / 2, this);
 
         getAWTLess().shutdownDrawing();
         g2d.dispose();

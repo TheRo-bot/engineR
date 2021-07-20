@@ -151,15 +151,15 @@ public class Main
         try
         {
             System.out.println("[RamaRunner] Inflating dependencies");
-
-            Process p = synchronousExecute("jar xf ./" + JAR_NAME + " PROG_dependencies");
-            System.out.println("bruh: " + p.isAlive());
             System.out.println(Arrays.toString(new File(".").listFiles()));
-            System.out.println("--------------------");
+            Process p = synchronousExecute("jar xf ./" + JAR_NAME + " PROG_dependencies");
             onSetup();
+            System.out.println("Starting!");
+            System.out.println("--------------------");
             Entrypoints.start(args);
             Entrypoints.waitForGroupDeath();
-
+            System.out.println("--------------------");
+            System.out.println("Shutting down!");
         }
         catch(Exception e) 
         {
