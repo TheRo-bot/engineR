@@ -151,8 +151,8 @@ public class Main
         try
         {
             System.out.println("[RamaRunner] Inflating dependencies");
-            System.out.println(Arrays.toString(new File(".").listFiles()));
             Process p = synchronousExecute("jar xf ./" + JAR_NAME + " PROG_dependencies");
+            System.out.println(Arrays.toString(new File(".").listFiles()));
             onSetup();
             System.out.println("Starting!");
             System.out.println("--------------------");

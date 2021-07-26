@@ -23,6 +23,7 @@ public class GUIManager
     public boolean requestGUI(GUI g)
     {
         boolean successful = false;
+        System.out.println("requestGUI " + g);
 
         if( currentGUI == null )
             successful = true;
@@ -34,7 +35,10 @@ public class GUIManager
         }
 
         if( successful )
+        {
             g.initiateGUI(vp);
+            g.startDrawing();
+        }
 
         return successful;
     }

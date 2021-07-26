@@ -62,15 +62,15 @@ public class AWTRectDrawer extends RectDrawer
 
             fill = rm.doFill();
 
-            if( rm.hasColour() )
-                g2d.setColor(new Color(rm.getR(), rm.getG(), rm.getB(), rm.getA()));
-            else
-                g2d.setColor(new Color(DEFAULT_COLOR.getRed(),
-                                       DEFAULT_COLOR.getGreen(),
-                                       DEFAULT_COLOR.getBlue(),
-                                       DEFAULT_COLOR.getAlpha()));
+            g2d.setColor(new Color(rm.getR(), rm.getG(), rm.getB(), rm.getA()));
         }
-
+        else
+        {
+            g2d.setColor(new Color(DEFAULT_COLOR.getRed(),
+                                   DEFAULT_COLOR.getGreen(),
+                                   DEFAULT_COLOR.getBlue(),
+                                   DEFAULT_COLOR.getAlpha()));
+        }
 
         if( fill )
             g2d.fillRect((int)x, (int)y, (int)w, (int)h);   
@@ -78,6 +78,17 @@ public class AWTRectDrawer extends RectDrawer
             g2d.drawRect((int)x, (int)y, (int)w, (int)h);   
 
     }
+
+
+    public void unbound_pospos(double x1, double y1, double x2, double y2)
+    {
+        pospos(x1 - vp.getCenterX(), y1 - vp.getCenterY(), x2 - vp.getCenterX(), y1 - vp.getCenterY());
+    }
+
+    public void unbound_poslen(double x, double y, double w , double h)
+    {
+        poslen(x - vp.getCenterX(), y - vp.getCenterY(), w, h);
+    } 
 
 
 }

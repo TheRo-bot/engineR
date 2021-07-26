@@ -48,14 +48,15 @@ public class AWTImageDrawer extends ImageDrawer
     {
         Graphics2D g2d = getViewPortGraphics();
 
+
         ImageMods mod = getMod();
 
 
-        int horilignment = 0,
-            vertlignment = 0;
+        double horilignment = 0,
+               vertlignment = 0;
 
-        double scaleX = i.getScaleX(), 
-               scaleY = i.getScaleY(),
+        double scaleX = 0.0, 
+               scaleY = 0.0,
                rotZ = i.getRotZ();
 
         double width = i.getWidth(),
@@ -79,31 +80,17 @@ public class AWTImageDrawer extends ImageDrawer
         width  *= scaleX;
         height *= scaleY;
 
-        // left, center, right
-             // left ? do nothing
-        x += horilignment < 0  ? 0 :
-             // middle ? take half width
-             horilignment == 0 ? -width/2 :
-             // right ? take whole width
-                                 -width;
-
-            // top ? do nothing
-        y += vertlignment < 0  ? 0 :
-            // middle ? half height
-             vertlignment == 0 ? -height/2 :
-            // right? whole height
-                                 -height;
 
 
         double rotAncX = 0, rotAncY = 0;
 
+        // -1 -> 1 to 0 -> 2
+        rotAncX = (horilignment + 1) * (width / 2);
+        rotAncY = (vertlignment + 1) * (height / 2);
 
-        rotAncX = horilignment <  0 ? 0: 
-                  horilignment == 0 ? width / 2:
-                                      width;
-        rotAncY = vertlignment <  0 ? 0: 
-                  vertlignment == 0 ? height / 2:
-                                      height;
+        x -= rotAncX;
+        y -= rotAncY;
+        // System.out.println(": " + rotAncX + ", " + rotAncY + " | " + horilignment + ", " + vertlignment);
 
         AffineTransform at = new AffineTransform();
 
@@ -112,8 +99,16 @@ public class AWTImageDrawer extends ImageDrawer
         at.translate(-rotAncX, -rotAncY);
         at.scale(scaleX, scaleY);
 
-        g2d.drawImage(i.getBufferedImage(), new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR),
-                      (int)x, (int)y);
+
+
+        if( at.getDeterminant() == 0 )
+            g2d.drawImage(i.getBufferedImage(), null, (int)x, (int)y);
+        else
+        {
+            AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+            g2d.drawImage(i.getBufferedImage(), ato, (int)x, (int)y);
+        }
+
     }
 
 

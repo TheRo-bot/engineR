@@ -2,6 +2,9 @@ package dev.ramar.e2.rendering.awt;
 
 import dev.ramar.e2.rendering.*;
 
+import dev.ramar.e2.rendering.awt.control.*;
+
+
 import dev.ramar.e2.structures.WindowSettings;
 
 import java.util.*;
@@ -17,6 +20,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 
+import java.awt.Component;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class AWTWindow extends Window
 {
@@ -28,7 +34,7 @@ public class AWTWindow extends Window
 
     public AWTWindow()
     {
-
+        super(new AWTKeyController(), new AWTMouseController());
         Runtime.getRuntime().addShutdownHook(new Thread()
         {
             public void run()
@@ -39,9 +45,31 @@ public class AWTWindow extends Window
         });
     }
 
+    public AWTKeyController getAWTKeys()
+    {
+        return (AWTKeyController)keys;
+    }
+
+    public AWTMouseController getAWTMouse()
+    {
+        return (AWTMouseController)mouse;
+    }
+
+    public Canvas getCanvas()
+    {
+        return canvas;
+    }
+
+    public JFrame getFrame()
+    {
+        return frame;
+    }
+
+
     public AWTWindow withViewPort(AWTViewPort vp)
     {
         this.vp = vp;
+
         return this;
     }
 
@@ -49,7 +77,26 @@ public class AWTWindow extends Window
     {
         frame = new JFrame(ws.getTitle());
 
+
+        /*
+        Used for:
+         - Resizing
+        */
+        frame.addComponentListener(new ComponentAdapter()
+        {
+            public void componentResized(ComponentEvent e)
+            {
+                Component c = (Component)e.getSource();
+                onResize(c.getWidth(), c.getHeight());
+
+            }
+        });
+
         // setup the close action
+        /*
+        Used for:
+         - Closing
+        */
         frame.addWindowListener(new WindowAdapter()
         {
             public void windowClosing(WindowEvent we)
@@ -78,9 +125,12 @@ public class AWTWindow extends Window
         frame.setVisible(true);
 
         canvas = new Canvas();
+        getAWTKeys().withViewPort(vp);
+        getAWTMouse().withViewPort(vp);
+
+        
         frame.add(canvas);
         canvas.createBufferStrategy(3);
-
         Graphics2D g2d = (Graphics2D)canvas.getBufferStrategy().getDrawGraphics();
 
         g2d.setColor(new Color(0, 0, 0, 255));

@@ -9,9 +9,13 @@ public abstract class ImageDrawer
     {
 
         private int times = 0;
-        private double offX = 0, offY = 0;
         private boolean deletable = false;
-        private double scaleX = 0, scaleY = 0, rotZ = 0;
+        // affine transformations
+        private double offX = 0, offY = 0,
+                       scaleX = 0, scaleY = 0,
+                       rotZ = 0;
+        // alignment
+        private double hAlign = 0, vAlign = 0;
 
         public enum HoriOff
         {
@@ -23,9 +27,6 @@ public abstract class ImageDrawer
         { 
             TOP, MIDDLE, BOTTOM
         }
-
-        private HoriOff horiPos = HoriOff.MIDDLE;
-        private VertOff vertPos = VertOff.MIDDLE;
 
 
         public ImageMods()
@@ -39,17 +40,41 @@ public abstract class ImageDrawer
             this.times = times;
         }
 
+        public ImageMods reset(int times)
+        {
+            hAlign = vAlign =
+            offX = offY =
+            scaleX = scaleY =
+            rotZ = 0.0;
+            this.times = times;
+
+            deletable = false;
+            
+            return this;
+        }
+
+        public String toString()
+        {
+            return "ImageMods: Scale(" + scaleX + ", " + scaleY + "), "
+                 + "Rotation(" + rotZ + "), " + "Translation(" + offX + ", " + offY + "), "
+                 + "Alignment(" + hAlign + ", " + vAlign + "), "
+                 + "Times(" + times + "), " + (deletable ? "Temporary(" + times + ")" : "Permanent"); 
+        }
+
         
 
-        public void doDelete(boolean b)
-        {
-            deletable = b;
-        }
 
 
         public boolean isPermanent()
         {
             return deletable;
+        }
+
+
+        public ImageMods withDelete(boolean b)
+        {
+            deletable = b;
+            return this;
         }
 
 
@@ -61,7 +86,7 @@ public abstract class ImageDrawer
         }
 
 
-        public ImageMods withAlignment(int hori, int vert)
+        public ImageMods withAlignment(double hori, double vert)
         {
             withHoriAlignment(hori);
             withVertAlignment(vert);
@@ -69,21 +94,18 @@ public abstract class ImageDrawer
         }
 
 
-        public ImageMods withHoriAlignment(int hori)
+        public ImageMods withHoriAlignment(double hori)
         {
-            horiPos = hori < 0  ? HoriOff.LEFT : 
-                      hori == 0 ? HoriOff.MIDDLE :
-                                  HoriOff.RIGHT;
+            hAlign = Math.max(-1, Math.min(1.0, hori));
             return this;
         }
 
-        public ImageMods withVertAlignment(int vert)
+        public ImageMods withVertAlignment(double vert)
         {
-            vertPos = vert < 0  ? VertOff.TOP :
-                      vert == 0 ? VertOff.MIDDLE :
-                                  VertOff.BOTTOM;
+            vAlign = Math.max(-1, Math.min(1.0, vert));
             return this;
         }
+
 
         public ImageMods withScale(double xAm, double yAm)
         {
@@ -129,38 +151,20 @@ public abstract class ImageDrawer
         }
 
 
-
-        public int getHoriAlignment()
+        public double getHoriAlignment()
         {
-            switch(horiPos)
-            {
-                case LEFT:
-                    return -1;
-                case RIGHT:
-                    return 1;
-                default:
-                    return 0;
-            } 
+            return hAlign;
         }
 
-        public int getVertAlignment()
+        public double getVertAlignment()
         {
-            switch(vertPos)
-            {
-                case TOP:
-                    return -1;
-                case BOTTOM:
-                    return 1;
-                default:
-                    return 0;
-            } 
+            return vAlign;
         }
 
     }
 
 
-    private ImageMods currMods; 
-
+    private ImageMods currMods, tempMod; 
 
     public ImageMods withMod()
     {
@@ -172,14 +176,37 @@ public abstract class ImageDrawer
         if( times < 0 )
             throw new IllegalArgumentException("times must be positive!");
 
-        ImageMods im = new ImageMods(times);
+        ImageMods im = null;
+        if( currMods != null )
+            im = currMods.reset(times);
+        else
+            im = new ImageMods(times);
+
+
         currMods = im;
         return im;
     }
 
 
+    public ImageMods withTempMod(ImageMods im)
+    {
+        tempMod = im;
+        return im; 
+    }
+
+
+    public void clearTempMod()
+    {
+        tempMod = null;
+    }
+
+
+
     protected ImageMods getMod()
     {
+        if( tempMod != null )
+            return tempMod;
+        
         ImageMods exp = null;
 
         // withMod/s both recycle currMods so 

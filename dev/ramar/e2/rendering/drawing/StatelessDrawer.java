@@ -24,13 +24,14 @@ public abstract class StatelessDrawer
 {
     public final RectDrawer rect;
     public final ImageDrawer image;
-
+    public final TextDrawer text;
     // protected final List<Drawable> drawables = new ArrayList<>();
 
-    protected StatelessDrawer(RectDrawer rd, ImageDrawer id)
+    protected StatelessDrawer(RectDrawer rd, ImageDrawer id, TextDrawer td)
     {
         rect = rd;
         image = id;
+        text = td;
     }
 
 

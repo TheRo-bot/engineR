@@ -11,7 +11,8 @@ public abstract class Window
     public final KeyController keys;
     public final MouseController mouse;
 
-    public final CloseListeners onClose = new CloseListeners();
+    public final CloseListeners  onClose = new CloseListeners();
+    public final ResizeListeners onResize = new ResizeListeners();
 
     public abstract int width();
 
@@ -70,7 +71,10 @@ public abstract class Window
 
         public void add(CloseListener cl)
         {
-            listeners.add(cl);
+            if( happened )
+                cl.onClose();
+            else
+                listeners.add(cl);
         }
 
         public void remove(CloseListener cl)
@@ -93,4 +97,45 @@ public abstract class Window
     }
 
 
+
+
+    /* ResizeListener
+    -===----------------
+     Listener for when the window changes size.
+    */
+
+    public static class ResizeListeners
+    {
+        private final List<ResizeListener> listeners = new ArrayList<>();
+
+        public ResizeListeners() {}
+
+
+        public interface ResizeListener
+        {
+            public void onResize(int w, int h);
+        }
+
+        public void add(ResizeListener cl)
+        {
+            listeners.add(cl);
+        }
+
+        public void remove(ResizeListener cl)
+        {
+            listeners.remove(cl);
+        }
+
+
+        private void onResize(int w, int h)
+        {
+            for( ResizeListener cl : listeners )
+                cl.onResize(w, h);
+        }
+    }
+
+    protected void onResize(int w, int h)
+    {
+        onResize.onResize(w, h);
+    }
 }

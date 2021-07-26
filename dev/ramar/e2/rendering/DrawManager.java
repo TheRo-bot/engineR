@@ -12,17 +12,19 @@ Abstract Class: DrawManager
 */
 public abstract class DrawManager
 {
-    public StatelessDrawer stateless;
-    public StatefulDrawer stateful;
+    public final StatelessDrawer stateless;
+    public final StatefulDrawer stateful;
 
     /*
     Keeps images loaded by a name identifier
     */
-    public ImageCache image;
+    public final ImageCache image;
 
-    protected DrawManager(StatelessDrawer sl)
+    protected DrawManager(StatelessDrawer sl, StatefulDrawer sf, ImageCache image)
     {
         stateless = sl;
+        stateful = sf;
+        this.image = image;
     }
 
 
@@ -30,6 +32,7 @@ public abstract class DrawManager
     {
         stateless = sl;
         stateful = sf;
+        image = null;
     }
 
     

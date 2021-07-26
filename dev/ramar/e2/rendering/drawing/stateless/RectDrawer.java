@@ -26,20 +26,48 @@ public abstract class RectDrawer
      implementing RectDrawers (assuming it's within the bounds
      of the current implementation)
     */
-    public class RectMods
+    public static class RectMods
     {
         private int times;
         private double offX = 0, offY = 0;
-        private Colour colour = new Colour(-1, -1, -1, -1);
+        private Colour colour = new Colour(0, 0, 0, 255);
         private boolean withFill = false,
-                        deletable = true;
+                        permanent = true,
+                        onlyOffset = false;
+
+        public RectMods()
+        {
+            this.times = 1;
+        }
 
         public RectMods(int times)
         {
             this.times = times;
         }
 
-        private void reset(int times)
+        protected RectMods(RectMods rm)
+        {
+            set(rm);
+        }
+
+        public void set(RectMods rm)
+        {
+            this.times      = rm.times;
+            this.offX       = rm.offX;
+            this.offY       = rm.offY;
+            this.colour.set  (rm.colour);
+            this.withFill   = rm.withFill;
+            this.permanent  = rm.permanent;
+            this.onlyOffset = rm.onlyOffset;
+        }
+
+
+        public RectMods duplicate()
+        {
+            return new RectMods(this);
+        }
+
+        public void reset(int times)
         {
             this.times = times;
             offX = offY = 0;
@@ -50,21 +78,32 @@ public abstract class RectDrawer
 
         public String toString()
         {
-            return "RectMods@" + super.toString().split("RectMods@")[1] + 
-                   "[times, offset, colour] -> [" + times + ", (" + offX + ", " + offY + "), (" +
-                    colour.getRed() + ", " + colour.getGreen() + ", " +
-                    colour.getBlue() + ", " + colour.getAlpha() + ")]";
+            return "RectMods: Offset(" + offX + ", " + offY +"), Colour(" + colour + "), " 
+             + (withFill ? "Filled" : "Border")
+             + ", " + (permanent ? "Temporary(" + times + ")" : "Permanent");
         }
  
 
-        public void doDelete(boolean b)
+        public RectMods withPermanence(boolean b)
         {
-            deletable = b;
+            permanent = b;
+            return this;
         }
 
         public boolean isPermanent()
         {
-            return deletable;
+            return permanent;
+        }
+
+        /*
+        Builder: withOnlyOffset
+         - a flag to state the only this Mods' offset 
+           is to determine the Rect's position
+        */
+        public RectMods withOffsetOnly(boolean b)
+        {
+            onlyOffset = b;
+            return this;
         }
 
 
@@ -72,6 +111,13 @@ public abstract class RectDrawer
         {
             offX += x;
             offY += y;
+            return this;
+        }
+
+        public RectMods withForcedOffset(double x, double y)
+        {
+            offX = x;
+            offY = y;
             return this;
         }
 
@@ -152,10 +198,16 @@ public abstract class RectDrawer
         {
             return colour.getAlpha();
         }
+
+
+        public boolean isOffsetAllowed()
+        {
+            return ! onlyOffset;
+        }
     }
 
     private RectMods currMods = null;
-
+    private RectMods tempMod = null;
 
     public RectMods withMod()
     {
@@ -179,8 +231,24 @@ public abstract class RectDrawer
         return rm;
     }
 
+
+    public RectMods useTempMod(RectMods rm)
+    {
+        tempMod = rm;
+        return rm;
+    }
+
+    public void clearTempMod()
+    {
+        tempMod = null;
+    }
+
+
     protected RectMods getMod()
     {
+        if( tempMod != null )
+            return tempMod;
+
         RectMods exp = null;
         // withMod/s both recycle currMods so 
         // we don't need to worry about deleting 
@@ -201,6 +269,10 @@ public abstract class RectDrawer
 
     public abstract void poslen(double x, double y, double w, double h);
 
+
+    public abstract void unbound_pospos(double x1, double y1, double x2, double y2);
+
+    public abstract void unbound_poslen(double x, double y, double w , double h);
 
 
 

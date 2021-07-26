@@ -11,14 +11,14 @@ public abstract class GUI
     }
 
 
-
     public abstract boolean requestAccess(GUI g);
 
 
     public abstract void prepSwapTo(GUI g);
 
+    public abstract void startDrawing();
 
-    public void initiateGUI(ViewPort vp)
+    public final void initiateGUI(ViewPort vp)
     {
         viewport = vp;
     }
@@ -27,6 +27,12 @@ public abstract class GUI
     public final void stopDrawing()
     {
         viewport = null;
+    }
+
+
+    public ViewPort getViewPort()
+    {
+        return viewport;
     }
 
 }

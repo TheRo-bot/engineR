@@ -4,17 +4,27 @@ package dev.ramar.e2.rendering.awt;
 import dev.ramar.e2.rendering.Image;
 import dev.ramar.e2.rendering.ImageCache;
 
+import java.awt.image.BufferedImage;
+import java.io.*;
+
 import javax.imageio.ImageIO;
-import java.io.File;
+
 
 public class AWTImageCache extends ImageCache
 {
-
-
-
     @Override
-    public Image load(File file)
+    public Image load(Class c, String resPath) throws IOException
     {
-        return new AWTImage(file);
+        if( c == null || resPath == null )
+            throw new NullPointerException();
+
+        InputStream is = c.getResourceAsStream(resPath);
+        if( is == null )
+            throw new IOException("Cannot access '" + resPath + "' from class '" + c.getResource("") + "'");
+
+        BufferedImage bi = ImageIO.read(is);
+        return new AWTImage(bi);
     }
+
+
 }

@@ -14,7 +14,7 @@ public abstract class StatefulDrawer implements Drawable
     public final ShapeList shapes = new ShapeList();
 
 
-    private class ShapeList extends HiddenList<Shape>
+    public class ShapeList extends HiddenList<Shape>
     {
         private List<Shape> getList()
         {

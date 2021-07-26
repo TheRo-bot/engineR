@@ -5,7 +5,10 @@ package dev.ramar.e2;
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 import dev.ramar.e2.rendering.*;
 import dev.ramar.e2.rendering.drawing.stateless.RectDrawer.RectMods;
+import dev.ramar.e2.rendering.drawing.stateful.Rect;
 import dev.ramar.e2.structures.WindowSettings;
+
+import dev.ramar.e2.rendering.drawing.stateful.*;
 
 import java.io.*;
 
@@ -26,6 +29,7 @@ public class E2Main
 	{
 		Main.Entrypoints.addEntrypoint((String[] args) ->
         {
+            System.out.println("ah");
         	E2Main em = new E2Main();
             try
             {
@@ -53,213 +57,98 @@ public class E2Main
         vp.start();
     }
 
-    public Image getImageAbs(String path) throws IOException
-    {
-        return new AWTImage(ImageIO.read(new File(path)));
-    }
-
-
-    public Image getImage(Class c, String resPath) throws IOException
-    {
-        Image exp = null;
-        System.out.println(c + ", " + resPath);
-        System.out.println("AHH: " + c.getResource(""));
-
-        URL url = c.getResource("");
-        System.out.println("URL: " + url);
-        if( url != null )
-        {
-            String path = url.getFile();
-            if( resPath.charAt(0) == '/' )
-                resPath = resPath.substring(1);
-
-            path += resPath;
-            System.out.println("path: " + path);
-            BufferedImage bi = ImageIO.read(new File(path));
-            exp = new AWTImage(bi);            
-        }
-
-        return exp;
-    }
-
-    private int a = -1, b = -1;
-    private boolean c = false;
-    private double d = 0.0, e = 0.0, f = 0.0;
+    private double a = -1, b = -1;
+    private double rotation = 0.0;
     public void start()
     {
-        // new BufferedReader(new InputStreamReader());
-        // Image im = vp.draw.image.load(new File(""));
-        // vp.draw.image.cache(im, "test1");
+        Tests tests = new Tests();
+        tests.setup(vp);
+        // tests.imageTesting();
 
-        try
+        tests.keyTest();
+        tests.scaleTest(1280, 720);
+
+        tests.mouseClickingTest();
+
+        Rect r = new Rect(30, 30, 30, 30);
+        r.getMod()
+            .withOffsetOnly(true)
+            .withColour(255, 255, 255, 255)
+            .withFill()
+        ;
+
+        vp.draw.stateless.perm.add((double x, double y, ViewPort vp) ->
         {
-            // Image i = getImage(getClass(), "/resources/test.png");
-            Image i = getImageAbs("D:/Users/Robot/D - File Gateway/Local/Documents/Private/Coding/RAMAR/Engine R2/code/dev/ramar/e2/resources/test.png");
-            System.out.println("image: " + i);
-            new Thread(() ->
-            {
-                try
-                {
-                    while(true)
-                    {
-
-                        c = !c;
-                        if( c )
-                        {
-                            a++;
-                            if( a == 2 ) a = -1;
-
-                        }
-                        else
-                        {
-                            b++;
-                            if( b == 2 ) b = -1;
-                        }
-
-
-                        Thread.sleep(500);
-                    }
-                }
-                catch(InterruptedException e) {}
-            }).start();
-
-            new Thread(() ->
-            {
-                try
-                {
-                    while(true)
-                    {
-                        d += 0.1;
-                        e += 0.001;
-                        if( e > 1.9)
-                            e = 0;
-
-                        f += 0.001;
-                        if( f > 1.9)
-                            f = 0;
-                        Thread.sleep(1);
-                    }
-                }
-                catch(InterruptedException e) {}
-            }).start();
-
-            vp.draw.stateless.perm.add((double x, double y, ViewPort vp) ->
-            {
-
-                vp.draw.stateless.image.withMod().withAlignment(a, b)
-                                                 .withOffset(100, 100)
-                                                 .withScale(e, f)
-                                                 .withRotation(d);
-                vp.draw.stateless.image.pos_c(x, y, i);   
-
-                vp.draw.stateless.rect.withMod().withOffset(100, 100)
-                                                .withOffset(x, y)
-                                                .withColour(255, 255, 255, 255)
-                                                .withFill();
-                vp.draw.stateless.rect.poslen(-2, -2, 4, 4);
-            });
-        }
-        catch(IOException e) 
-        {
-            System.out.println("IOException: " + e.getMessage());
-        }
-
-        vp.guis.requestGUI(new GUI()
-        {
-            @Override
-            public boolean requestAccess(GUI g)
-            {
-                return true;
-
-            }
-
-            @Override
-            public void prepSwapTo(GUI g)
-            {
-
-            }
-
-
-            public void initiateGUI(ViewPort vp)
-            {
-                super.initiateGUI(vp);
-                viewport.draw.stateless.perm.add((double x, double y, ViewPort thisVP) ->
-                {
-                    thisVP.draw.stateless.rect.withMod().withColour(255, 255, 0, 255).withFill();
-                    thisVP.draw.stateless.rect.poslen(30, 30, 20, 20);
-                });
-            }
-
+            vp.draw.stateless.rect.withMod()
+                .withColour(255, 255, 255, 255)
+                .withFill()
+            ;
+            vp.draw.stateless.rect.poslen(30, 30, 30, 30);
         });
 
-        GUI[] guis = new GUI[]
-        {   
-            new GUI()
-            {
-                @Override
-                public boolean requestAccess(GUI g)
-                {
-                    return true;
-                }
+        // tests.worldCenterTest();
+        // tests.statefulTest();
+        // tests.keyTest();
 
-                @Override
-                public void prepSwapTo(GUI g)
-                {
+        // tests.syncPointTest();
+        // tests.imageTest();
 
-                }
+        // vp.draw.stateless.perm.add((double x, double y, ViewPort vp) ->
+        // {
+        //     vp.draw.stateless.rect.withMod()
+        //         .withOffset(x, y)
+        //         .withColour(255, 255, 255, 255).withFill()
+        //     ;
+        //     vp.draw.stateless.rect.poslen(-30, -30, 60, 60);
+        // }); 
 
+        // Rect r = new Rect(0, 0, 10, 10);
+        // r.withColour(150, 150, 150, 255).withFill();
+        // vp.draw.stateful.shapes.add(r);
+        
+        int rW = 16, rH = 9;
+        int scale = 80;
+        // tests.scaleTest(rW * scale, rH * scale);
 
-                public void initiateGUI(ViewPort vp)
-                {
-                    super.initiateGUI(vp);
-                    viewport.draw.stateless.perm.add((double x, double y, ViewPort thisVP) ->
-                    {
-                        thisVP.draw.stateless.rect.withMod().withColour(255, 255, 0, 255).withFill();
-                        thisVP.draw.stateless.rect.poslen(30, 30, 20, 20);
-                    });
-                }
-            }, 
-            new GUI()
-            {
-                @Override
-                public boolean requestAccess(GUI g)
-                {
-                    return true;
-                }
-
-                @Override
-                public void prepSwapTo(GUI g)
-                {
-
-                }
+        tests.textTest();
 
 
-                public void initiateGUI(ViewPort vp)
-                {
-                    super.initiateGUI(vp);
-                    viewport.draw.stateless.perm.add((double x, double y, ViewPort thisVP) ->
-                    {
-                        thisVP.draw.stateless.rect.withMod().withColour(255, 0, 255, 255).withFill();
-                        thisVP.draw.stateless.rect.poslen(30, 30, 20, 20);
-                    });
-                }
-            }
-        };
 
-        while(true)
+/*
+        TextShape ts = new TextShape("yOu're cringe");
+        ts.getMod()
+            .withColour(255, 0, 0, 255)
+            .withRotation(rotation)
+            .withAlignment(-1, -1)
+            .withSize(30)
+        ;
+
+        new Thread(() ->
         {
-            for( int ii = 0; ii < guis.length; ii++ )
+            try
             {
-                vp.guis.requestGUI(guis[ii]);
-                try
+                while(true)
                 {
-                    Thread.sleep(1500);
-                }
-                catch(InterruptedException e)
-                {}
-            }
-        }
+                    a += 0.01;
+                    b += 0.01;
 
+                    if( a >= 1 ) a = -1;
+
+                    if( b >= 1 ) b = -1;
+                    rotation += 2;
+                    ts.getMod()
+                        .withRotation(rotation)
+                        // .withSize((int)((a + 1) * 60))
+                        // .withAlignment(a, b)
+                    ;
+                    Thread.sleep(10);
+                }
+            }
+            catch(InterruptedException e) {}
+
+        }).start(); */
+
+        // vp.draw.stateful.shapes.add(ts);
 	}
 
 

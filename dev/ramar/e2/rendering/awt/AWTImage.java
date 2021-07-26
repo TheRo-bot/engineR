@@ -69,10 +69,6 @@ public class AWTImage extends Image
     }
 
 
-    public BufferedImageOp getImageOp()
-    {
-        return (BufferedImageOp)op;
-    }
 
     @Override
     public void scale(double xAm, double yAm)
@@ -83,12 +79,11 @@ public class AWTImage extends Image
         xScaleAm += xAm;
         yScaleAm += yAm;
 
-        if( op == null )
+        /*if( op == null )
             op = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         else
-        {
             op.getTransform().concatenate(at);
-        }
+        */
     }
 
 
@@ -99,12 +94,11 @@ public class AWTImage extends Image
         at.rotate(zAm);
         rotationAm += zAm;
 
-        if( op == null )
+        /*if( op == null )
             op = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         else
-        {
             op.getTransform().concatenate(at);
-        }
+        */
     }
 
     @Override

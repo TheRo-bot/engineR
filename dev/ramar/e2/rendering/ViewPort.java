@@ -73,4 +73,21 @@ public abstract class ViewPort
         currState = State.INTERRUPT;
     }
 
+
+    public abstract double getCenterX();
+    public abstract double getCenterY();
+
+    public abstract void moveCenterX(double x);
+    public abstract void moveCenterY(double y);
+
+    public abstract void setCenterX(double x);
+    public abstract void setCenterY(double y);
+
+
+    public abstract int getLogicalWidth();
+    public abstract int getLogicalHeight();
+
+    public abstract void setLogicalWidth(int w);
+    public abstract void setLogicalHeight(int w);
+
 }

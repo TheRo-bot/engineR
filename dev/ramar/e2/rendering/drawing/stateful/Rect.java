@@ -16,6 +16,8 @@ public class Rect extends Shape
     private Vec2 pos;
     private double width, height;
 
+    private RectMods mod = new RectMods().withPermanence(true);    
+
     public Rect(double x, double y, double width, double height)
     {
         pos = new Vec2(x, y);
@@ -24,15 +26,23 @@ public class Rect extends Shape
     }
 
 
+    public Rect(double w, double h)
+    {
+        pos = new Vec2(0, 0);
+        this.width = w;
+        this.height = h;
+    }
+
+
     public double getX()
     {
-        return pos.getX();
+        return mod.modX(pos.getX());
     }
 
 
     public double getY()
     {
-        return pos.getY();
+        return mod.modY(pos.getY());
     }
 
     public double getW()
@@ -66,57 +76,24 @@ public class Rect extends Shape
         height = h;
     }
 
-
-    /* Drawing Modifications
-    -===-----------------------
-    */
-
-    private boolean fill = false;
-
-    public Rect withFill()
+    public RectMods getMod()
     {
-        fill = true;
-        return this;
+        return mod;
     }
-
-    public Rect withoutFill()
-    {
-        fill = false;
-        return this;
-    }
-
-    public Rect setFill(boolean doFill)
-    {
-        fill = doFill;
-        return this;
-    }
-
-
-    private Colour colour = new Colour(255, 255, 255, 255);
-
-    public Rect withColour(int r, int g, int b, int a)
-    {
-        colour.set(r, g, b, a);
-
-        return this;
-    }
-
-    public Rect withSecondPos(double x, double y)
-    {
-        width = pos.getX() - x;
-        height = pos.getY() - y;
-        return this;
-    }
-
 
     public void drawAt(double x, double y, ViewPort vp)
     {
+        boolean doOffset = mod.isOffsetAllowed();
 
-        RectMods rm = vp.draw.stateless.rect.withMod().
-                               withOffset(x, y).
-                               withColour(colour);
+        if( doOffset ) mod.withOffset(x, y);
+
+        vp.draw.stateless.rect.useTempMod(mod);
 
         vp.draw.stateless.rect.poslen(pos.getX(), pos.getY(), width, height);
+
+        vp.draw.stateless.rect.clearTempMod();
+
+        if( doOffset ) mod.withOffset(-x, -y);
     }
 
 }
