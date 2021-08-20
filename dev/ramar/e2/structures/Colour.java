@@ -50,6 +50,19 @@ public class Colour
 		randomColours.add(this);
 	}
 
+	public Colour(Colour c)
+	{
+		this.red = c.red;
+		this.green = c.green;
+		this.blue = c.blue;
+		this.alpha = c.alpha;
+	}
+
+	public Colour clone()
+	{
+		return new Colour(this);
+	}
+
 	public boolean equals(Object in)
 	{
 		boolean equal = false;

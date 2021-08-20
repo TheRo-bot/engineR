@@ -42,7 +42,6 @@ public class AWTImageDrawer extends ImageDrawer
     }
 
 
-
     @Override
     public void pos_c(double x, double y, Image i)
     {

@@ -48,75 +48,6 @@ public class AWTTextDrawer extends TextDrawer
     }
 
 
-/*
-    public void pos_c(double x, double y, String s)
-    {
-        Graphics2D g2d = getViewPortGraphics();
-
-        TextMods mods = getMod();
-
-        double halignment = 0.0,
-               valignment = 0.0,
-               rotZ = 0.0;
-
-        Paint p = g2d.getPaint();
-        if( mods != null )
-        {
-            if( mods.getFont() != null )
-                g2d.setFont(mods.getFont());
-
-            x = mods.modX(x);
-            y = mods.modY(y);
-            rotZ = mods.getRotation();
-
-            halignment = mods.getAlignmentHori();
-            valignment = mods.getAlignmentVert();
-            g2d.setPaint(mods.getColor());
-        }
-
-
-        FontMetrics fm = g2d.getFontMetrics();
-        Rectangle2D r2d = fm.getStringBounds(s, g2d);
-
-        // x -= r2d.getWidth() / 2;
-        // y -= r2d.getHeight() / 2;
-
-
-        // calculate offset from the top left corner 
-        //              -1 -> 1 => 0 -> 1
-        double xoffset = (halignment + 1) * r2d.getWidth()  / 2,
-               yoffset = (valignment + 1) * r2d.getHeight() / 2;
-
-        x += xoffset;
-        y += yoffset;
-
-        // System.out.println("offsets: " + xoffset + ", " + yoffset);
-
-        // System.out.println(r2d + " - " + r2d.getX());
-        // int stringWidth  = fm.getStringWidth(s),
-        //     stringHeight = fm.getHeight();
-
-
-        AffineTransform before = new AffineTransform();
-        before.concatenate(g2d.getTransform());
-
-        double stAnchorX = (halignment + 1) * (r2d.getWidth() / 2);
-        double stAnchorY = (valignment + 1) * (r2d.getHeight() / 2);
-
-        AffineTransform at = new AffineTransform();
-
-        at.translate( x + stAnchorX,  y + stAnchorY );
-        at.rotate(Math.toRadians(rotZ));
-        at.translate(-x - stAnchorX / 2, -y - stAnchorY );
-
-        g2d.setTransform(at);
-        g2d.drawString(s, (int)x, (int)y);
-
-        g2d.setTransform(before);
-        g2d.setPaint(p);
-    }   
-*/
-
     public void pos_c(double x, double y, String s)
     {
         double origX = x, origY = y;
@@ -141,8 +72,6 @@ public class AWTTextDrawer extends TextDrawer
             y = mod.modY(y);
         }
 
-
-        g2d.drawRect((int)(x - 2), (int)(y - 2), 4, 4);
 
         FontMetrics fm = g2d.getFontMetrics();
 

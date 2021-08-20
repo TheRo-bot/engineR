@@ -4,9 +4,11 @@ import dev.ramar.e2.rendering.*;
 import java.util.*;
 import java.io.*;
 
+import dev.ramar.e2.rendering.Console;
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.drawing.stateful.*;
-
+import dev.ramar.e2.rendering.drawing.stateless.*;
+import dev.ramar.e2.rendering.drawing.stateless.LineDrawer.LineMods;
 
 import dev.ramar.e2.rendering.control.MouseController.PressedListeners.PressedListener;
 import dev.ramar.e2.rendering.control.MouseController.ReleasedListeners.ReleasedListener;
@@ -16,7 +18,6 @@ import dev.ramar.e2.rendering.control.KeyController.KeyListener;
 
 
 import dev.ramar.e2.structures.SyncPoint;
-
 
 public class Tests
 {
@@ -610,8 +611,8 @@ public class Tests
         vp.window.keys.bind(new KeyCombo("width_down").withChar('j'), kl);
 
 
-        vp.setLogicalWidth(fakeW);
-        vp.setLogicalHeight(fakeH);
+        // vp.setLogicalWidth(fakeW);
+        // vp.setLogicalHeight(fakeH);
         System.out.println("scaleTest end");
     }
 
@@ -690,6 +691,195 @@ public class Tests
             renderTime = (end - start) * 0.000001;
         });
   
+
+    }
+
+
+    private int capStyle = 0, joinStyle = 0;
+    public void lineTest()
+    {
+        Line l = new Line()
+            .withStartPos(40, 40)
+            .withEndPos(0, 0)
+        ;
+        l.getMod()
+            .withColour(255, 0, 255, 255)
+            .withThickness(1)
+            .withCapStyle(LineMods.CapStyle.ROUND)
+        ;
+
+        new Thread(() ->
+        {
+            try
+            {
+                double a = 1;
+                while(true)
+                {
+                    l.getMod().withThickness(Math.max(5, Math.min(l.getMod().getThickness() + rd.nextDouble() % a - a / 2, 8) ));
+                    Thread.sleep(1);
+                }
+
+            }
+            catch(InterruptedException e) {}
+        }).start();
+/*BUTT
+ROUND
+SQUARE
+
+BEVEL
+MITER
+ROUND
+*/
+
+
+        vp.window.keys.bind(new KeyCombo("bruh").withChar('o'), new KeyListener()
+        {
+
+            public void onPress(KeyCombo kc)
+            {
+
+            }
+            int style = 0;
+            public void onRelease(KeyCombo kc)
+            {
+                style++;
+
+                LineMods.CapStyle cs = LineMods.CapStyle.BUTT;
+                switch(style)
+                {
+                    case 1:
+                        cs = LineMods.CapStyle.BUTT;
+                        break;
+                    case 2:
+                        cs = LineMods.CapStyle.ROUND;
+                        break;
+
+                    case 3:
+                        cs = LineMods.CapStyle.SQUARE;
+                        break;
+
+                    default:
+                        style = 0;
+                        break;
+                }
+
+                l.getMod().withCapStyle(cs);
+            }
+        });
+
+        new Thread(() ->
+        {
+            try
+            {
+                while(true)
+                {
+                    l.withEndPos(vp.window.mouse.getMouseX(),
+                                 vp.window.mouse.getMouseY());
+
+                    Thread.sleep(1);
+                }
+            }
+            catch(InterruptedException e) {}
+        }).start();
+
+        vp.draw.stateful.shapes.add(l);
+        // vp.draw.stateless.perm.add((double x, double y, ViewPort vp) -> 
+        // {
+        //     vp.draw.stateless.line.withMod()
+        //         .withColour(255, 255, 255, 255)
+        //         .withOffset(x, y)
+        //     ;
+
+
+        //     double mouseX = vp.window.mouse.getMouseX();
+        //     double mouseY = vp.window.mouse.getMouseY();
+        //     vp.draw.stateless.line.pospos(0, 0, mouseX, mouseY);
+        // });
+
+        vp.draw.stateless.perm.add(new Drawable()
+        {  
+            private double[] xs = new double[100], ys = new double[100];
+            public void drawAt(double x, double y, ViewPort vp)
+            {
+                vp.draw.stateless.line.withMod()
+                    .withOffset(x, y)
+                    .withColour(255, 255, 0, 255)
+                ;
+                vp.draw.stateless.line.pos_linked(xs, ys);
+            }
+
+            private void update()
+            {
+                Random rd = new Random();
+                for( int ii = 0; ii < xs.length; ii++ )
+                    xs[ii] = rd.nextInt(vp.getLogicalWidth()) + rd.nextDouble();
+
+                for( int ii = 0; ii < ys.length; ii++ )
+                    ys[ii] = rd.nextInt(vp.getLogicalHeight()) + rd.nextDouble();
+
+            }
+
+        });
+    }
+
+
+    public void consoleTest()
+    {
+        Console c = new Console()
+            .withPos(100, 40)
+        ;
+
+        vp.draw.stateless.perm.add(c);
+
+        vp.window.keys.bindRel(new KeyCombo("bruh").withChar('`'), (KeyCombo kc) ->
+        {
+            System.out.println("AHHH");
+            c.withVisibility(!c.getVisibility());
+        });
+
+        vp.window.keys.bind(new KeyCombo("bruh").withChar('`'), new KeyListener()
+        {
+            public void onPress(KeyCombo kc)
+            {
+
+            }
+
+            public void onRelease(KeyCombo kc)
+            {
+                c.animation_SwapVisibility();
+            }
+        });
+    }
+
+
+    public void textTest2()
+    {
+/*        TextShape ts = new TextShape("i am very confused");
+        ts.getMod()
+            .withColour(255, 255, 255, 255)
+            .withOffset(40, 40)
+            .withSize(50)
+            .withAlignment(1, 0)
+        ;
+
+        vp.draw.stateful.shapes.add(ts);
+
+        vp.draw.stateless.perm.add((double x, double y, ViewPort vp) ->
+        {
+            int size = 5;
+
+            for( int ii = 0; ii < ts.getText().length(); ii++ )
+            {
+                double thisX = ts.getXAtChar(ii);
+                // System.out.println("bruh(" + ii + "): " + thisX);
+                vp.draw.stateless.rect.withMod()
+                    .withColour(255, 255, 255, 255)
+                    .withOffset(x, y)
+                    .withFill()
+                ;
+                vp.draw.stateless.rect.poslen(ts.getMod().getOffX() + thisX - size/2, ts.getMod().getOffY() - size/2 - 50, size, size);
+            }
+        });*/
 
     }
 }

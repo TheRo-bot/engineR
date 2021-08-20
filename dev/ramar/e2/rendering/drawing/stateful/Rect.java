@@ -26,11 +26,24 @@ public class Rect extends Shape
     }
 
 
-    public Rect(double w, double h)
+    public Rect(double x, double y)
     {
-        pos = new Vec2(0, 0);
-        this.width = w;
-        this.height = h;
+        pos = new Vec2(x, y);
+    }
+
+    public Rect withSize(double w, double h)
+    {
+        width = w;
+        height = h;
+        return this;
+    }   
+
+    public Rect withSecondPos(double x2, double y2)
+    {
+        width = pos.getX() - x2;
+        height = pos.getY() - y2;
+
+        return this;
     }
 
 

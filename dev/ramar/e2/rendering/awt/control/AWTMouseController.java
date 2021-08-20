@@ -18,19 +18,34 @@ public class AWTMouseController extends MouseController
     // protected void onRelease(int button, double x, double y)
 
 
+    /*
+    Method: convertX
+     - Converts <x> from window position (from top left of window being 0, 0)
+       to world position (origin is {0, 0}, center of screen when no translations
+       have occurred)
+    */
     private double convertX(double x)
     {
-        double initX = x;
+        double xP = x / vp.window.width();
+        x = xP * vp.getLogicalWidth();
+
         x -= vp.window.width() / 2;
         x -= vp.getCenterX();
 
         return x;
     }
 
+
     private double convertY(double y)
     {
+        // convert y from top-left window position to 
+        // top left viewport position
+        double yP = y / vp.window.height();
+        y = yP * vp.getLogicalHeight();
+        // convert top left viewport
         y -= vp.window.height() / 2;
         y -= vp.getCenterY();
+
         return y;
     }
 
@@ -82,7 +97,6 @@ public class AWTMouseController extends MouseController
         return this;
     }
 
-
     public double getMouseX()
     {
         double exp = 0;
@@ -91,6 +105,10 @@ public class AWTMouseController extends MouseController
         exp += MouseInfo.getPointerInfo().getLocation().getX();
         // top left offset
         exp -= ((AWTWindow)vp.window).getCanvas().getLocationOnScreen().getX();
+
+        // <pW> is a %age of
+        // double pW = exp / vp.window.width();
+        // System.out.println(pW);
         // typical conversion
         exp = convertX(exp);
 

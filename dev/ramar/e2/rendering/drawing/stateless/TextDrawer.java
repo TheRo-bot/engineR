@@ -3,7 +3,10 @@ package dev.ramar.e2.rendering.drawing.stateless;
 import dev.ramar.e2.structures.Colour;
 
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.image.BufferedImage;
 import java.awt.Color;
+import java.awt.Graphics;
 
 public abstract class TextDrawer
 {
@@ -35,8 +38,12 @@ public abstract class TextDrawer
 
     public static class TextMods
     {
+        private static Graphics metricsMaker = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).getGraphics();
+
         private int size = 12, times = 1;
         private Font font = new Font("Arial Rounded MT Bold", Font.PLAIN, size);
+        private FontMetrics metrics;
+
         private Colour colour = new Colour(255, 255, 255, 255);
 
         private double halign = 0, valign = 0,
@@ -76,11 +83,33 @@ public abstract class TextDrawer
         public TextMods()
         {
             this.times = 1;
+            onFontUpdate();
         }
 
         public TextMods(int times)
-        {
+        { 
             this.times = times;
+            onFontUpdate();
+        }
+
+        public TextMods(TextMods tm)
+        {
+            this.size = tm.size;
+            this.times = tm.times;
+            withFont(tm.font.deriveFont((float)tm.size));
+            this.colour = tm.colour.clone();
+            this.halign = tm.halign;
+            this.valign = tm.valign;
+            this.xOff = tm.xOff;
+            this.yOff = tm.yOff;
+            this.rotZ = tm.rotZ;
+            this.permanent = tm.permanent;
+            this.onlyOffset = tm.onlyOffset;
+        }
+
+        public TextMods clone()
+        {
+            return new TextMods(this);
         }
 
         public void reset(int times)
@@ -89,7 +118,8 @@ public abstract class TextDrawer
 
             halign = valign = xOff = yOff = 0.0;
             size = 12; 
-            font = new Font("Arial Rounded MT Bold", Font.PLAIN, size);
+            withFont(new Font("Arial Rounded MT Bold", Font.PLAIN, size));
+            onFontUpdate();
         }
 
 
@@ -125,7 +155,18 @@ public abstract class TextDrawer
         public TextMods withFont(String fontName, FontStyles fontType)
         {
             font = new Font(fontName, fontType.getVal(), size);
+            onFontUpdate();
+
             return this;
+        }
+
+        private void onFontUpdate()
+        {
+            synchronized(metricsMaker)
+            {
+                metricsMaker.setFont(font);
+                metrics = metricsMaker.getFontMetrics();
+            }
         }
 
         public TextMods withRotation(double theta)
@@ -137,6 +178,8 @@ public abstract class TextDrawer
         public TextMods withFont(Font f)
         {
             this.font = f;
+            onFontUpdate();
+
             return this;
         }
 
@@ -150,6 +193,7 @@ public abstract class TextDrawer
         {
             this.style = style;
             font = font.deriveFont(style.getVal());
+            onFontUpdate();
             return this;
         }
 
@@ -188,6 +232,17 @@ public abstract class TextDrawer
             return colour;
         }
 
+        public double getOffX()
+        {
+            return xOff;
+        }
+
+        public double getOffY()
+        {
+            return yOff;
+        }
+
+
         public double modX(double x)
         {
             return x + xOff;
@@ -203,11 +258,33 @@ public abstract class TextDrawer
             return halign;
         }
 
-
         public double getAlignmentVert()
         {
             return valign;
         }
+
+        public double getWidthOfString(String str)
+        {
+            onFontUpdate();
+            
+            double exp = 0;
+
+            exp += metrics.stringWidth(str);
+
+            return exp;
+        }
+
+        public double getWidthOfChar(char c)
+        {
+            onFontUpdate();
+
+            double exp = 0;
+
+            exp += metrics.stringWidth("" + c);
+
+            return exp;
+        }
+
 
     }
 

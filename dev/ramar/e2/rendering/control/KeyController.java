@@ -13,30 +13,72 @@ import java.util.ArrayList;
 public abstract class KeyController
 {
 
-    public interface KeyListener
+    public interface KeyListener extends KeyPressListener, KeyReleaseListener
+    {
+    }
+
+    public interface KeyPressListener
     {
         public void onPress(KeyCombo kc);
+    }
 
+    public interface KeyReleaseListener
+    {
         public void onRelease(KeyCombo kc);
     }
 
+    protected final Map<KeyCombo, List<KeyPressListener>> pressMapping = new HashMap<>();
+    protected final Map<KeyCombo, List<KeyReleaseListener>> relMapping   = new HashMap<>();
 
-    protected final Map<KeyCombo, List<KeyListener>> keyMapping = new HashMap<>();
-
-    public void bind(KeyCombo kc, KeyListener kl)
+    public void bindPress(KeyCombo kc, KeyPressListener kpl)
     {
-        if( !keyMapping.containsKey(kc) )
-            keyMapping.put(kc, new ArrayList<>());
+        if( !pressMapping.containsKey(kc) )
+            pressMapping.put(kc, new ArrayList<>());
 
-        // System.out.println("keyMapping: " + keyMapping);
-        keyMapping.get(kc).add(kl);
+        pressMapping.get(kc).add(kpl);
+    }
+
+    public void bindRel(KeyCombo kc, KeyReleaseListener krl)
+    {
+        System.out.println("bindRel(" + kc + " || " + krl + ")");
+        if( !relMapping.containsKey(kc) )
+            relMapping.put(kc, new ArrayList<>());
+
+        System.out.println("before: " + relMapping.get(kc));
+        System.out.println("to add: " + krl);
+        relMapping.get(kc).add(krl);
+        System.out.println("after: " + relMapping.get(kc));
     }
 
 
+    public void bind(KeyCombo kc, KeyListener kl)
+    {
+        bindPress(kc, kl);
+        bindRel(kc, kl);
+    }
+
+    public void bind(KeyCombo kc, KeyPressListener kpl, KeyReleaseListener krl)
+    {
+        bindPress(kc, kpl);
+        bindRel(kc, krl);
+    }
+
+    public void unbindPress(KeyCombo kc, KeyPressListener kpl)
+    {
+        if( pressMapping.containsKey(kc) )
+            pressMapping.get(kc).remove(kpl);
+    }
+
+    public void unbindRel(KeyCombo kc, KeyReleaseListener krl)
+    {
+        if( relMapping.containsKey(kc) )
+            relMapping.get(kc).remove(krl);
+    }
+
     public void unbind(KeyCombo kc, KeyListener kl)
     {
-        if( keyMapping.containsKey(kc) )
-            keyMapping.get(kc).remove(kl);
+        unbindPress(kc, kl);
+        unbindRel(kc, kl);
     }
 
 
@@ -57,6 +99,11 @@ public abstract class KeyController
         public KeyCombo(String name)
         {   
             this.name = name;
+        }
+
+        public String toString()
+        {
+            return "KeyCombo: " + getName() + " with chars " + chars + "(" + modifiers +  ")";
         }
 
         public String getName()

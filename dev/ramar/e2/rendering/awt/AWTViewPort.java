@@ -58,6 +58,13 @@ public class AWTViewPort extends ViewPort
     }
 
 
+    public Graphics2D getGraphics()
+    {
+        if( draw.stateless != null )
+            return ((AWTStatelessDrawer)draw.stateless).getGraphics();
+        return null;
+    }
+
 
     // Modifiers
     @Override
@@ -140,7 +147,8 @@ public class AWTViewPort extends ViewPort
 
         System.out.println("init!");
         getAWTWindow().init(ws);
-
+        setLogicalWidth(ws.screenW);
+        setLogicalHeight(ws.screenH);
 
         window.onClose.add(() ->
         {
@@ -162,6 +170,12 @@ public class AWTViewPort extends ViewPort
 
 
     private Thread inner;
+
+    /*
+
+    List<int> timesFromLastSecond
+    
+    */
 
     @Override
     public void start()

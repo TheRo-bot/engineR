@@ -204,6 +204,8 @@ public abstract class RectDrawer
         {
             return ! onlyOffset;
         }
+
+
     }
 
     private RectMods currMods = null;

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 /*
-
 NOTE:
  x and y should be in coordinate space of the game window
 */

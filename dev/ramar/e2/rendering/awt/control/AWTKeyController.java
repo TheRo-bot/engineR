@@ -39,6 +39,8 @@ public class AWTKeyController extends KeyController
         return this;
     }
 
+// pressMapping
+// relMapping
 
     private Set<Integer> pressed = new HashSet<>();
 
@@ -49,7 +51,7 @@ public class AWTKeyController extends KeyController
 
     protected void onKeyPress()
     {
-        for( KeyCombo kc : keyMapping.keySet() )
+        for( KeyCombo kc : pressMapping.keySet() )
         {
             if( !active.contains(kc) )
             {
@@ -57,22 +59,24 @@ public class AWTKeyController extends KeyController
                 {
                     synchronized(activeMods)
                     {
-                        if( kc.isTriggered(pressed, activeMods) )
+                        if( kc.isTriggered(pressed, activeMods))
                         {
-                            if( !active.contains(kc))
+                            if( !active.contains(kc) )
                                 active.add(kc);
-                            for( KeyListener kl : keyMapping.get(kc) )
+                            for( KeyPressListener kl : pressMapping.get(kc) )
                                 kl.onPress(kc);
                         }
                     }
                 }
             }
         }
+
     }
 
     protected void onKeyRel()
     {
         List<KeyCombo> toRemove = new ArrayList<>();
+        System.out.println("keyRel");
         for( KeyCombo kc : active )
         {
             synchronized(pressed)
@@ -81,8 +85,9 @@ public class AWTKeyController extends KeyController
                 {
                     if( !kc.isTriggered(pressed, activeMods) )
                     {
-                        for( KeyListener kl : keyMapping.get(kc) )
-                            kl.onRelease(kc);
+                        System.out.println(kc + " untriggered: " + relMapping.get(kc).size() + " listeners");
+                        for( KeyReleaseListener krl : relMapping.get(kc) )
+                            krl.onRelease(kc);
                         toRemove.add(kc);
                     }
                 }
