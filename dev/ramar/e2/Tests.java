@@ -4,7 +4,7 @@ import dev.ramar.e2.rendering.*;
 import java.util.*;
 import java.io.*;
 
-import dev.ramar.e2.rendering.Console;
+import dev.ramar.e2.rendering.console.Console;
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.drawing.stateful.*;
 import dev.ramar.e2.rendering.drawing.stateless.*;
@@ -18,6 +18,8 @@ import dev.ramar.e2.rendering.control.KeyController.KeyListener;
 
 
 import dev.ramar.e2.structures.SyncPoint;
+
+import dev.ramar.e2.rendering.ui.TextField;
 
 public class Tests
 {
@@ -854,6 +856,16 @@ ROUND
 
     public void textTest2()
     {
+
+        TextField tf;
+        tf = new TextField(vp.getLogicalWidth() / 2, vp.getLogicalHeight() / 2)
+            .withHint("AHHHH")
+            .withInput("bruh moments")
+            .withPos(80, 100)
+        ;
+
+        vp.draw.stateful.shapes.add(tf);
+
 /*        TextShape ts = new TextShape("i am very confused");
         ts.getMod()
             .withColour(255, 255, 255, 255)
@@ -882,5 +894,148 @@ ROUND
         });*/
 
     }
+
+/*    private static class XPBall implements Drawable
+    {
+        private static List<XPBall> balls = java.util.Collections.synchronizedList(new ArrayList<>());
+
+
+        private double x, y;
+
+        private int r = 255, g = 255, b = 255, a = 255;
+
+        private double deltaPassed = 0.0;
+        private long lastTime = 0;
+
+        private int weight = 4;
+
+        public XPBall(double x, double y)
+        {
+            this.x = x;
+            this.y = y;
+            balls.add(this);
+        }
+
+        public XPBall withColour(int r, int g, int b, int a)
+        {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+            return this;
+        }
+
+        private void deltaUpdate()
+        {
+
+            if( deltaPassed > 0.001 && weight > 0 )
+            {
+                deltaPassed = 0;
+                double dragRad = 20,
+                       consumeRad = 10,
+                       gravityStrength = 1.0;
+                for( int ii = 0; ii < balls.size(); ii++ )
+                {
+                    XPBall ball = balls.get(ii);
+
+                    if( ball != this )
+                    {
+                        double xComp = this.x - ball.x,
+                               yComp = this.y - ball.y;
+
+                        double moveX = xComp / 0.001,
+                               moveY = yComp / 0.001;
+
+                        if( xComp * xComp + yComp * yComp < (dragRad * (weight * 0.8)) * (dragRad * (weight * 0.8)) )
+                        {
+                            double maxDist = 0.004 * gravityStrength * (weight * 1.125);
+
+                            // currently, vector {xComp, yComp} is the distance
+                            // to get to ball2 from ball1
+
+                            // make sure the distance the vector is travelling
+                            // is under max
+
+                            double hyp = Math.sqrt(moveX * moveX + moveY * moveY);
+                            while(hyp > maxDist)
+                            {
+                                moveX *= 0.1;
+                                moveY *= 0.1;
+                                hyp = Math.sqrt(moveX * moveX + moveY * moveY);
+                            }
+
+                            ball.x += moveX;
+                            ball.y += moveY;
+                        }
+
+                        if( xComp * xComp + yComp * yComp < (consumeRad * ((double)weight / 20.0)) * (consumeRad * ((double)weight / 100.0)))
+                        {
+                            weight += ball.weight;
+                            ball.weight = 0;
+
+                            int size = balls.size();
+                            balls.remove(ball);
+                            System.out.println(size + " => " + balls.size());
+                            ball.withColour(ball.r, ball.g, ball.b, 0);
+                        }
+                    }
+
+                 
+
+
+                }
+
+
+            }
+        }
+
+
+        public void drawAt(double vpX, double vpY, ViewPort vp)
+        {
+            long currTime = System.currentTimeMillis();
+            if( lastTime != 0 )
+                deltaPassed += (double)(currTime - lastTime) / 1000.0;
+
+            deltaUpdate();
+            lastTime = currTime;
+
+
+            vp.draw.stateless.rect.withMod()
+                .withColour(r, g, b, a)
+                .withOffset(vpX - weight / 2, vpY - weight / 2)
+                .withFill()
+            ;
+
+            vp.draw.stateless.rect.poslen(this.x, this.y, weight, weight);
+
+            vp.draw.stateless.text.withMod()
+                .withColour(255, 255, 255, 255)
+                .withSize(10)
+                .withOffset(vpX, vpY)
+            ;
+
+            vp.draw.stateless.text.pos_c(this.x, this.y + 10, "" + weight);
+        }
+    }
+
+    public void gravityTest()
+    {
+        int squareNums = 200;
+
+        double fieldWidth  = vp.window.width()  * 1.5,
+               fieldHeight = vp.window.height() * 1.5;
+
+        double halfWidth  = fieldWidth  / 2.0;
+        double halfHeight = fieldHeight / 2.0;
+        for( int ii = 0; ii < squareNums; ii++ )
+        {
+
+            XPBall thisBall = new XPBall(rd.nextInt((int)fieldWidth ) - halfWidth,
+                                         rd.nextInt((int)fieldHeight) - halfHeight);
+            thisBall.withColour(rd.nextInt(255), rd.nextInt(255), rd.nextInt(255), 255);
+
+            vp.draw.stateless.perm.add(thisBall);
+        }
+    }*/
 }
 

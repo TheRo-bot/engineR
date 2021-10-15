@@ -10,11 +10,14 @@ public class TextField extends Shape
 
     private TextShape inputField;
     private TextShape hintText;
+    private Rect boundingRect;
+
 
     public TextField()
     {
         inputField = buildInputField();
         hintText = buildHintText();
+        boundingRect = buildBoundingRect();
     }
 
 
@@ -31,6 +34,40 @@ public class TextField extends Shape
         this.x = x;
         this.y = y;
         return this;
+    }
+
+    public TextField withInput(String t)
+    {
+        inputField.withText(t);
+        onTextUpdate();
+        return this;
+    }
+
+    public TextShape getInput()
+    {   return inputField;   }
+
+    public String getInputText()
+    {   return inputField.getText();   }
+
+
+
+    public TextField withHint(String t)
+    {
+        hintText.withText(t);
+        onTextUpdate();
+        return this;
+    }
+
+    public TextShape getHint()
+    {   return hintText;   }
+
+
+    public String getHintText()
+    {   return hintText.getText();   }
+
+    protected void onTextUpdate()
+    {
+        boundingRect = buildBoundingRect();        
     }
 
 
@@ -59,6 +96,38 @@ public class TextField extends Shape
         return ts;
     }
 
+    protected Rect buildBoundingRect()
+    {
+        double width = 0.0, height = 0.0;
+        if( inputField != null )
+        {
+            width  = inputField.getText() != null && !inputField.getText().isEmpty() ?
+                         inputField.getWidth() :
+                         hintText.getText() != null ?
+                            hintText.getWidth() :
+                            0.0
+            ;
+            height = inputField.getText() != null && !inputField.getText().isEmpty() ?
+                         inputField.getHeight() :
+                         hintText.getText() != null ?
+                            hintText.getHeight() :
+                            0.0
+            ;
+        }
+
+
+        Rect r = new Rect(-width/2, -height/2, width, height);
+        r.getMod()
+            .withColour(255, 255, 255, 255)
+        ;
+        r.getMod()
+            .withOffset(getAlignmentHori() * (width  / 2),
+                        getAlignmentVert() * (height / 2))
+        ;
+
+        return r;
+    }
+
 
     public TextField withAlignment(double halign, double valign)
     {
@@ -68,19 +137,26 @@ public class TextField extends Shape
         return this;
     }
 
-
-
-
-    public TextField withInput(String t)
-    {
-        inputField.withText(t);
-        return this;
+    public double getAlignmentHori()
+    {   
+        return 
+        inputField.getText() != null ? 
+            inputField.getMod().getAlignmentHori() :
+            hintText.getText() != null ? 
+                hintText.getMod().getAlignmentHori() :
+                0.0
+        ;
     }
 
-    public TextField withHint(String t)
-    {
-        hintText.withText(t);
-        return this;
+    public double getAlignmentVert()
+    {   
+        return
+        inputField.getText() != null ?
+            inputField.getMod().getAlignmentVert() :
+            hintText.getText() != null ?
+                hintText.getMod().getAlignmentVert() :
+                0.0
+        ;
     }
 
 
@@ -93,6 +169,9 @@ public class TextField extends Shape
 
     public void drawAt(double x, double y, ViewPort vp)
     {
+
+        boundingRect.drawAt(this.x + x, this.y + y, vp);
+
         if( inputField.getText() == null || inputField.getText().isEmpty() )
             hintText.drawAt(this.x + x, this.y + y, vp);
         else

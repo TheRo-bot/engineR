@@ -278,13 +278,18 @@ public abstract class TextDrawer
         {
             onFontUpdate();
 
-            double exp = 0;
-
-            exp += metrics.stringWidth("" + c);
-
-            return exp;
+            return metrics != null ? 
+                           metrics.stringWidth("" + c) :
+                           0.0;
         }
 
+        public double getStringHeight()
+        {
+            onFontUpdate();
+            return metrics != null ? 
+                           metrics.getHeight() :
+                           0.0;
+        }
 
     }
 

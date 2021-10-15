@@ -1,5 +1,6 @@
 package dev.ramar.e2.rendering.control;
 
+import dev.ramar.e2.rendering.control.KeyController.KeyCombo.Modifiers;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -27,8 +28,46 @@ public abstract class KeyController
         public void onRelease(KeyCombo kc);
     }
 
+    protected static class CharStealable implements Stealable<Character>
+    {
+        public List<Stealer<Character>> thieves = new ArrayList<>();
+        public CharStealable()
+        {
+
+        }
+
+        public void startStealing(Stealer<Character> s)
+        {
+            synchronized(thieves)
+            {
+                thieves.add(s);
+            }
+        }
+
+        public void stopStealing(Stealer<Character> s)
+        {
+            synchronized(thieves)
+            {
+                thieves.remove(s);
+            }
+        }
+
+    } 
+    public final Stealable<Character> stealChars = new CharStealable();
+
+    protected CharStealable getCharStealer() 
+    {   return (CharStealable)stealChars;   }
+
+    public KeyController()
+    {
+
+    }
+
     protected final Map<KeyCombo, List<KeyPressListener>> pressMapping = new HashMap<>();
     protected final Map<KeyCombo, List<KeyReleaseListener>> relMapping   = new HashMap<>();
+
+    protected final Set<Modifiers> activeMods = new HashSet<>();
+
 
     public void bindPress(KeyCombo kc, KeyPressListener kpl)
     {
@@ -40,14 +79,10 @@ public abstract class KeyController
 
     public void bindRel(KeyCombo kc, KeyReleaseListener krl)
     {
-        System.out.println("bindRel(" + kc + " || " + krl + ")");
         if( !relMapping.containsKey(kc) )
             relMapping.put(kc, new ArrayList<>());
 
-        System.out.println("before: " + relMapping.get(kc));
-        System.out.println("to add: " + krl);
         relMapping.get(kc).add(krl);
-        System.out.println("after: " + relMapping.get(kc));
     }
 
 
@@ -114,7 +149,6 @@ public abstract class KeyController
 
         public KeyCombo withChar(char c)
         {
-            System.out.println("adding " + ((int)c) + " to " + chars);
             chars.add((int)Character.toLowerCase(c));
             return this;
         }

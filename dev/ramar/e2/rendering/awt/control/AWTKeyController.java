@@ -3,9 +3,11 @@ package dev.ramar.e2.rendering.awt.control;
 import dev.ramar.e2.rendering.control.KeyController;
 import dev.ramar.e2.rendering.control.KeyController.KeyCombo;
 import dev.ramar.e2.rendering.control.KeyController.KeyCombo.Modifiers;
+import dev.ramar.e2.rendering.control.Stealer;
 
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 import dev.ramar.e2.rendering.awt.AWTWindow;
+
 
 import java.util.Set;
 import java.util.HashSet;
@@ -44,39 +46,42 @@ public class AWTKeyController extends KeyController
 
     private Set<Integer> pressed = new HashSet<>();
 
-    private Set<Modifiers> activeMods = new HashSet<>();
 
 
     protected List<KeyCombo> active = new ArrayList<>();
 
     protected void onKeyPress()
     {
-        for( KeyCombo kc : pressMapping.keySet() )
+        if( getCharStealer().thieves.isEmpty() )
         {
-            if( !active.contains(kc) )
+
+            for( KeyCombo kc : pressMapping.keySet() )
             {
-                synchronized(pressed)
+                if( !active.contains(kc) )
                 {
-                    synchronized(activeMods)
+                    synchronized(pressed)
                     {
-                        if( kc.isTriggered(pressed, activeMods))
+                        synchronized(activeMods)
                         {
-                            if( !active.contains(kc) )
-                                active.add(kc);
-                            for( KeyPressListener kl : pressMapping.get(kc) )
-                                kl.onPress(kc);
+                            if( kc.isTriggered(pressed, activeMods))
+                            {
+                                if( !active.contains(kc) )
+                                    active.add(kc);
+                                for( KeyPressListener kl : pressMapping.get(kc) )
+                                    kl.onPress(kc);
+                            }
                         }
                     }
                 }
-            }
+            } 
         }
+
 
     }
 
     protected void onKeyRel()
     {
         List<KeyCombo> toRemove = new ArrayList<>();
-        System.out.println("keyRel");
         for( KeyCombo kc : active )
         {
             synchronized(pressed)
@@ -85,7 +90,6 @@ public class AWTKeyController extends KeyController
                 {
                     if( !kc.isTriggered(pressed, activeMods) )
                     {
-                        System.out.println(kc + " untriggered: " + relMapping.get(kc).size() + " listeners");
                         for( KeyReleaseListener krl : relMapping.get(kc) )
                             krl.onRelease(kc);
                         toRemove.add(kc);
@@ -196,7 +200,36 @@ public class AWTKeyController extends KeyController
             }
             int keyChar = (int)Character.toLowerCase(e.getKeyChar());
 
-            if( !pressed.contains(keyChar) )
+            List<Stealer<Character>> thieves = getCharStealer().thieves;
+            boolean stole = false;
+
+            /*
+            list of actions:
+            - check if we have any thieves
+                - if so, permit them to steal the chars
+            - if nothing was stolen, send keyPress signal
+            */
+            for( int ii = 0; ii < thieves.size(); ii++ )
+            {
+                Stealer thisThief = thieves.get(ii);
+                boolean permittedToSteal = true;
+                for( int jj = ii - 1; jj > 0; jj-- )
+                {
+                    Stealer toCheck = thieves.get(jj);
+                    permittedToSteal = toCheck.allowSimultaneousThievery(thisThief);
+                    if( !permittedToSteal )
+                        break;
+                }
+
+                if( permittedToSteal )
+                {
+                    stole = true;
+                    thisThief.onSteal(stealChars, (char)((int)keyChar));
+                }
+
+            }
+
+            if( !stole && !pressed.contains(keyChar) )
             {
                 pressed.add(keyChar);
                 onKeyPress();

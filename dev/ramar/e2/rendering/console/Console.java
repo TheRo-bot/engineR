@@ -1,7 +1,12 @@
-package dev.ramar.e2.rendering;
+package dev.ramar.e2.rendering.console;
+
 
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.ViewPort;
+
+import dev.ramar.e2.rendering.control.KeyController;
+import dev.ramar.e2.rendering.control.Stealer;
+import dev.ramar.e2.rendering.control.Stealable;
 
 import dev.ramar.e2.rendering.drawing.stateful.Rect;
 import dev.ramar.e2.rendering.drawing.stateful.Shape;
@@ -18,19 +23,85 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
+import java.io.PrintStream;
+
 public class Console implements Drawable
 {
     private double x = 0, y = 0;
     private double windowW = 400, windowH = 600;
     private boolean visible = false;
 
-    private ViewPort vpRef;
+    private ViewPort vpRef = null;
+    private ConsoleParser parser = null;
 
+    private PrintStream consoleOutput = null;
+
+    public ViewPort getViewPortRef()
+    {   return vpRef;   }
+
+    private final Stealer<Character> charStealer = new Stealer<Character>()
+    {
+
+        public void onSteal(Stealable<Character> s, Character c)
+        {
+            TextField in = null;
+            for( ValuePair<String, Shape> pair : shapes )
+            {
+                if( pair.getOneVal().equals("consoleInput"))
+                {
+                    in = (TextField)pair.getTwoVal();
+                    break;
+                }
+            }
+
+            if( in != null )
+            {
+                // System.out.println("!! Stolen '" + c + "' (" + (int)((char)c) + ")");
+                String inputText = in.getInputText();
+                int intCode = (int)(char)c;
+                switch(intCode)
+                {
+                    // all codes we want to ignore:
+                    /*
+                        alt / cntrl / shift: 65535
+                    */
+                    case 65535:
+                        break;
+
+                    // '`'
+                    case 8:
+                        if( inputText != null )
+                        {
+                            String newString = inputText.substring(0, Math.max(0,inputText.length() - 1));
+                            in.withInput(newString);
+                        }
+
+                        break;
+                    // return character ('\n')
+                    case 10:
+                        parser.parseCommand(inputText);
+                        break;
+
+                    case (int)'`':
+                        animation_SwapVisibility();
+                        break;
+                    default:
+                        in.withInput(inputText == null ? "" + c : inputText + c);
+                }
+            }
+        }
+
+        public boolean allowSimultaneousThievery(Stealer<Character> c)
+        {
+            return true;
+        }
+    };
 
     private Map<String, Animation> animations = new HashMap<>();
 
     public Console()
     {
+        parser = ConsoleParser.createParser(this);
         setup();
         animationsSetup();
     }
@@ -38,6 +109,13 @@ public class Console implements Drawable
     public Console withVisibility(boolean b)
     {
         visible = b;
+        return this;
+    }
+
+    public Console withOffset(double x, double y)
+    {
+        this.x += x;
+        this.y += y;
         return this;
     }
 
@@ -69,6 +147,20 @@ public class Console implements Drawable
 
     private List<ValuePair<String, Shape>> shapes = new ArrayList<>();
 
+    Rect getTextBox()
+    {
+        Rect exp = null;
+        for( ValuePair vp : shapes )
+        {
+            if( vp.getOneVal().equals("textBox") )
+            {
+                exp = (Rect)vp.getTwoVal();
+                break;
+            }
+        }
+        return exp;
+    }
+
     private void setup()
     {
         Rect consoleBox = new Rect(x, y)
@@ -83,8 +175,8 @@ public class Console implements Drawable
 
 
         // 20 for size, 10 for gap
-        Rect textBox = new Rect(x + 5, y + windowH - 25)
-            .withSize(windowW - 10, 20)
+        Rect textBox = new Rect(x + 5, y + windowH - 27)
+            .withSize(windowW - 10, 23)
         ;
 
         textBox.getMod()
@@ -105,7 +197,7 @@ public class Console implements Drawable
 
 
         Rect outputBox = new Rect(x + 5, y + 5)
-            .withSize(windowW - 10, windowH - 35)
+            .withSize(windowW - 10, windowH - 36)
         ;
 
         outputBox.getMod()
@@ -113,27 +205,31 @@ public class Console implements Drawable
             .withFill()
         ;
 
+
         shapes.add(new ValuePair<String, Shape>("outputBG",  outputBG));
         shapes.add(new ValuePair<String, Shape>("outputBox", outputBox));
 
-        TextField tf = new TextField().withHint("<Console>");
+        TextField tf = new TextField().withHint("Console");
 
         tf
             .withAlignment(1, 0)
-            .withPos(x + 10, y + windowH - 12.5)
+            .withPos(x + 10, y + windowH - 16)
         ;
 
+        tf.getInput().getMod()
+            .withColour(0, 0, 0, 255)
+        ;
+
+      
         shapes.add(new ValuePair<String, Shape>("consoleInput", tf));
 
-        // shapes.put("consoleInput", tf);
-        // shapes.put("textBox", textBox);
-        // shapes.put("consoleBox", consoleBox);
 
     }
 
 
     public void drawAt(double x, double y, ViewPort vp)
     {
+        vpRef = vp;
         if( visible )
         {
             for( ValuePair<String, Shape> pair : shapes )
@@ -144,12 +240,24 @@ public class Console implements Drawable
         }
     }
 
+    public PrintStream getOutputStream()
+    {   return consoleOutput;   }
+
+
+    /* Commands related section
+    -===--------------------------
+    */
+
+
+
+
     /* Animations 
     -===------------
     */
 
     private void animationsSetup()
     {
+        x = -windowW;
         // Opening animation, the anonymous class allows for <percentage>
         // and <dist> to be nicely hidden away without being too annoying
         animations.put("onOpen", new RepeatableTaskAnimation()
@@ -165,7 +273,7 @@ public class Console implements Drawable
                 // these "anytime builder" methods i've been addicted with
                 // allows for super easy modification of an animation
                 withDelay(2);
-                withExecTime(4000);
+                withExecTime(250);
 
                 // based runnable lambda for cheeky listeners
                 // (i've been addicted to messing around with these things
@@ -180,7 +288,7 @@ public class Console implements Drawable
                     System.out.println("uh: " + getRepeatCount());
                     startTime = System.currentTimeMillis();
                     percentage = 1.0;
-                    x = -windowW;
+                    x = -dist;
                     visible = true;
                 });
                 whenFinished(() ->
@@ -234,11 +342,15 @@ public class Console implements Drawable
     private void onVisible()
     {
         System.out.println("onVisible");
+        if( vpRef != null )
+            vpRef.window.keys.stealChars.startStealing(charStealer);
     }
 
     private void onInvisible()
     {
         System.out.println("onInvisible");
+        if( vpRef != null)
+            vpRef.window.keys.stealChars.stopStealing(charStealer);
     }
 
 }

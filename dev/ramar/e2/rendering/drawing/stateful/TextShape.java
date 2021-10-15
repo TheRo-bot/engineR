@@ -7,7 +7,7 @@ import dev.ramar.e2.rendering.ViewPort;
 
 public class TextShape extends Shape
 {
-    private String text;
+    private String text = "";
     private TextMods mod = new TextMods().withPermanence(true);
 
     public TextShape()
@@ -48,6 +48,21 @@ public class TextShape extends Shape
         }
 
         return exp;
+    }
+
+    public double getWidth()
+    {
+        return mod != null && text != null ? 
+                   mod.getWidthOfString(text) :
+                   0.0;
+    }
+
+    public double getHeight()
+    {
+
+        return mod != null ?
+                   mod.getStringHeight() :
+                   0.0;
     }
 
 

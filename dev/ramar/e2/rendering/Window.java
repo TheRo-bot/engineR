@@ -138,4 +138,6 @@ public abstract class Window
     {
         onResize.onResize(w, h);
     }
+
+    public abstract void close();
 }

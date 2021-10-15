@@ -172,6 +172,10 @@ public class AWTWindow extends Window
     }
 
 
+    public void close()
+    {
+        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+    }
 
 
 

@@ -64,6 +64,7 @@ public class E2Main
     private double rotation = 0.0;
     public void start()
     {
+        
         Tests tests = new Tests();
         tests.setup(vp);
         // tests.imageTesting();
