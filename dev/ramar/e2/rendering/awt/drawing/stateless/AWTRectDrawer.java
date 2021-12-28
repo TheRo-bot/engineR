@@ -5,6 +5,7 @@ import dev.ramar.e2.rendering.awt.AWTViewPort;
 import dev.ramar.e2.rendering.drawing.stateless.RectDrawer;
 import dev.ramar.e2.rendering.drawing.stateless.RectDrawer.RectMods;
 
+import dev.ramar.e2.rendering.drawing.stateful.Rect;
 import java.awt.Color;
 
 import java.awt.Graphics2D;
@@ -33,9 +34,18 @@ public class AWTRectDrawer extends RectDrawer
         if( vp == null )
             throw new NullPointerException("Viewport not set. RectDrawer isn't setup to draw right now!");
 
-        return ((AWTStatelessDrawer)vp.draw.stateless).getGraphics();
+        Graphics2D exp = ((AWTStatelessDrawer)vp.draw.stateless).getGraphics();
+
+        if( exp == null )
+            throw new NullPointerException("AWT Graphics object not set. RectDrawer isnt' setup to draw right now!");
+
+        return exp;
     }
 
+
+    public void draw(Rect r)
+    {
+    }
 
     @Override
     public void pospos(double x1, double y1, double x2, double y2)

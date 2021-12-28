@@ -52,6 +52,7 @@ public class AWTKeyController extends KeyController
 
     protected void onKeyPress()
     {
+        System.out.println("onKeyPress: " + active + " :: " + pressed);
         if( getCharStealer().thieves.isEmpty() )
         {
 
@@ -81,6 +82,7 @@ public class AWTKeyController extends KeyController
 
     protected void onKeyRel()
     {
+        System.out.println("onKeyRel (" + active + ")");
         List<KeyCombo> toRemove = new ArrayList<>();
         for( KeyCombo kc : active )
         {
@@ -88,11 +90,21 @@ public class AWTKeyController extends KeyController
             {
                 synchronized(activeMods)
                 {
+                    System.out.println("if (! " + kc.isTriggered(pressed, activeMods) + " )");
                     if( !kc.isTriggered(pressed, activeMods) )
                     {
-                        for( KeyReleaseListener krl : relMapping.get(kc) )
-                            krl.onRelease(kc);
-                        toRemove.add(kc);
+                        // List<KeyReleaseListener> krls = relMapping.get(kc);
+                        // System.out.println("foreach: " + krls);
+                        for( KeyReleaseListener krl : relMapping.get(kc))
+                        // if( krls != null )
+                        // {
+                        //     for( int ii = 0; ii < krls.size(); ii++ )
+                            {
+                                // KeyReleaseListener krl = krls.get(ii);
+                                krl.onRelease(kc);
+                            }
+                            toRemove.add(kc);
+                        // }
                     }
                 }
             }
@@ -168,6 +180,7 @@ public class AWTKeyController extends KeyController
         @Override
         public void keyPressed(KeyEvent e)
         {
+            System.out.println(e.getKeyCode());
             if( e.getKeyCode() == SHIFT )
             {
                 synchronized(activeMods)

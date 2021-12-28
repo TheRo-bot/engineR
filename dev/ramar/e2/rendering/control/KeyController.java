@@ -15,8 +15,7 @@ public abstract class KeyController
 {
 
     public interface KeyListener extends KeyPressListener, KeyReleaseListener
-    {
-    }
+    {}
 
     public interface KeyPressListener
     {

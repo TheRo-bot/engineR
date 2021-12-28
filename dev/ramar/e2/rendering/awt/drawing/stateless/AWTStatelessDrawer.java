@@ -6,6 +6,8 @@ import dev.ramar.e2.rendering.awt.drawing.stateless.*;
 
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 
+import dev.ramar.e2.rendering.awt.AWTWindow;
+
 import java.util.*;
 
 
@@ -28,7 +30,6 @@ public class AWTStatelessDrawer extends StatelessDrawer
 
     public void withViewPort(AWTViewPort avp)
     {
-        System.out.println("withViewPort");
         if( vp == null )
         {
             vp = avp;

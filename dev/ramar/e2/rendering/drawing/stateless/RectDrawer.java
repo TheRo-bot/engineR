@@ -2,7 +2,7 @@ package dev.ramar.e2.rendering.drawing.stateless;
 
 import dev.ramar.e2.structures.Colour;
 
-
+import dev.ramar.e2.rendering.drawing.stateful.Rect;
 
 /*
 Abstract Class: RectDrawer
@@ -234,7 +234,7 @@ public abstract class RectDrawer
     }
 
 
-    public RectMods useTempMod(RectMods rm)
+    public RectMods withTempMod(RectMods rm)
     {
         tempMod = rm;
         return rm;
@@ -265,7 +265,7 @@ public abstract class RectDrawer
         return exp;
     }
 
-
+    public abstract void draw(Rect r);
 
     public abstract void pospos(double x1, double y1, double x2, double y2);
 

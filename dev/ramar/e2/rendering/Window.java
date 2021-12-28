@@ -7,12 +7,21 @@ import java.util.*;
 
 public abstract class Window
 {
+    public enum FullscreenState
+    {
+        WINDOWED,
+        FULLSCREEN,
+        WINDOWED_BORDERLESS
+    }
+
 
     public final KeyController keys;
     public final MouseController mouse;
 
     public final CloseListeners  onClose = new CloseListeners();
     public final ResizeListeners onResize = new ResizeListeners();
+
+    protected FullscreenState fullscreenState = FullscreenState.WINDOWED;
 
     public abstract int width();
 
@@ -30,6 +39,11 @@ public abstract class Window
         this.keys = keys;
         this.mouse = mouse;
     }
+
+
+    public abstract void init();
+
+    public abstract boolean isRenderable();
 
 
     /* Listener Callbacks
@@ -74,19 +88,41 @@ public abstract class Window
             if( happened )
                 cl.onClose();
             else
-                listeners.add(cl);
+            {
+                synchronized(listeners)
+                {
+                    listeners.add(cl);
+                }
+            }
         }
 
         public void remove(CloseListener cl)
         {
-            listeners.remove(cl);
+            synchronized(listeners)
+            {
+                listeners.remove(cl);
+            }
         }
 
+        private void clear()
+        {
+            synchronized( listeners )
+            {
+                listeners.clear();
+            }
+        }
 
         private void onClose()
         {
-            for( CloseListener cl : listeners )
-                cl.onClose();
+            synchronized(listeners)
+            {
+                // for( CloseListener cl : listeners )
+                for( int ii = 0; ii < listeners.size(); ii++ )
+                {
+                    CloseListener cl = listeners.get(ii);
+                    cl.onClose();
+                }
+            }
         }
     }
 
@@ -94,10 +130,23 @@ public abstract class Window
     protected void onClose()
     {
         onClose.onClose();
+        //// revoked for more freedom on calling listeners and performing actions
+        // close();
     }
 
 
+    protected void clearListeners()
+    {
+        onClose.clear();
+        onResize.clear();
+    }
 
+    // make sure to call onResize(w, h) once you've resized!
+    public abstract void resize(int w, int h);
+
+    public abstract void setTitle(String s);
+
+    public abstract void setFullscreenState(FullscreenState fss);
 
     /* ResizeListener
     -===----------------
@@ -132,6 +181,14 @@ public abstract class Window
             for( ResizeListener cl : listeners )
                 cl.onResize(w, h);
         }
+
+        private void clear()
+        {
+            synchronized( listeners )
+            {
+                listeners.clear();
+            }
+        }
     }
 
     protected void onResize(int w, int h)
@@ -140,4 +197,6 @@ public abstract class Window
     }
 
     public abstract void close();
+
+
 }

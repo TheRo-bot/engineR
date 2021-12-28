@@ -40,7 +40,6 @@ public abstract class Animation
     public Animation whenStart(Runnable r)
     {
         startAction = r;
-        System.out.println("-- when start with " + startAction);
         return this;
     }
 

@@ -46,7 +46,25 @@ public class Rect extends Shape
         return this;
     }
 
+    public Rect withColour(int r, int g, int b, int a)
+    {
+        mod.withColour(r, g, b, a);
+        return this;
+    }
 
+    public Rect withOffset(double xOff, double yOff)
+    {
+        mod.withOffset(xOff, yOff);
+        return this;
+    }
+
+    public Rect withFill()
+    {
+        mod.withFill();
+        return this;
+    }
+
+    
     public double getX()
     {
         return mod.modX(pos.getX());
@@ -100,7 +118,7 @@ public class Rect extends Shape
 
         if( doOffset ) mod.withOffset(x, y);
 
-        vp.draw.stateless.rect.useTempMod(mod);
+        vp.draw.stateless.rect.withTempMod(mod);
 
         vp.draw.stateless.rect.poslen(pos.getX(), pos.getY(), width, height);
 

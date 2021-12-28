@@ -28,13 +28,14 @@ import java.io.PrintStream;
 public class Console implements Drawable
 {
     private double x = 0, y = 0;
-    private double windowW = 400, windowH = 600;
+    private double windowW = -1/*400*/,
+                   windowH = -1/*600*/;
     private boolean visible = false;
 
     private ViewPort vpRef = null;
     private ConsoleParser parser = null;
 
-    private PrintStream consoleOutput = null;
+    public final PrintStream out;
 
     public ViewPort getViewPortRef()
     {   return vpRef;   }
@@ -102,9 +103,11 @@ public class Console implements Drawable
     public Console()
     {
         parser = ConsoleParser.createParser(this);
+        out = System.out;
         setup();
         animationsSetup();
     }
+
 
     public Console withVisibility(boolean b)
     {
@@ -163,8 +166,13 @@ public class Console implements Drawable
 
     private void setup()
     {
+
+        double maxWidth  = windowW == -1 ? (vpRef != null ?  vpRef.getLogicalWidth() : 400) : windowW,
+               maxHeight = windowH == -1 ? (vpRef != null ? vpRef.getLogicalHeight() : 600) : windowH;
+        windowW = maxWidth;
+        windowH = maxHeight;
         Rect consoleBox = new Rect(x, y)
-            .withSize(windowW, windowH)
+            .withSize(maxWidth, maxHeight)
         ;
         consoleBox.getMod()
             .withColour(150, 150, 150, 255)
@@ -175,8 +183,8 @@ public class Console implements Drawable
 
 
         // 20 for size, 10 for gap
-        Rect textBox = new Rect(x + 5, y + windowH - 27)
-            .withSize(windowW - 10, 23)
+        Rect textBox = new Rect(x + 5, y + maxHeight - 27)
+            .withSize(maxWidth - 10, 23)
         ;
 
         textBox.getMod()
@@ -187,7 +195,7 @@ public class Console implements Drawable
         shapes.add(new ValuePair<String, Shape>("textBox", textBox));
 
         Rect outputBG = new Rect(x + 5, y + 5)
-            .withSize(windowW - 11, windowH - 34)
+            .withSize(maxWidth - 11, maxHeight - 34)
         ;
 
         outputBG.getMod()
@@ -197,7 +205,7 @@ public class Console implements Drawable
 
 
         Rect outputBox = new Rect(x + 5, y + 5)
-            .withSize(windowW - 10, windowH - 36)
+            .withSize(maxWidth - 10, maxHeight - 36)
         ;
 
         outputBox.getMod()
@@ -213,7 +221,7 @@ public class Console implements Drawable
 
         tf
             .withAlignment(1, 0)
-            .withPos(x + 10, y + windowH - 16)
+            .withPos(x + 10, y + maxHeight - 16)
         ;
 
         tf.getInput().getMod()
@@ -239,9 +247,6 @@ public class Console implements Drawable
             }
         }
     }
-
-    public PrintStream getOutputStream()
-    {   return consoleOutput;   }
 
 
     /* Commands related section
@@ -282,10 +287,10 @@ public class Console implements Drawable
                 {
                     x += (dist / ((double)getRepeatCount() / 2.0)) * percentage;
                     percentage -= ((double)1 / (double)getRepeatCount());
+
                 });
                 whenStart(() ->
                 {
-                    System.out.println("uh: " + getRepeatCount());
                     startTime = System.currentTimeMillis();
                     percentage = 1.0;
                     x = -dist;
@@ -294,7 +299,6 @@ public class Console implements Drawable
                 whenFinished(() ->
                 {
                     onVisible();   
-                    System.out.println("took " + (System.currentTimeMillis() - startTime) + "ms");
                 });
             }
         });

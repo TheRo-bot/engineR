@@ -7,14 +7,20 @@ import dev.ramar.e2.rendering.awt.control.*;
 
 import dev.ramar.e2.structures.WindowSettings;
 
+import dev.ramar.e2.rendering.Window.FullscreenState;
+
 import java.util.*;
 
 import javax.swing.JFrame;
+import java.awt.Frame;
 
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.GraphicsDevice;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -23,26 +29,30 @@ import java.awt.image.BufferStrategy;
 import java.awt.Component;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.WindowFocusListener;
 
 public class AWTWindow extends Window
 {
-
     private AWTViewPort vp;
 
     private JFrame frame;
     private Canvas canvas;
 
+    private int screenW = 1280, screenH = 720;
+    private String windowName;
+
+    private Thread shutdownHook = new Thread(() ->
+    {
+        System.out.println("Runtime shutdown! closing..");
+        onClose();
+    });
+
     public AWTWindow()
     {
         super(new AWTKeyController(), new AWTMouseController());
-        Runtime.getRuntime().addShutdownHook(new Thread()
-        {
-            public void run()
-            {
-                System.out.println("shutdown! closing..");
-                onClose();
-            }
-        });
+        canvas = new Canvas();
+
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
     public AWTKeyController getAWTKeys()
@@ -73,74 +83,141 @@ public class AWTWindow extends Window
         return this;
     }
 
-    public void init(WindowSettings ws)
+
+    public boolean isRenderable()
     {
-        frame = new JFrame(ws.getTitle());
+        return ready;
+    }
+    private boolean ready = false;
 
-
-        /*
-        Used for:
-         - Resizing
-        */
-        frame.addComponentListener(new ComponentAdapter()
+    private void setupFullscreenState(FullscreenState fss, JFrame jf)
+    {
+        switch(fss)
         {
-            public void componentResized(ComponentEvent e)
-            {
-                Component c = (Component)e.getSource();
-                onResize(c.getWidth(), c.getHeight());
+            case FULLSCREEN: 
+                jf.addWindowFocusListener(new WindowFocusListener()
+                    {
+                        public void windowGainedFocus(WindowEvent we)
+                        {
+                            frame.setState(Frame.NORMAL);
+                        }
+                        public void windowLostFocus(WindowEvent we)
+                        {
+                            frame.setState(Frame.ICONIFIED);
+                        }
+                    });
+            case WINDOWED_BORDERLESS:
+                jf.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                jf.setUndecorated(true);
+                break;
 
-            }
-        });
-
-        // setup the close action
-        /*
-        Used for:
-         - Closing
-        */
-        frame.addWindowListener(new WindowAdapter()
-        {
-            public void windowClosing(WindowEvent we)
-            {
-                onClose();
-            }
-        });
-
-        if( ws.fullscreen() )
-        {
-            frame.setSize(ws.screenW, ws.screenH);
-            frame.setResizable(false);   
-            frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-            frame.setUndecorated(true);
-
-            Dimension d = new Dimension(ws.screenW, ws.screenH);
+            case WINDOWED:
+                jf.setExtendedState(JFrame.NORMAL);
+                jf.setUndecorated(false);
+                break;
         }
-        else
+    }
+
+    public void setupFrame(JFrame jf)
+    {
+        synchronized(this)
         {
-            frame.setSize(ws.screenW, ws.screenH);
-            frame.setDefaultLookAndFeelDecorated(false);
-            frame.setExtendedState(JFrame.NORMAL); 
+            jf.setSize(screenW, screenH);
+            jf.setTitle(windowName);
+            jf.add(canvas);
+
+            setupFullscreenState(fullscreenState, jf);
+
+            jf.addComponentListener(new ComponentAdapter()
+            {
+                public void componentResized(ComponentEvent e)
+                {
+                    Component c = (Component)e.getSource();
+                    onResize(c.getWidth(), c.getHeight());
+                }
+            });
+
+            jf.addWindowListener(new WindowAdapter()
+            {
+                @Override
+                public void windowClosing(WindowEvent we)
+                {
+                    onClose();
+                    close();
+                    jf.dispose();
+                }
+            });
+
+            jf.setResizable(false);
+            jf.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+            jf.setVisible(true);
+            getAWTKeys().withViewPort(vp);
+            getAWTMouse().withViewPort(vp);
+
+            canvas.createBufferStrategy(3);
         }
-
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-
-        canvas = new Canvas();
-        getAWTKeys().withViewPort(vp);
-        getAWTMouse().withViewPort(vp);
-
-        
-        frame.add(canvas);
-        canvas.createBufferStrategy(3);
-        Graphics2D g2d = (Graphics2D)canvas.getBufferStrategy().getDrawGraphics();
-
-        g2d.setColor(new Color(0, 0, 0, 255));
-
-        g2d.fillRect(0, 0, ws.screenW, ws.screenH);
-
-
     }
 
 
+
+    public void init()
+    {
+        ready = false;
+        if( frame != null )
+        {
+            frame.dispose();
+            frame = null;
+        }
+
+        frame = new JFrame();
+        setupFrame(frame);
+        frame.toFront();
+        frame.requestFocus();
+        ready = true;
+    }
+
+
+    public void resize(int w, int h)
+    {
+        screenW = w;
+        screenH = h;
+
+        if( frame != null )
+        {
+            frame.setSize(w, h);
+            onResize(w, h);
+        }
+    }
+
+    public void setTitle(String s)
+    {
+        windowName = s;
+        if( frame != null )
+            frame.setTitle(s);
+    }
+
+
+    public void setFullscreenState(FullscreenState fs)
+    {
+        if( fullscreenState != fs )
+        {
+            fullscreenState = fs;
+
+            if( frame != null )
+            {
+                synchronized(this)
+                {
+                    init();
+                }
+            }
+        }
+    }
+
+    public FullscreenState getFullscreenState()
+    {
+        return fullscreenState;
+    }
 
     public int width()
     {
@@ -157,7 +234,8 @@ public class AWTWindow extends Window
     {
         Graphics2D exp = null;
 
-        exp = (Graphics2D) getBufferStrategy().getDrawGraphics();
+        if( getBufferStrategy() != null )
+            exp = (Graphics2D) getBufferStrategy().getDrawGraphics();
 
         return exp;
     }
@@ -174,12 +252,14 @@ public class AWTWindow extends Window
 
     public void close()
     {
-        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        clearListeners();
+        try
+        {
+            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+        }
+        // if we're already shutting down (^C) we can't remove a shutdown hook
+        catch(IllegalStateException e ) {}
     }
-
-
-
-
 
 
 

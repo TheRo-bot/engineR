@@ -1,12 +1,14 @@
 package dev.ramar.e2.rendering.awt;
 
 import dev.ramar.e2.rendering.*;
-
-import dev.ramar.e2.structures.WindowSettings;
+import dev.ramar.e2.rendering.Window.FullscreenState;
 
 import dev.ramar.e2.rendering.awt.drawing.stateless.AWTStatelessDrawer;
+import dev.ramar.e2.rendering.drawing.stateful.*;
 
+import dev.ramar.e2.structures.WindowSettings;
 import dev.ramar.e2.structures.Vec2;
+
 
 import java.util.*;
 
@@ -27,6 +29,11 @@ public class AWTViewPort extends ViewPort
     private static Color DEFAULT_COLOR = new Color(0, 0, 0, 255);
 
     private Vec2 worldCenter = new Vec2(0, 0);
+
+    public final Rect BACKGROUND = new Rect(0, 0, 2000, 2000)
+        .withColour(0, 0, 0, 255)
+        .withFill()
+    ;
 
     public AWTViewPort()
     {
@@ -60,7 +67,7 @@ public class AWTViewPort extends ViewPort
 
     public Graphics2D getGraphics()
     {
-        if( draw.stateless != null )
+        if( draw != null && draw.stateless != null )
             return ((AWTStatelessDrawer)draw.stateless).getGraphics();
         return null;
     }
@@ -139,43 +146,44 @@ public class AWTViewPort extends ViewPort
 
 
 
+    public void init()
+    {
+        window.onClose.add(() ->
+        {
+            stop();
+        });
+        super.init();
+    }
 
 
     @Override
-    public void init(WindowSettings ws)
+    public void init(int screenW, int screenH, String title, FullscreenState fs)
     {
-
-        System.out.println("init!");
-        getAWTWindow().init(ws);
-        setLogicalWidth(ws.screenW);
-        setLogicalHeight(ws.screenH);
-
-        window.onClose.add(() ->
+        init();
+        window.resize(screenW, screenH);
+        window.setTitle(title);
+        window.setFullscreenState(fs);
+        window.init();
+        
+        setLogicalWidth(screenW);
+        setLogicalHeight(screenH);
+        window.onResize.add((int w, int h) ->
         {
-            System.out.println("Window closed! stopping..");
-            long time = System.currentTimeMillis();
-            stop();
-            System.out.println("stopped! (took " + (System.currentTimeMillis() - time) + "ms)");
+            BACKGROUND.setW(w);
+            BACKGROUND.setH(h);
         });
 
         Graphics2D g2d = getAWTWindow().getDrawGraphics();
 
         g2d.setColor(new Color(0, 0, 0, 255));
-
-        g2d.fillRect(0, 0, ws.screenW, ws.screenH);
-
-        super.init(ws);
+        g2d.fillRect(0, 0, screenW, screenH);
 
     }
 
 
     private Thread inner;
 
-    /*
 
-    List<int> timesFromLastSecond
-    
-    */
 
     @Override
     public void start()
@@ -195,7 +203,6 @@ public class AWTViewPort extends ViewPort
                 timeToSecond += diffTime;
                 if( timeToSecond >= 1000 )
                 {
-
                     System.out.println("FPS: " + frameCount);
                     frameCount = 0;
                     timeToSecond = 0;
@@ -203,9 +210,7 @@ public class AWTViewPort extends ViewPort
 
                 lastTime = thisTime;
             }
-
         });
-
         inner.start();
         super.start();
     }
@@ -214,7 +219,20 @@ public class AWTViewPort extends ViewPort
     @Override
     public void stop()
     {
+        long time = System.currentTimeMillis();
+        if( inner != null )
+        {
+            inner.interrupt();
+            try
+            {
+                inner.join();
+            }
+            catch(InterruptedException e) {}
+        }
         super.stop();
+        
+        System.out.println("[VP] stopped! (took " + (System.currentTimeMillis() - time) + "ms)");
+
     }
 
 
@@ -237,39 +255,44 @@ public class AWTViewPort extends ViewPort
 
     private void render()
     {
-        BufferStrategy bs = getAWTWindow().getBufferStrategy();
-        Graphics2D g2d = (Graphics2D)bs.getDrawGraphics();
-
-
-        getAWTLess().setupDrawing(g2d);
-
-        AffineTransform at = new AffineTransform();
-        synchronized(this)
+        if( window.isRenderable() )
         {
-            double scaleX = 1, scaleY = 1;
-            if( lWidth > 0 )
-                scaleX = (double)window.width() / (double)lWidth;
+            BufferStrategy bs = getAWTWindow().getBufferStrategy();
 
-            if( lHeight > 0 )
-                scaleY = (double)window.height() / (double)lHeight;
+            Graphics2D g2d = getAWTWindow().getDrawGraphics();
 
-            // System.out.println("(" + scaleX + ", " + scaleY + ") scaling (" + window.width() + ", " + window.height() + ") to (" + (window.width() * scaleX) + ", " + (window.height() * scaleY) + ")");
-            at.scale(scaleX, scaleY);    
+
+            getAWTLess().setupDrawing(g2d);
+
+            AffineTransform at = new AffineTransform();
+            synchronized(this)
+            {
+                double scaleX = 1, scaleY = 1;
+                if( lWidth > 0 )
+                    scaleX = (double)window.width() / (double)lWidth;
+
+                if( lHeight > 0 )
+                    scaleY = (double)window.height() / (double)lHeight;
+
+                // System.out.println("(" + scaleX + ", " + scaleY + ") scaling (" + window.width() + ", " + window.height() + ") to (" + (window.width() * scaleX) + ", " + (window.height() * scaleY) + ")");
+                at.scale(scaleX, scaleY);    
+            }
+
+
+            g2d.setTransform(at);
+
+            double offX = worldCenter.getX() + window.width() / 2,
+                   offY = worldCenter.getY() + window.height() / 2;
+
+            BACKGROUND.drawAt(0, 0, this);
+
+            draw.stateless.drawAt(offX, offY, this);
+            draw.stateful.drawAt(offX, offY, this);
+
+            getAWTLess().shutdownDrawing();
+            g2d.dispose();
+            bs.show();
         }
-
-
-        g2d.setTransform(at);
-
-
-        draw.stateless.rect.withMod().withColour(0, 0, 0, 255).withFill();
-        draw.stateless.rect.poslen(0, 0, window.width(), window.height());
-
-        draw.stateless.drawAt(worldCenter.getX() + window.width() / 2, worldCenter.getY() + window.height() / 2, this);
-        draw.stateful.drawAt(worldCenter.getX() + window.width() / 2, worldCenter.getY() + window.height() / 2, this);
-
-        getAWTLess().shutdownDrawing();
-        g2d.dispose();
-        bs.show();
     }
 
 

@@ -14,10 +14,7 @@ public class ConsoleParser
 {
 
 
-    public interface Command
-    {
-        public Object run(Object[] args);
-    }
+    
 
     public static ConsoleParser createParser(Console c)
     {
@@ -48,7 +45,7 @@ public class ConsoleParser
                             exp[1] = arr[1];
                         }
 
-                        if( arr.length > 1 )
+                        if( arr.length > 2 )
                         {
                             try
                             {
@@ -65,6 +62,8 @@ public class ConsoleParser
                                 cp.ps.println("move (up | down | left | right) <number(1:30)>");
                         }
                     }
+                    else
+                        cp.ps.println("move (up | down | left | right) <number(1:30)>");
 
                 }
                 return exp;
@@ -76,38 +75,45 @@ public class ConsoleParser
             }
         });
 
-        cp.addCommand("moveConsole", (Object[] args) ->
+ 
+        /*
+        Parser for: Single-entry commands
+         - Outputs the input
+         - Used for:
+            - 'quit', 'exit' | closes the viewport
+            - 'help'         | shows commands n shit
+        */
+        cp.addParser(new ObjectParser()
         {
-            double moveHori = 0,
-                   moveVert = 0;
-            int moveAm = (int)args[2];
-
-            switch((String)args[1])
+            public Object[] parse(String s)
             {
-                case "up":
-                    moveVert = -moveAm;
-                    break;
-                case "down":
-                    moveVert =  moveAm;
-                    break;
-                case "left":
-                    moveHori = -moveAm;
-                    break;
-                case "right":
-                    moveHori =  moveAm;
-                    break;
+                return new Object[]{s};
             }
 
-            cp.console.withOffset(moveHori, moveVert);
-
-            return null;
-
+            public String unparse(Object[] arr)
+            {
+                return null;
+            }
         });
 
-        cp.addCommand("quit", (Object[] args) ->
+
+        Command closeCommand = (Object[] args) ->
         {
             cp.console.getViewPortRef().window.close();
             return null;  
+        };
+
+        cp.addCommand("quit", closeCommand);
+        cp.addCommand("exit", closeCommand);
+
+        cp.addCommand("help", (Object[] args) ->
+        {
+            cp.ps.println("Help\n-------\nCommands:");
+            for( String s : cp.commands.keySet() )
+            {
+                System.out.println(" - " + s);
+            }
+            return null;
         });
 
         cp.addParser(new ObjectParser()
@@ -117,7 +123,7 @@ public class ConsoleParser
                 Object[] out = null;
                 String[] arr = s.split(" ");
 
-                if( out[0].equals("test") )
+                if( arr[0].equals("test") )
                 {
                     out = new Object[2];
                     out[0] = "test";
@@ -137,23 +143,9 @@ public class ConsoleParser
             }
         });
 
-        cp.addCommand("test", (Object[] args) ->
-        {
-            cp.ps.println("test! " + args[1]);
-
-            return null;
-        });
-
         return cp;
     }
 
-
-    private interface ObjectParser
-    {
-        public Object[] parse(String s);
-
-        public String unparse(Object[] arr);
-    }
 
 
     private final Map<String, Command> commands = new HashMap<>();
@@ -167,16 +159,16 @@ public class ConsoleParser
         this.ps = System.out;
     }
 
-    public ConsoleParser(Console c)
-    {
-        this(c.getOutputStream());
-        this.console = c;
-    }  
-
     public ConsoleParser(PrintStream ps)
     {  
         this.ps = ps == null ? System.out : ps;
     }
+
+    public ConsoleParser(Console c)
+    {
+        this(c.out);
+        this.console = c;
+    }  
 
     private void addCommand(String s, Command c)
     {
@@ -197,7 +189,15 @@ public class ConsoleParser
 
             for( ObjectParser parser : objectParsers )
             {
-                parsedCommand = parser.parse(s);
+                try
+                {
+                    parsedCommand = parser.parse(s);
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+
                 if( parsedCommand != null )
                     break;
             }
