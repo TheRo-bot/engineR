@@ -190,6 +190,9 @@ public class AWTKeyController extends KeyController
                 return null;
             }
 
+            public String describeCommand()
+            {   return "debug stuff in relation to the AWTKeyController";   }
+
             private Drawable drawable = new Drawable()
             {
                 public void drawAt(double xOff, double yOff, ViewPort vp)

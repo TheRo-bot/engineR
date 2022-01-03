@@ -28,6 +28,31 @@ public class ConsoleParser
         cp.addCommand("debug", new Debug());
 
 
+        cp.addCommand("list", new Command()
+        {
+            private final ObjectParser PARSER = new SingleEntryParser();
+
+            public Object[] run(ConsoleParser cp, Object[] args)
+            {
+                cp.ps.println(cp.commands.keySet());
+
+                for( String s : cp.commands.keySet() )
+                {
+                    Command c = cp.commands.get(s);
+                    System.out.println(s + " || " + c.describeCommand());
+                }
+                return null;
+            }
+
+            public ObjectParser getParser()
+            {   return PARSER;   }
+
+            public String describeCommand()
+            {
+                return "Shows all available commands";
+            }
+        });
+
         Command closeCommand = new Command()
         {
             private final ObjectParser PARSER = new SingleEntryParser();
@@ -40,6 +65,9 @@ public class ConsoleParser
 
             public ObjectParser getParser()
             {   return PARSER; }
+
+            public String describeCommand()
+            {   return "closes this instance of EngineR2";   }
         };
         cp.addCommand("quit", closeCommand);
         cp.addCommand("exit", closeCommand);

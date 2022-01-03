@@ -44,6 +44,8 @@ public class Debug implements Command
             }
 
             public ObjectParser getParser() { return null; }
+
+            public String describeCommand() { return "lists available debug commands"; }
         });
     }
 
@@ -76,10 +78,14 @@ public class Debug implements Command
         return out;
     }
 
+
     public ObjectParser getParser()
     {
         return PARSER;
     }
+
+    public String describeCommand()
+    {    return "A hub command for accessing debugging related utilities";   }
 
 
 }

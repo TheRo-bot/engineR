@@ -68,6 +68,8 @@ public class E2Main
             .withFullscreenState(FullscreenState.WINDOWED)
             .withTitle("EngineR2 Main")
         );
+
+        TestDemos td = new TestDemos(e2);
     }
 
 
