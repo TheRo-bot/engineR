@@ -9,6 +9,7 @@ import dev.ramar.e2.structures.WindowSettings;
 
 import dev.ramar.e2.rendering.Window.FullscreenState;
 
+
 import java.util.*;
 
 import javax.swing.JFrame;
@@ -79,7 +80,7 @@ public class AWTWindow extends Window
     public AWTWindow withViewPort(AWTViewPort vp)
     {
         this.vp = vp;
-
+        
         return this;
     }
 

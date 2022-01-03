@@ -3,7 +3,10 @@ package dev.ramar.e2;
 import dev.ramar.e2.rendering.ViewPort;
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 import dev.ramar.e2.rendering.awt.AWTWindow;
+import dev.ramar.e2.rendering.awt.control.AWTKeyController;
 
+import dev.ramar.e2.rendering.control.KeyCombo;
+import dev.ramar.e2.rendering.control.KeyCombo.Directionality;
 
 import dev.ramar.e2.structures.WindowSettings;
 
@@ -14,7 +17,6 @@ import java.awt.Graphics2D;
 
 import dev.ramar.e2.rendering.Window.FullscreenState;
 
-import dev.ramar.e2.rendering.control.KeyController.KeyCombo;
 import dev.ramar.e2.rendering.console.Console;
 
 public class EngineR2
@@ -33,12 +35,14 @@ public class EngineR2
 
         viewport.draw.stateless.perm.add(console);
 
+        ((AWTKeyController)viewport.window.keys).doEngineStuff(this);            
+
+
         viewport.window.keys.bindRel(new KeyCombo("console_toggle")
-                                             .withChar('`'),
+                                         .withChar('`'),
         (KeyCombo kc) ->
         {
-            System.out.println("AHHHHH");
-            console.withVisibility(!console.getVisibility());
+            console.animation_SwapVisibility();
         });
     }
 
@@ -74,8 +78,6 @@ public class EngineR2
             this.fs = fs;
             return this;
         }
-
-
 
 
         public void build(ViewPort vp)

@@ -33,7 +33,7 @@ public class Console implements Drawable
     private boolean visible = false;
 
     private ViewPort vpRef = null;
-    private ConsoleParser parser = null;
+    public final ConsoleParser parser;
 
     public final PrintStream out;
 
@@ -57,7 +57,6 @@ public class Console implements Drawable
 
             if( in != null )
             {
-                // System.out.println("!! Stolen '" + c + "' (" + (int)((char)c) + ")");
                 String inputText = in.getInputText();
                 int intCode = (int)(char)c;
                 switch(intCode)
@@ -345,16 +344,14 @@ public class Console implements Drawable
 
     private void onVisible()
     {
-        System.out.println("onVisible");
         if( vpRef != null )
-            vpRef.window.keys.stealChars.startStealing(charStealer);
+            vpRef.window.keys.thieves.startStealing(charStealer);
     }
 
     private void onInvisible()
     {
-        System.out.println("onInvisible");
         if( vpRef != null)
-            vpRef.window.keys.stealChars.stopStealing(charStealer);
+            vpRef.window.keys.thieves.stopStealing(charStealer);
     }
 
 }

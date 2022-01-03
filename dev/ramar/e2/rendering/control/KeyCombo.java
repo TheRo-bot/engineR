@@ -90,6 +90,10 @@ public class KeyCombo
     }
 
 
+    /*
+    Anytime Builder: withTShift
+     - Toggles a directional shift, pass null for both.
+    */
     public KeyCombo withTShift(Directionality dir)
     {
         if( dir != null )
@@ -108,6 +112,10 @@ public class KeyCombo
 
 
 
+    /*
+    Anytime Builder: withTAlt
+     - Toggles a directional alt, pass null for both.
+    */
     public KeyCombo withTAlt(Directionality dir)
     {
         if( dir != null )
@@ -123,6 +131,11 @@ public class KeyCombo
         return this;
     }
 
+
+    /*
+    Anytime Builder: withTCntrl
+     - Toggles a directional cntrl, pass null for both.
+    */
     public KeyCombo withTCntrl(Directionality dir)
     {
         if( dir != null )
@@ -140,115 +153,143 @@ public class KeyCombo
     }
 
 
+    /*
+    Query: isShift
+     - If either shift key should be held down to activate
+    */
     public boolean isShift()
     {
         return isLShift() || isRShift();
     }
 
+    /*
+    Query: isLShift
+     - If the left shift key should be held down to activate
+    */
     public boolean isLShift()
     {
         return flags[0];
     }
 
+
+    /*
+    Query: isRShift
+     - If the right shift key should be held down to activate
+    */
     public boolean isRShift()
     {
         return flags[1];
     }
 
 
+    /*
+    Query: isAlt
+     - If either alt key should be held down to activate
+    */
     public boolean isAlt()
     {
         return isLAlt() || isRAlt();
     }
 
+
+    /*
+    Query: isLAlt
+     - If the left alt key should be held down to activate
+    */
     public boolean isLAlt()
     {
         return flags[2];
     }
 
+    /*
+    Query: isRAlt
+     - If the right alt key should be held down to activate
+    */
     public boolean isRAlt()
     {
         return flags[3];
     }
 
-
+    /*
+    Query: isCntrl
+     - If either cntrl key should be held down to activate
+    */
     public boolean isCntrl()
     {
         return isLCntrl() || isRCntrl();
     }
 
+
+    /*
+    Query: isLCntrl
+     - If the left cntrl key should be held down to activate
+    */
     public boolean isLCntrl()
     {
         return flags[4];
     }
 
+    /*
+    Query: isRCntrl
+     - If the right cntrl key should be held down to activate
+    */
     public boolean isRCntrl()
     {
         return flags[5];
     }
 
-    /*static
-    {
-        KeyCombo kc1 = new KeyCombo("one")
-            .withChar('a')
-            .withTShift(Directionality.LEFT)
-        ;
-        KeyCombo kc2 = new KeyCombo("two")
-            .withChar('a')
-            .withTShift(Directionality.RIGHT)
-        ;
-        System.out.println("-----===-----");
 
-        Set<Character> testSet = new HashSet<>();
-        boolean[] testFlags = new boolean[]
-            {true, false, false, false, false, false};
-
-        testSet.add('a');
-
-
-        System.out.println("    " + kc1);
-        System.out.println("    " + kc2);
-        System.out.println("    active test: " + testSet);
-
-        System.out.println("    " + kc1.isActive(testSet, testFlags));
-        System.out.println("    " + kc2.isActive(testSet, testFlags));
-        System.out.println("-----===-----");
-    }*/
-
+    /*
+    Query: isActive
+     - Checks if this KeyCombo is active, based off of the set of
+       pressed characters, and a given flags array, which directly
+       corresponds to this KeyCombo's flags array
+    */
     public boolean isActive(Set<Character> pressed, boolean[] flags)
     {
-        boolean allPressed = true;
-        for( Character c : toActivate )
-        {
-            if(! pressed.contains(c) )
-            {
-                allPressed = true;
-                break; 
-            }
-        }
-        // System.out.println("isActive: " + allPressed + ", " + flagsMatch(this.flags, flags));
-        // System.out.println(Arrays.toString(flags) + "\nvs\n" + Arrays.toString(this.flags));
-
-        boolean modifiersMatch = flags.length == this.flags.length;
-
-        if( modifiersMatch )
-            for( int ii = 0; modifiersMatch && ii < flags.length; ii++ )
-                modifiersMatch = modifiersMatch && (this.flags[ii] == flags[ii]);
-
-        return allPressed && modifiersMatch;
+        return pressed.containsAll(toActivate) && 
+               flagsMatch(this.flags, flags);
     }
 
 
+    /* Static Methods
+    -==-----------------
+    */
+
+    static
+    {
+        KeyCombo kc1 = new KeyCombo("Bruh")
+            .withChar('w')
+            .withTShift(Directionality.LEFT)
+        ;
+
+        KeyCombo kc2 = new KeyCombo("Bruh")
+            .withTShift(Directionality.LEFT)
+        ;
+
+        Set<Character> fakePressed = new HashSet<>();
+        fakePressed.add('w');
+
+        boolean[] fakeMods = new boolean[6];
+        fakeMods[0] = true;
+
+        System.out.println("--------------");
+        System.out.println(kc1.isActive(fakePressed, fakeMods));
+        System.out.println(kc2.isActive(fakePressed, fakeMods));
+        System.out.println("--------------");
+    }
+
+
+    /*
+    Method: flagsMatch
+     - Checks if two boolean arrays are equal
+    */
     public static boolean flagsMatch(boolean[] a, boolean[] b)
     {
         boolean match = a.length == b.length;
-        if( match )
-        {
-            for( int ii = 0; match && ii < a.length; ii++ )
-            {
-                match = match && a[ii] ? b[ii] : false;
-            }
-        }
+
+        for( int ii = 0; match && ii < a.length; ii++ )
+            match = match && a[ii] == b[ii];
 
         return match;    
     }

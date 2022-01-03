@@ -13,9 +13,8 @@ import dev.ramar.e2.rendering.drawing.stateless.LineDrawer.LineMods;
 import dev.ramar.e2.rendering.control.MouseController.PressedListeners.PressedListener;
 import dev.ramar.e2.rendering.control.MouseController.ReleasedListeners.ReleasedListener;
 
-import dev.ramar.e2.rendering.control.KeyController.KeyCombo;
-import dev.ramar.e2.rendering.control.KeyController.KeyListener;
-
+import dev.ramar.e2.rendering.control.KeyCombo;
+import dev.ramar.e2.rendering.control.KeyCombo.Directionality;
 
 import dev.ramar.e2.structures.SyncPoint;
 
@@ -195,170 +194,7 @@ public class Tests
 
     public void keyTest()
     {
-        int moveSpeed = 3;
-        Runnable moveUp = () ->
-        {
-            Rect r = new Rect(-5, -5, 10, 10);
-            r.getMod()
-                .withColour(255, 255, 255, 255)
-                .withFill()
-                .withOffset(0, -10)
-            ;
 
-            try
-            {
-
-                vp.draw.stateful.shapes.add(r);
-                while(true)
-                {
-                    vp.moveCenterY(-moveSpeed);
-                    Thread.sleep(10);
-                }
-            }
-            catch(InterruptedException e) 
-            {
-                vp.draw.stateful.shapes.remove(r);
-            }
-        };
-
-        Runnable moveDown = () ->
-        {
-            Rect r = new Rect(-5, -5, 10, 10);
-            r.getMod()
-                .withColour(0, 255, 255, 255)
-                .withFill()
-                .withOffset(0, 10)
-            ;
-                
-            
-            try
-            {
-                vp.draw.stateful.shapes.add(r);
-                while(true)
-                {
-                    vp.moveCenterY(moveSpeed);
-                    Thread.sleep(10);
-                }
-            }
-            catch(InterruptedException e)
-            {
-                vp.draw.stateful.shapes.remove(r);
-            }
-        };
-        Runnable moveRight = () ->
-        {
-            Rect r = new Rect(-5, -5, 10, 10);
-            r.getMod()
-                .withColour(255, 0, 255, 255)
-                .withFill()
-                .withOffset(10, 0)
-            ;
-
-            try
-            {
-                vp.draw.stateful.shapes.add(r);
-                while(true)
-                {
-                    vp.moveCenterX(moveSpeed);
-                    Thread.sleep(10);
-                }
-            }
-            catch(InterruptedException e)
-            {
-                vp.draw.stateful.shapes.remove(r);
-            }
-        };
-
-        Runnable moveLeft = () ->
-        {
-            Rect r = new Rect(-5, -5, 10, 10);
-            r.getMod()
-                .withColour(255, 255, 0, 255)
-                .withFill()
-                .withOffset(-10, 0)
-            ;
-
-            try
-            {
-                vp.draw.stateful.shapes.add(r);
-
-                while(true)
-                {
-                    vp.moveCenterX(-moveSpeed);
-                    Thread.sleep(10);
-                }
-            }
-            catch(InterruptedException e) 
-            {
-                vp.draw.stateful.shapes.remove(r);
-            }
-        };
-
-        KeyListener walkListener = new KeyListener()
-        {
-            List<Thread> t = new ArrayList<>();
-            Thread u, d, l, r;
-
-            public void onPress(KeyCombo kb)
-            {
-                Runnable thisR = null;
-                switch(kb.getName())
-                {
-                    case "walk_up":
-                        u = new Thread(moveUp);
-                        u.start();
-                        break;
-                    case "walk_down":
-                        d = new Thread(moveDown);
-                        d.start();
-                        break;
-                    case "walk_right":
-                        r = new Thread(moveRight);
-                        r.start();
-                        break;
-                    case "walk_left":
-                        l = new Thread(moveLeft);
-                        l.start();
-                        break;
-                }
-
-            }
-
-            public void onRelease(KeyCombo kb)
-            {
-                switch(kb.getName())
-                {
-                    case "walk_up":
-                        u.interrupt();
-                        break;
-                    case "walk_down":
-                        d.interrupt();
-                        break;
-                    case "walk_right":
-                        r.interrupt();
-                        break;
-                    case "walk_left":
-                        l.interrupt();
-                        break;
-                }
-            }
-        };
-
-        vp.window.keys.bind(new KeyCombo("walk_up").withChar('w'), walkListener);
-
-        vp.window.keys.bind(new KeyCombo("walk_down").withChar('s'), walkListener);
-
-        vp.window.keys.bind(new KeyCombo("walk_left").withChar('a'), walkListener);
-
-        vp.window.keys.bind(new KeyCombo("walk_right").withChar('d'), walkListener);
-
-
-        Rect r = new Rect(-4, -4, 8, 8);
-        r.getMod()
-            .withColour(150, 150, 150, 255)
-            .withFill()
-        ;
-        vp.draw.stateful.shapes.add(r);
     }
 
 
@@ -468,7 +304,7 @@ public class Tests
         sp1.addNeighbour(sp2);
 
 
-        vp.window.keys.bind(new KeyCombo("toggle_sp").withChar('v'), new KeyListener()
+/*        vp.window.keys.bind(new KeyCombo("toggle_sp").withChar('v'), new KeyListener()
         {
 
             public void onPress(KeyCombo kb) {}
@@ -494,128 +330,14 @@ public class Tests
             }
 
 
-        });
+        });*/
     }
 
 
     public void scaleTest(int fakeW, int fakeH)
     {
-        final int moveAm = 10;
-        final int waitTime = 10;
-        Runnable width_up = () ->
-        {
-            try
-            {
-                while(true)
-                {
-                    vp.setLogicalWidth(vp.getLogicalWidth() + moveAm);
-                    Thread.sleep(waitTime);
-                }
-            }
-            catch(InterruptedException e) {}
-        };
-
-        Runnable width_down = () ->
-        {
-            try
-            {
-                while(true)
-                {
-                    vp.setLogicalWidth(vp.getLogicalWidth() - moveAm);
-                    Thread.sleep(waitTime);
-                }
-            }
-            catch(InterruptedException e) {}
-        };
-
-        Runnable height_up = () ->
-        {
-            try
-            {
-                while(true)
-                {
-                    vp.setLogicalHeight(vp.getLogicalHeight() + moveAm);
-                    Thread.sleep(waitTime);
-                }
-            }
-            catch(InterruptedException e) {}
-
-        };
-
-        Runnable height_down = () ->
-        {
-            try
-            {
-                while(true)
-                {
-                    vp.setLogicalHeight(vp.getLogicalHeight() - moveAm);
-                    Thread.sleep(waitTime);
-                }
-            }
-            catch(InterruptedException e) {}
-        };
 
 
-
-        KeyListener kl = new KeyListener()
-        {
-            private Thread wUp, wDown, hUp, hDown;
-
-            public void onPress(KeyCombo kc)
-            {
-                switch(kc.getName())
-                {
-                    case "width_up":
-                        wUp = new Thread(width_up);
-                        wUp.start();
-                        break;
-                    case "width_down":
-                        wDown = new Thread(width_down);
-                        wDown.start();
-                        break;
-                    case "height_up":
-                        hUp = new Thread(height_up);
-                        hUp.start();
-                        break;
-                    case "height_down":
-                        hDown = new Thread(height_down);
-                        hDown.start();
-                        break;
-
-
-                }
-            }
-
-            public void onRelease(KeyCombo kc)
-            {
-                switch(kc.getName())
-                {
-                    case "width_up":
-                        wUp.interrupt();
-                        break;
-                    case "width_down":
-                        wDown.interrupt();
-                        break;
-                    case "height_up":
-                        hUp.interrupt();
-                        break;
-                    case "height_down":
-                        hDown.interrupt();
-                        break;
-                }
-                System.out.println("logical size: (" + vp.getLogicalWidth() + ", " + vp.getLogicalHeight() + ")");
-            }
-        };
-
-        vp.window.keys.bind(new KeyCombo("height_up").withChar('i'), kl);
-        vp.window.keys.bind(new KeyCombo("height_down").withChar('k'), kl);
-        vp.window.keys.bind(new KeyCombo("width_up").withChar('l'), kl);
-        vp.window.keys.bind(new KeyCombo("width_down").withChar('j'), kl);
-
-
-        // vp.setLogicalWidth(fakeW);
-        // vp.setLogicalHeight(fakeH);
-        System.out.println("scaleTest end");
     }
 
     private double scale = 1.0, rotate = 0.0, rotateAm = 1.0;
@@ -734,40 +456,40 @@ ROUND
 */
 
 
-        vp.window.keys.bind(new KeyCombo("bruh").withChar('o'), new KeyListener()
-        {
+        // vp.window.keys.bind(new KeyCombo("bruh").withChar('o'), new KeyListener()
+        // {
 
-            public void onPress(KeyCombo kc)
-            {
+        //     public void onPress(KeyCombo kc)
+        //     {
 
-            }
-            int style = 0;
-            public void onRelease(KeyCombo kc)
-            {
-                style++;
+        //     }
+        //     int style = 0;
+        //     public void onRelease(KeyCombo kc)
+        //     {
+        //         style++;
 
-                LineMods.CapStyle cs = LineMods.CapStyle.BUTT;
-                switch(style)
-                {
-                    case 1:
-                        cs = LineMods.CapStyle.BUTT;
-                        break;
-                    case 2:
-                        cs = LineMods.CapStyle.ROUND;
-                        break;
+        //         LineMods.CapStyle cs = LineMods.CapStyle.BUTT;
+        //         switch(style)
+        //         {
+        //             case 1:
+        //                 cs = LineMods.CapStyle.BUTT;
+        //                 break;
+        //             case 2:
+        //                 cs = LineMods.CapStyle.ROUND;
+        //                 break;
 
-                    case 3:
-                        cs = LineMods.CapStyle.SQUARE;
-                        break;
+        //             case 3:
+        //                 cs = LineMods.CapStyle.SQUARE;
+        //                 break;
 
-                    default:
-                        style = 0;
-                        break;
-                }
+        //             default:
+        //                 style = 0;
+        //                 break;
+        //         }
 
-                l.getMod().withCapStyle(cs);
-            }
-        });
+        //         l.getMod().withCapStyle(cs);
+        //     }
+        // });
 
         new Thread(() ->
         {
@@ -833,24 +555,7 @@ ROUND
 
         vp.draw.stateless.perm.add(c);
 
-        vp.window.keys.bindRel(new KeyCombo("bruh").withChar('`'), (KeyCombo kc) ->
-        {
-            System.out.println("AHHH");
-            c.withVisibility(!c.getVisibility());
-        });
 
-        vp.window.keys.bind(new KeyCombo("bruh").withChar('`'), new KeyListener()
-        {
-            public void onPress(KeyCombo kc)
-            {
-
-            }
-
-            public void onRelease(KeyCombo kc)
-            {
-                c.animation_SwapVisibility();
-            }
-        });
     }
 
 
@@ -1042,7 +747,13 @@ ROUND
 
     public void newKeyComboTest()
     {
-        
+        vp.window.keys.bindPress(new KeyCombo("bruh")
+                .withTShift(Directionality.LEFT)
+        , (KeyCombo kc) ->
+        {
+            System.out.println("YUH");
+        }
+        );
     }
 }
 

@@ -86,7 +86,6 @@ public class RepeatableTaskAnimation extends Animation
     @Override
     protected void onStart()
     {
-        System.out.println("onStart");
         super.onStart();
         stopAnim = false;
         pauseAnim = false;

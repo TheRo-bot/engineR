@@ -1,7 +1,5 @@
 package dev.ramar.e2.rendering.control;
 
-import dev.ramar.e2.rendering.control.KeyController.KeyCombo.Modifiers;
-
 import java.util.Map;
 import java.util.HashMap;
 
@@ -11,213 +9,316 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 
-public abstract class KeyController
+import java.util.Iterator;
+
+import dev.ramar.utils.ValuePair;
+
+public class KeyController
 {
+    public final Stealable<Character> thieves = new KCStealer(); 
 
-    public interface KeyListener extends KeyPressListener, KeyReleaseListener
-    {}
+    private List<KeyCombo> combos = new ArrayList<>();
 
-    public interface KeyPressListener
-    {
-        public void onPress(KeyCombo kc);
-    }
+    private Map<KeyCombo, List<KeyPressListener>>    pressers = new HashMap<>();
+    private Map<KeyCombo, List<KeyReleaseListener>> releasers = new HashMap<>();
 
-    public interface KeyReleaseListener
-    {
-        public void onRelease(KeyCombo kc);
-    }
 
-    protected static class CharStealable implements Stealable<Character>
-    {
-        public List<Stealer<Character>> thieves = new ArrayList<>();
-        public CharStealable()
-        {
+    // protected Map<KeyCombo, List<KeyPressListener>>     pressListeners = new HashMap<>();
+    // protected Map<KeyCombo, List<KeyReleaseListener>> releaseListeners = new HashMap<>();
 
-        }
+    private boolean[]    currModifiers = new boolean[6];
+    private Set<Character> currPressed = new HashSet<>();
 
-        public void startStealing(Stealer<Character> s)
-        {
-            synchronized(thieves)
-            {
-                thieves.add(s);
-            }
-        }
-
-        public void stopStealing(Stealer<Character> s)
-        {
-            synchronized(thieves)
-            {
-                thieves.remove(s);
-            }
-        }
-
-    } 
-    public final Stealable<Character> stealChars = new CharStealable();
-
-    protected CharStealable getCharStealer() 
-    {   return (CharStealable)stealChars;   }
 
     public KeyController()
     {
-
+        for( int ii = 0; ii < currModifiers.length; ii++ )
+            currModifiers[ii] = false;
     }
-
-    protected final Map<KeyCombo, List<KeyPressListener>> pressMapping = new HashMap<>();
-    protected final Map<KeyCombo, List<KeyReleaseListener>> relMapping   = new HashMap<>();
-
-    protected final Set<Modifiers> activeMods = new HashSet<>();
 
 
     public void bindPress(KeyCombo kc, KeyPressListener kpl)
     {
-        if( !pressMapping.containsKey(kc) )
-            pressMapping.put(kc, new ArrayList<>());
+        if( kc != null )
+        {   
 
-        pressMapping.get(kc).add(kpl);
+            if( !combos.contains(kc) )
+            {
+                pressers.put(kc, new ArrayList<>());
+                combos.add(kc);
+            }
+
+            List<KeyPressListener> kpls = pressers.get(kc);
+            kpls.add(kpl);
+
+        }
     }
+
+
 
     public void bindRel(KeyCombo kc, KeyReleaseListener krl)
     {
-        if( !relMapping.containsKey(kc) )
-            relMapping.put(kc, new ArrayList<>());
+        System.out.println("bindRel " + kc);
+        if( kc != null )
+        {
 
-        relMapping.get(kc).add(krl);
+            if( !combos.contains(kc) )
+            {
+                releasers.put(kc, new ArrayList<>());
+                combos.add(kc);
+            }
+
+            List<KeyReleaseListener> krls = releasers.get(kc);
+            krls.add(krl);
+
+
+            ////
+            // List<KeyReleaseListener> kcListeners = releaseListeners.get(kc);
+            // if( kcListeners == null )
+            // {
+            //     releaseListeners.put(kc, new ArrayList<KeyReleaseListener>());
+            //     kcListeners = releaseListeners.get(kc);
+            // }
+
+            // kcListeners.add(krl);
+            // System.out.println(releaseListeners.get(kc));
+        }
     }
 
 
-    public void bind(KeyCombo kc, KeyListener kl)
-    {
-        bindPress(kc, kl);
-        bindRel(kc, kl);
-    }
-
-    public void bind(KeyCombo kc, KeyPressListener kpl, KeyReleaseListener krl)
-    {
-        bindPress(kc, kpl);
-        bindRel(kc, krl);
-    }
 
     public void unbindPress(KeyCombo kc, KeyPressListener kpl)
     {
-        if( pressMapping.containsKey(kc) )
-            pressMapping.get(kc).remove(kpl);
+        if( kc != null )
+        {
+
+            pressers.get(kc).remove(kpl);
+
+            if( pressers.get(kc).isEmpty() && releasers.get(kc).isEmpty() )
+            {
+                pressers.remove(kc);
+                combos.remove(kc);
+            }
+        }
     }
+
 
     public void unbindRel(KeyCombo kc, KeyReleaseListener krl)
     {
-        if( relMapping.containsKey(kc) )
-            relMapping.get(kc).remove(krl);
+        if( kc != null && combos.contains(kc) ) 
+        {
+            pressers.get(kc).remove(krl);
+
+            if( pressers.get(kc).isEmpty() && releasers.get(kc).isEmpty() )
+            {
+                pressers.remove(kc);
+                combos.remove(kc);
+            }
+        }
     }
 
-    public void unbind(KeyCombo kc, KeyListener kl)
+
+    private List<KeyCombo> active = new ArrayList<>();
+
+
+    protected void onKeyIn(char c)
     {
-        unbindPress(kc, kl);
-        unbindRel(kc, kl);
-    }
+        // if this char wasn't stolen, 
+        // check if we've pressed anything
 
-
-    public abstract boolean isPressed(KeyCombo kc);
-
-
-    public static class KeyCombo
-    {
-        public static enum Modifiers
+        if( !currPressed.contains(c) )
         {
-            LSHIFT, RSHIFT, LCNTRL, RCNTRL, LALT, RALT
-        }
-
-        public Set<Modifiers> modifiers = new HashSet<>();
-        public Set<Integer> chars = new HashSet<>();
-        private String name;
-
-        public KeyCombo(String name)
-        {   
-            this.name = name;
-        }
-
-        public String toString()
-        {
-            return "KeyCombo: " + getName() + " with chars " + chars + "(" + modifiers +  ")";
-        }
-
-        public String getName()
-        {
-            return name;
-        }
-
-
-        public KeyCombo withChar(char c)
-        {
-            chars.add((int)Character.toLowerCase(c));
-            return this;
-        }
-
-        public KeyCombo withKeyCode(int code)
-        {
-            chars.add(code);
-            return this;
-        }
-
-        public KeyCombo withShift(boolean left)
-        {
-            modifiers.add(left ? Modifiers.LSHIFT : Modifiers.RSHIFT);
-            return this;
-        }
-
-        public KeyCombo withCntrl(boolean left)
-        {
-            modifiers.add(left ? Modifiers.LCNTRL : Modifiers.RCNTRL);
-            return this;
-        }
-
-        public KeyCombo withAlt(boolean left)
-        {
-            modifiers.add(left ? Modifiers.LALT : Modifiers.RALT);
-            return this;
-        }
-
-        public boolean equals(Object o)
-        {
-            boolean equal = false;
-            KeyCombo kc;
-            if( o instanceof KeyCombo)
+            if(! ((KCStealer)thieves).onKeyIn(c) )
             {
-                kc = (KeyCombo)o;
-                if( kc.name.equals(name))
-                    // if( kc.modifiers.equals(modifiers) )
-                    //     if( kc.chars.equals(chars))
-                            equal = true;
-            }
-            return equal;
-        }
+                currPressed.add(c);
 
-        public boolean isTriggered(Set<Integer> pressed, Set<Modifiers> activeMods)
-        {
-            boolean isPressed = true;
-            for( Modifiers mod : modifiers )
-            {
-                if( !activeMods.contains(mod))
-                {
-                    isPressed = false;
-                    break;
-                }
-            }
-
-            if( isPressed )
-            {
-                for( Integer c : chars )
-                {
-                    if( !pressed.contains(c) )
+                for( KeyCombo kc : combos )
+                    if( kc.isActive(currPressed, currModifiers) )
                     {
-                        isPressed = false;
-                        break;
+                        synchronized(active)
+                        {
+                            active.add(kc);
+                        }
+
+                        List<KeyPressListener> kpls = pressers.get(kc);
+                        if( kpls != null )
+                            for( KeyPressListener kpl : kpls )
+                                kpl.onPress(kc);
                     }
-                }
             }
-
-            return isPressed;
         }
-
     }
 
+
+    protected void onKeyOut(char c)
+    {
+        currPressed.remove(c);
+        synchronized(active)
+        {
+            Iterator<KeyCombo> iter = active.iterator();
+            while(iter.hasNext())
+            {
+                KeyCombo kc = iter.next();
+                if( !kc.isActive(currPressed, currModifiers) )
+                {
+                    iter.remove();
+
+                    List<KeyReleaseListener> krls = releasers.get(kc);
+                    if( krls != null )
+                        for( KeyReleaseListener krl : krls )
+                            krl.onRelease(kc);
+                }
+            }
+        }
+    }
+
+
+
+    /*
+    Modifiers to: currModifiers
+     - Abstractly modifies <currModifiers> so you can change
+       whatever boolean means what here, and not everywhere else
+
+     * these indeces are ripped from KeyCombo.flags
+    */
+
+    protected void setAllModifiers(boolean p)
+    {
+        for( int ii = 0; ii < currModifiers.length; ii++ )
+            currModifiers[ii] = p;
+    }
+
+    protected void setLShift(boolean p)
+    {   currModifiers[0] = p;   }
+
+
+    protected void setRShift(boolean p)
+    {   currModifiers[1] = p;   }
+
+
+    protected void setLAlt(boolean p)
+    {   currModifiers[2] = p;   }
+
+
+    protected void setRAlt(boolean p)
+    {   currModifiers[3] = p;   }
+
+
+    protected void setLCntrl(boolean p)
+    {   currModifiers[4] = p;   }
+
+
+    protected void setRCntrl(boolean p)
+    {   currModifiers[5] = p;   }
+
+
+
+    /*
+    Accessors to: currModifiers
+     - A more static way of accessing what modifier keys are being pressed
+       compared to KeyCombos
+    */
+
+    public boolean isLShift()
+    {   return currModifiers[0];   }
+
+    public boolean isRShift()
+    {   return currModifiers[1];   }
+
+    public boolean isLAlt()
+    {   return currModifiers[2];   }
+
+    public boolean isRAlt()
+    {   return currModifiers[3];   }
+
+    public boolean isLCntrl()
+    {   return currModifiers[4];   }
+
+    public boolean isRCntrl()
+    {   return currModifiers[5];   }
+
+
+    static
+    {
+        KeyController kc = new KeyController();
+
+
+        kc.bindPress(new KeyCombo("bruh").withChar('w'), 
+                (KeyCombo pressed) -> 
+                {
+                    System.out.println(pressed + " pressed !");
+                }
+        );
+        kc.bindRel(new KeyCombo("bruh").withChar('w'), 
+                (KeyCombo rel) ->
+                {
+                    System.out.println(rel + " released !");
+                }
+        );
+
+        System.out.println("------");
+        // System.out.println(kc.pressListeners);
+        System.out.println(kc.releasers);
+        System.out.println();
+        System.out.println("------");
+    }
+
+
+
+
+    /* Inner Classes
+    -===---------------
+    */
+
+    /*
+    Helper: KCStealer (Stealable<Character>)
+     - Handles the char thievery that this class allows
+     - Is done through the new KeyController().thieves classfield
+    */
+    public static class KCStealer implements Stealable<Character>
+    {
+        private List<Stealer<Character>> charStealers = new ArrayList<>();
+
+        private boolean onKeyIn(char c)
+        {
+            boolean wasStolen = false;
+            synchronized(charStealers)
+            {
+                int ii = 0;
+                for( Stealer<Character> stealer : charStealers )
+                {
+                    // check with all previous stealers are ok with curr stealer
+                    boolean canSteal = true;
+                    for( int jj = ii; canSteal && jj >= 0; jj-- )
+                        canSteal = canSteal && 
+                          charStealers.get(jj).allowSimultaneousThievery(stealer);
+
+                    if( canSteal )
+                    {
+                        stealer.onSteal(this, c);
+                        wasStolen = true;
+                    }
+                    ii++;
+                }
+            }
+            return wasStolen;
+        }
+
+
+        public void startStealing(Stealer<Character> s)
+        {
+            synchronized(charStealers)
+            {
+                charStealers.add(s);
+            }
+        }   
+
+        public void stopStealing(Stealer<Character> s)
+        {
+            synchronized(charStealers)
+            {
+                charStealers.remove(s);
+            }
+        }
+    }
 }
