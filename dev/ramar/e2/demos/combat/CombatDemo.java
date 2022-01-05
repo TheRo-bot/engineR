@@ -10,10 +10,12 @@ import dev.ramar.e2.rendering.ViewPort;
 import dev.ramar.e2.rendering.control.KeyCombo;
 import dev.ramar.e2.rendering.control.KeyListener;
 
+import dev.ramar.e2.rendering.drawing.stateless.LineDrawer.LineMods;
+
 import java.util.List;
 import java.util.ArrayList;
 
-public class CombatDemo implements Demo
+public class CombatDemo
 {
     private boolean initialised = false;
 
@@ -21,6 +23,30 @@ public class CombatDemo implements Demo
 
     private EngineR2 er;
     
+
+    private Player player = new Player();
+    private Player test = new Player()
+    {
+
+        @Override
+        public void setup(EngineR2 er)
+        {
+            super.setup(er);
+
+            up.clearChars();
+            up.withChar('i');
+            down.clearChars();
+            down.withChar('k');
+            right.clearChars();
+            right.withChar('l');
+            left.clearChars();
+            left.withChar('j');
+
+            this.g = 0;
+            this.b = 0;
+        }
+    };
+
     private void initialise(EngineR2 er)
     {
         this.er = er;
@@ -30,127 +56,68 @@ public class CombatDemo implements Demo
             er.console.out.println("first time startup of combat demo");
 
             /* player */
-            Player p = new Player();
-            p.initialise(er);
+            player.setup(er);
+            player.trackToCamera();
+            test.setup(er);
 
-            drawables.add(p);
-        }
-
-    }
-
-    private class Player implements Drawable
-    {
-        double x = 0, y = 0, xm = 0, ym = 0;
-        long time = -1;
-        long moveTime = -1;
-        boolean moving = false;
-        public Player()
-        {
-
-        }
-
-        public void initialise(EngineR2 er)
-        {
-            KeyListener moveListener = new KeyListener()
+            Drawable grid = new Drawable()
             {
-                private double speed = 400.0;
-                public void onPress(KeyCombo kc)
-                {
-                    moving = true;
-                    switch(kc.getName())
-                    {
-                        case "up":
-                            ym -= speed;
-                            break;
-                        case "down":
-                            ym += speed;
-                            break;
-                        case "left":
-                            xm -= speed;
-                            break;
-                        case "right":
-                            xm += speed;
-                            break;
-                    }
-                    moveTime = System.currentTimeMillis();
-                }
+                double cx = 0, cy = 0;
 
-                public void onRelease(KeyCombo kc)
+
+                int cellXDist = 500,
+                    cellYDist = 500;
+                int gridW = 10000;
+                int gridH = 10000;
+
+                int r = 125, g = 125, b = 125;
+                public void drawAt(double x, double y, ViewPort vp)
                 {
-                    moving = false;
-                    moveTime = -1;
+                    LineMods lm = new LineMods()
+                        .withColour(r, g, b, 255)
+                        .withOffset(x, y)
+                    ;
+                    vp.draw.stateless.line.withTempMod(lm);
+
+                    int startX = (int)(cx - gridW/2);
+
+                    while(startX <= cx + gridW/2)
+                    {
+                        vp.draw.stateless.line.pospos(startX, -gridH/2, startX, gridH/2);
+                        startX += cellXDist;
+                    }
+
+                    int startY = (int)(cy - gridH/2);
+                    while(startY <= cy + gridH/2)
+                    {
+                        vp.draw.stateless.line.pospos(-gridW/2, startY, gridW/2, startY);
+                        startY += cellYDist;
+                    }
+
+
+                    vp.draw.stateless.line.clearTempMod();
+
                 }
-    
             };
 
-            er.viewport.window.keys.bindPress(new KeyCombo("up")
-                                          .withChar('w'), 
-                                     moveListener);
-            er.viewport.window.keys.bindRel(new KeyCombo("up")
-                                          .withChar('w'),
-                                     moveListener);
+            drawables.add(grid);
 
-            er.viewport.window.keys.bindPress(new KeyCombo("down")
-                                          .withChar('s'), 
-                                     moveListener);
-            er.viewport.window.keys.bindRel(new KeyCombo("down")
-                                          .withChar('s'),
-                                     moveListener);
+            drawables.add(player);
+            drawables.add(test);
 
 
-            er.viewport.window.keys.bindPress(new KeyCombo("left")
-                                          .withChar('a'), 
-                                     moveListener);
-            er.viewport.window.keys.bindRel(new KeyCombo("left")
-                                          .withChar('a'), 
-                                     moveListener);
-
-
-            er.viewport.window.keys.bindPress(new KeyCombo("right")
-                                          .withChar('d'), 
-                                     moveListener);
-
-            er.viewport.window.keys.bindRel(new KeyCombo("right")
-                                          .withChar('d'), 
-                                     moveListener);
         }
 
-        public void drawAt(double xOff, double yOff, ViewPort vp)
-        {
-            long now = System.currentTimeMillis();
-            if( time != -1 )
-            {
-                // start up
-                long deltaMS = now - time;
-
-                vp.draw.stateless.text.withMods(2)
-                    .withSize(10)
-                    .withColour(255, 255, 255, 255)
-                    .withOffset(xOff, yOff)
-                ;
-                vp.draw.stateless.text.pos_c(0, 0, "" + Math.round(xm * 100) / 100.0 + ", " + Math.round(ym * 100) / 100.0);
-                // vp.draw.stateless.text.pos_c(0, 0, "" + xm + ", " + ym);
-                vp.draw.stateless.text.pos_c(0, 30, moving ? "moving" : "rolling");
-
-
-                // draw
-                vp.draw.stateless.rect.withMod()
-                    .withColour(255, 255, 255, 255)
-                    .withFill()
-                    .withOffset(xOff, yOff)
-                    .withOffset(x, y)
-                ;
-
-                vp.draw.stateless.rect.poslen(-5, -5, 10, 10);
-
-                // close the thing
-            }
-            time = System.currentTimeMillis();
-
-
-        }   
     }
 
+
+    private void uninitialise(EngineR2 er)
+    {
+        player.setdown(er);
+        test.setdown(er);
+
+        drawables.clear();
+    }
 
     public void start(EngineR2 er)
     {
@@ -169,6 +136,8 @@ public class CombatDemo implements Demo
         {
             er.viewport.draw.stateless.perm.remove(d);
         }
+
+        uninitialise(er);
     }
 
 

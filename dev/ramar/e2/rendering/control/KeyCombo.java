@@ -23,20 +23,20 @@ public class KeyCombo
     // fine >:)
     // basically, just stores which modifier keys
     // should be pressed to activate this combo    
-    private boolean[] flags = new boolean[]
+    private Boolean[] flags = new Boolean[]
     {
         // 0 - lshift
-        false,
+        null,
         // 1 - rshift
-        false,
+        null,
         // 2 - lalt
-        false,
+        null,
         // 3 - ralt
-        false,
+        null,
         // 4 - lcntrl
-        false,
+        null,
         // 5 - rcntrl
-        false
+        null
     };
 
     public KeyCombo(String name)
@@ -92,6 +92,11 @@ public class KeyCombo
         return this;
     }
 
+    public void clearChars()
+    {
+        toActivate.clear();
+    }
+
 
     /*
     Anytime Builder: withTShift
@@ -109,6 +114,19 @@ public class KeyCombo
             flags[0] = !flags[0];
             flags[1] = !flags[1];
         }
+
+        return this;
+    }
+
+    public KeyCombo withNoShift(Directionality dir)
+    {
+        if( dir != null )
+        {
+            int pointer = dir == Directionality.LEFT ? 0 : 1;
+            flags[pointer] = null;
+        }
+        else
+            flags[0] = flags[1] = null;
 
         return this;
     }
@@ -135,6 +153,20 @@ public class KeyCombo
     }
 
 
+    public KeyCombo withNoAlt(Directionality dir)
+    {
+        if( dir != null )
+        {
+            int pointer = dir == Directionality.LEFT ? 2 : 3;
+            flags[pointer] = null;
+        }
+        else
+            flags[2] = flags[3] = null;
+        
+        return this;
+    }
+
+
     /*
     Anytime Builder: withTCntrl
      - Toggles a directional cntrl, pass null for both.
@@ -156,6 +188,20 @@ public class KeyCombo
     }
 
 
+    public KeyCombo withNoCntrl(Directionality dir)
+    {
+        if( dir != null )
+        {
+            int pointer = dir == Directionality.LEFT ? 4 : 5;
+            flags[pointer] = null;
+        }
+        else
+            flags[4] = flags[5] = null;
+        
+        return this;
+    }
+
+
     /*
     Query: isShift
      - If either shift key should be held down to activate
@@ -171,7 +217,7 @@ public class KeyCombo
     */
     public boolean isLShift()
     {
-        return flags[0];
+        return flags[0] != null && flags[0];
     }
 
 
@@ -181,7 +227,7 @@ public class KeyCombo
     */
     public boolean isRShift()
     {
-        return flags[1];
+        return flags[1] != null && flags[1];
     }
 
 
@@ -201,7 +247,7 @@ public class KeyCombo
     */
     public boolean isLAlt()
     {
-        return flags[2];
+        return flags[2] != null && flags[2];
     }
 
     /*
@@ -210,7 +256,7 @@ public class KeyCombo
     */
     public boolean isRAlt()
     {
-        return flags[3];
+        return flags[3] != null && flags[3];
     }
 
     /*
@@ -229,7 +275,7 @@ public class KeyCombo
     */
     public boolean isLCntrl()
     {
-        return flags[4];
+        return flags[4] != null && flags[4];
     }
 
     /*
@@ -238,7 +284,7 @@ public class KeyCombo
     */
     public boolean isRCntrl()
     {
-        return flags[5];
+        return flags[5] != null && flags[5];
     }
 
 
@@ -248,7 +294,7 @@ public class KeyCombo
        pressed characters, and a given flags array, which directly
        corresponds to this KeyCombo's flags array
     */
-    public boolean isActive(Set<Character> pressed, boolean[] flags)
+    public boolean isActive(Set<Character> pressed, Boolean[] flags)
     {
         return pressed.containsAll(toActivate) && 
                flagsMatch(this.flags, flags);
@@ -259,40 +305,19 @@ public class KeyCombo
     -==-----------------
     */
 
-    static
-    {
-        KeyCombo kc1 = new KeyCombo("Bruh")
-            .withChar('w')
-            .withTShift(Directionality.LEFT)
-        ;
-
-        KeyCombo kc2 = new KeyCombo("Bruh")
-            .withTShift(Directionality.LEFT)
-        ;
-
-        Set<Character> fakePressed = new HashSet<>();
-        fakePressed.add('w');
-
-        boolean[] fakeMods = new boolean[6];
-        fakeMods[0] = true;
-
-        System.out.println("--------------");
-        System.out.println(kc1.isActive(fakePressed, fakeMods));
-        System.out.println(kc2.isActive(fakePressed, fakeMods));
-        System.out.println("--------------");
-    }
-
 
     /*
     Method: flagsMatch
      - Checks if two boolean arrays are equal
     */
-    public static boolean flagsMatch(boolean[] a, boolean[] b)
+    public static boolean flagsMatch(Boolean[] a, Boolean[] b)
     {
         boolean match = a.length == b.length;
 
         for( int ii = 0; match && ii < a.length; ii++ )
-            match = match && a[ii] == b[ii];
+        {
+            match = match && a[ii] == null || a[ii] == b[ii];
+        }
 
         return match;    
     }

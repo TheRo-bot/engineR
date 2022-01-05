@@ -59,12 +59,14 @@ public class ConsoleParser
 
             public Object[] run(ConsoleParser cp, Object[] args)
             {
+                System.out.println("AHHHHH");
                 cp.console.getViewPortRef().window.close();
                 return null;  
             }
 
             public ObjectParser getParser()
-            {   return PARSER; }
+            {   
+                return PARSER; }
 
             public String describeCommand()
             {   return "closes this instance of EngineR2";   }
@@ -119,8 +121,9 @@ public class ConsoleParser
     {
         if( s != null && !s.equals("") )
         {
-
-            String command = s.split(" ")[0];
+            String command = s;
+            if( command.contains(" ") )
+                command = s.split(" ")[0];
 
 
             Command c = getCommand(command);

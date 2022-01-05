@@ -34,7 +34,7 @@ public class TestDemos
     {
         this.instance = instance;
 
-        demos.put("combat", new dev.ramar.e2.demos.combat.CombatDemo() );
+        demos.put("combat", new dev.ramar.e2.demos.combat.CombatDemoBuilder() );
 
         // 'demo (combat|explore|cutscene)'
         instance.console.parser.addCommand("demo", new Command()
@@ -88,7 +88,8 @@ public class TestDemos
 
     public void stopDemo()
     {
-        demos.get(currDemo).stop(instance);
+        if( demos.get(currDemo) != null )
+            demos.get(currDemo).stop(instance);
         currDemo = null;
     }
 

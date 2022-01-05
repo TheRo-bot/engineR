@@ -26,7 +26,7 @@ public class KeyController
     // protected Map<KeyCombo, List<KeyPressListener>>     pressListeners = new HashMap<>();
     // protected Map<KeyCombo, List<KeyReleaseListener>> releaseListeners = new HashMap<>();
 
-    private boolean[]    currModifiers = new boolean[6];
+    private Boolean[]    currModifiers = new Boolean[6];
     private Set<Character> currPressed = new HashSet<>();
 
 
@@ -39,7 +39,7 @@ public class KeyController
 
     public void bindPress(KeyCombo kc, KeyPressListener kpl)
     {
-        if( kc != null )
+        if( kc != null && kpl != null)
         {   
 
             if( !combos.contains(kc) )
@@ -52,20 +52,22 @@ public class KeyController
             kpls.add(kpl);
 
         }
+                else
+            throw new NullPointerException();
     }
 
 
 
     public void bindRel(KeyCombo kc, KeyReleaseListener krl)
     {
-        System.out.println("bindRel " + kc);
-        if( kc != null )
+        if( kc != null && krl != null )
         {
 
-            if( !combos.contains(kc) )
+            if( !releasers.containsKey(kc) )
             {
                 releasers.put(kc, new ArrayList<>());
-                combos.add(kc);
+                if( !combos.contains(kc) )
+                    combos.add(kc);
             }
 
             List<KeyReleaseListener> krls = releasers.get(kc);
@@ -83,13 +85,15 @@ public class KeyController
             // kcListeners.add(krl);
             // System.out.println(releaseListeners.get(kc));
         }
+        else
+            throw new NullPointerException();
     }
 
 
 
     public void unbindPress(KeyCombo kc, KeyPressListener kpl)
     {
-        if( kc != null )
+        if( kc != null && kpl != null)
         {
 
             pressers.get(kc).remove(kpl);
@@ -100,12 +104,14 @@ public class KeyController
                 combos.remove(kc);
             }
         }
+        else
+            throw new NullPointerException();
     }
 
 
     public void unbindRel(KeyCombo kc, KeyReleaseListener krl)
     {
-        if( kc != null && combos.contains(kc) ) 
+        if( kc != null && krl != null && combos.contains(kc) ) 
         {
             pressers.get(kc).remove(krl);
 
@@ -115,37 +121,56 @@ public class KeyController
                 combos.remove(kc);
             }
         }
+        else
+            throw new NullPointerException();
     }
 
 
     private List<KeyCombo> active = new ArrayList<>();
 
+    // represents when a character comes in
+    // (defined as any character. i.e. '|' (shift + '\'))
+    protected void onCharIn(char c)
+    {
+        if( !((KCStealer)thieves).onKeyIn(c) )
+            // this isn't flawless, ':' wouldn't be ';',
+            // but that's not the end of the world since
+            // this edge case is very unlikely to be reached
+            onKeyIn(Character.toLowerCase(c));
+    }
 
+    protected boolean isThieveryOccurring()
+    {
+        return !((KCStealer)thieves).charStealers.isEmpty();
+    }
+
+    // represents when a key stroke comes in,
+    // defined as its abstract representation of the key
+    // ('w' for the 'w' key on a keyboard, ';' for the semicolon
+    //  ';' would still be inputted even if shift was held and ':'
+    //  wouldn't been generated as a character)
     protected void onKeyIn(char c)
     {
-        // if this char wasn't stolen, 
-        // check if we've pressed anything
-
+        // don't bother stealing since the key could be
+        // misrepresentative of the character input, and
+        // loss of information could occur
         if( !currPressed.contains(c) )
         {
-            if(! ((KCStealer)thieves).onKeyIn(c) )
-            {
-                currPressed.add(c);
+            currPressed.add(c);
 
-                for( KeyCombo kc : combos )
-                    if( kc.isActive(currPressed, currModifiers) )
+            for( KeyCombo kc : combos )
+                if( kc.isActive(currPressed, currModifiers) )
+                {
+                    synchronized(active)
                     {
-                        synchronized(active)
-                        {
-                            active.add(kc);
-                        }
-
-                        List<KeyPressListener> kpls = pressers.get(kc);
-                        if( kpls != null )
-                            for( KeyPressListener kpl : kpls )
-                                kpl.onPress(kc);
+                        active.add(kc);
                     }
-            }
+
+                    List<KeyPressListener> kpls = pressers.get(kc);
+                    if( kpls != null )
+                        for( KeyPressListener kpl : kpls )
+                            kpl.onPress(kc);
+                }
         }
     }
 
@@ -236,33 +261,6 @@ public class KeyController
 
     public boolean isRCntrl()
     {   return currModifiers[5];   }
-
-
-    static
-    {
-        KeyController kc = new KeyController();
-
-
-        kc.bindPress(new KeyCombo("bruh").withChar('w'), 
-                (KeyCombo pressed) -> 
-                {
-                    System.out.println(pressed + " pressed !");
-                }
-        );
-        kc.bindRel(new KeyCombo("bruh").withChar('w'), 
-                (KeyCombo rel) ->
-                {
-                    System.out.println(rel + " released !");
-                }
-        );
-
-        System.out.println("------");
-        // System.out.println(kc.pressListeners);
-        System.out.println(kc.releasers);
-        System.out.println();
-        System.out.println("------");
-    }
-
 
 
 

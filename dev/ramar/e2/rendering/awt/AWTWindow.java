@@ -236,7 +236,13 @@ public class AWTWindow extends Window
         Graphics2D exp = null;
 
         if( getBufferStrategy() != null )
-            exp = (Graphics2D) getBufferStrategy().getDrawGraphics();
+        {
+            try
+            {
+                exp = (Graphics2D) getBufferStrategy().getDrawGraphics();
+            }
+            catch(IllegalStateException e) {}
+        }
 
         return exp;
     }
@@ -253,13 +259,24 @@ public class AWTWindow extends Window
 
     public void close()
     {
-        clearListeners();
-        try
+        // actually close
+        if( frame.isDisplayable() )
         {
-            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+            frame.dispose();
+            // tell everyone we've closed
+            onClose();
+
+
+            // clear everything we care about
+            clearListeners();
+            try
+            {
+                Runtime.getRuntime().removeShutdownHook(shutdownHook);
+            }
+            // if we're already shutting down (^C) we can't remove a shutdown hook
+            catch(IllegalStateException e ) {}
         }
-        // if we're already shutting down (^C) we can't remove a shutdown hook
-        catch(IllegalStateException e ) {}
+
     }
 
 

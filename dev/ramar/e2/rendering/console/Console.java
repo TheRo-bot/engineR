@@ -40,9 +40,10 @@ public class Console implements Drawable
     public ViewPort getViewPortRef()
     {   return vpRef;   }
 
+
+
     private final Stealer<Character> charStealer = new Stealer<Character>()
     {
-
         public void onSteal(Stealable<Character> s, Character c)
         {
             TextField in = null;
@@ -79,7 +80,7 @@ public class Console implements Drawable
                         break;
                     // return character ('\n')
                     case 10:
-                        parser.parseCommand(inputText);
+                        parser.parseCommand(inputText.trim().toLowerCase());
                         break;
 
                     case (int)'`':

@@ -261,37 +261,39 @@ public class AWTViewPort extends ViewPort
 
             Graphics2D g2d = getAWTWindow().getDrawGraphics();
 
-
-            getAWTLess().setupDrawing(g2d);
-
-            AffineTransform at = new AffineTransform();
-            synchronized(this)
+            if( g2d != null )
             {
-                double scaleX = 1, scaleY = 1;
-                if( lWidth > 0 )
-                    scaleX = (double)window.width() / (double)lWidth;
+                getAWTLess().setupDrawing(g2d);
 
-                if( lHeight > 0 )
-                    scaleY = (double)window.height() / (double)lHeight;
+                AffineTransform at = new AffineTransform();
+                synchronized(this)
+                {
+                    double scaleX = 1, scaleY = 1;
+                    if( lWidth > 0 )
+                        scaleX = (double)window.width() / (double)lWidth;
 
-                // System.out.println("(" + scaleX + ", " + scaleY + ") scaling (" + window.width() + ", " + window.height() + ") to (" + (window.width() * scaleX) + ", " + (window.height() * scaleY) + ")");
-                at.scale(scaleX, scaleY);    
+                    if( lHeight > 0 )
+                        scaleY = (double)window.height() / (double)lHeight;
+
+                    // System.out.println("(" + scaleX + ", " + scaleY + ") scaling (" + window.width() + ", " + window.height() + ") to (" + (window.width() * scaleX) + ", " + (window.height() * scaleY) + ")");
+                    at.scale(scaleX, scaleY);    
+                }
+
+
+                g2d.setTransform(at);
+
+                double offX = worldCenter.getX() + window.width() / 2,
+                       offY = worldCenter.getY() + window.height() / 2;
+
+                BACKGROUND.drawAt(0, 0, this);
+
+                draw.stateless.drawAt(offX, offY, this);
+                draw.stateful.drawAt(offX, offY, this);
+
+                getAWTLess().shutdownDrawing();
+                g2d.dispose();
+                bs.show();
             }
-
-
-            g2d.setTransform(at);
-
-            double offX = worldCenter.getX() + window.width() / 2,
-                   offY = worldCenter.getY() + window.height() / 2;
-
-            BACKGROUND.drawAt(0, 0, this);
-
-            draw.stateless.drawAt(offX, offY, this);
-            draw.stateful.drawAt(offX, offY, this);
-
-            getAWTLess().shutdownDrawing();
-            g2d.dispose();
-            bs.show();
         }
     }
 

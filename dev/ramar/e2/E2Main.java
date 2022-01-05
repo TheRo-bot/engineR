@@ -70,19 +70,22 @@ public class E2Main
         );
 
         TestDemos td = new TestDemos(e2);
+        e2.console.parser.parseCommand("demo combat");
+        
     }
 
-
+    private boolean allDone = false;
     public void waitForClose()
     {
         try
         {
-            boolean allDone = false;
-            while(! allDone )
+            e2.viewport.window.onClose.add(() ->
             {
-                allDone = e2.viewport.isRunning();
-                Thread.sleep(50);
-            }
+                allDone = true;
+            });
+
+            while(! allDone )
+                Thread.sleep(100);
         }
         catch(InterruptedException e) {}
         System.out.println("!!! closing");

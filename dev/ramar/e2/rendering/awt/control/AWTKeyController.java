@@ -121,16 +121,21 @@ public class AWTKeyController extends KeyController
             // update KeyController's active modifiers
             updateMods(e, true);
 
-            Character out = null;
+            if( !isThieveryOccurring() )
+            {
+                Character out = null;
 
-            for( int k : KEYCHARS )
-                if( k == keyCode )
-                    out = e.getKeyChar();
+                for( int k : KEYCHARS )
+                    if( k == keyCode )
+                        out = e.getKeyChar();
 
-            if( out == null )
-                out = Character.toLowerCase((char)e.getKeyCode());
-            // say we have a character event
-            onKeyIn(out);
+                if( out == null )
+                    out = Character.toLowerCase((char)e.getKeyCode());
+                // say we have a character event
+                onKeyIn(out);
+            }
+            else
+                onCharIn(e.getKeyChar());
         }
 
 
