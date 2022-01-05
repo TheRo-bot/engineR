@@ -282,9 +282,9 @@ public class KeyController
             boolean wasStolen = false;
             synchronized(charStealers)
             {
-                int ii = 0;
-                for( Stealer<Character> stealer : charStealers )
+                for( int ii = 0; ii < charStealers.size(); ii++ )
                 {
+                    Stealer<Character> stealer = charStealers.get(ii);
                     // check with all previous stealers are ok with curr stealer
                     boolean canSteal = true;
                     for( int jj = ii; canSteal && jj >= 0; jj-- )
@@ -296,7 +296,6 @@ public class KeyController
                         stealer.onSteal(this, c);
                         wasStolen = true;
                     }
-                    ii++;
                 }
             }
             return wasStolen;

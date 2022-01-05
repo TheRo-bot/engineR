@@ -39,6 +39,7 @@ public abstract class StatelessDrawer
 
 
     public final DrawableList     perm = new DrawableList();
+    public final DrawableList     top = new DrawableList();
     public final TempDrawableList temp = new TempDrawableList();
 
     /* Defined HiddenLists
@@ -51,9 +52,24 @@ public abstract class StatelessDrawer
 
     public class DrawableList extends HiddenList<Drawable>
     {
+        private List<Drawable> toRemove = new ArrayList<>();
+
+        public void queueRemove(Drawable d)
+        {
+            synchronized(toRemove)
+            {
+                toRemove.add(d);
+            }
+        }
+
         private List<Drawable> getList()
         {
             return list;
+        } 
+
+        private List<Drawable> getRemoveQueue()
+        {
+            return toRemove;
         } 
     }
 
@@ -67,17 +83,21 @@ public abstract class StatelessDrawer
     }
 
 
-
-
-    public void drawAt(double x, double y, ViewPort vp)
+    protected void drawPerm(double x, double y, ViewPort vp)
     {
-        synchronized(perm)
+        synchronized(perm.getList())
         {
             for( Drawable d : perm.getList() )
                 d.drawAt(x, y, vp);
-        }
+        } 
+        for( Drawable d : perm.getRemoveQueue() )
+            perm.remove(d);
+        
+        perm.getRemoveQueue().clear();
+    }
 
-        int beforeSize = temp.getList().size();
+    protected void drawTemp(double x, double y, ViewPort vp)
+    {
         synchronized(temp)
         {
             for( int ii = 0; ii < temp.getList().size(); ii++ )
@@ -94,9 +114,27 @@ public abstract class StatelessDrawer
                     td.drawAt(x, y, vp);
             }
         }
+    }
 
-        if( beforeSize != temp.getList().size() )
-            System.out.println(beforeSize + " -> " + temp.getList().size());
+
+    protected void drawTop(double x, double y, ViewPort vp)
+    {
+        synchronized(top)
+        {
+            for( Drawable d : top.getList() )
+                d.drawAt(0, 0, vp);
+        }
+    }
+
+    public void drawAt(double x, double y, ViewPort vp)
+    {
+        drawPerm(x, y, vp);
+        drawTemp(x, y, vp);
+        drawTop(x, y, vp);
+
+
+
+
     }
 
 }

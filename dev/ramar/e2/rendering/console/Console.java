@@ -1,5 +1,6 @@
 package dev.ramar.e2.rendering.console;
 
+import dev.ramar.e2.EngineR2;
 
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.ViewPort;
@@ -36,6 +37,9 @@ public class Console implements Drawable
     public final ConsoleParser parser;
 
     public final PrintStream out;
+
+    public EngineR2 engine;
+
 
     public ViewPort getViewPortRef()
     {   return vpRef;   }
@@ -106,6 +110,12 @@ public class Console implements Drawable
         out = System.out;
         setup();
         animationsSetup();
+    }
+
+    public Console(EngineR2 engine)
+    {
+        this();
+        this.engine = engine;
     }
 
 
@@ -295,10 +305,7 @@ public class Console implements Drawable
                     percentage = 1.0;
                     x = -dist;
                     visible = true;
-                });
-                whenFinished(() ->
-                {
-                    onVisible();   
+                    onVisible();
                 });
             }
         });
@@ -311,7 +318,7 @@ public class Console implements Drawable
             protected void constructorOverrideable()
             {
                 withDelay(3);
-                withExecTime(250);
+                withExecTime(75);
                 withTask(() ->
                 {
                     x -= (dist / ((double)getRepeatCount() / 2.0)) * percentage;
@@ -320,10 +327,10 @@ public class Console implements Drawable
                 whenStart(() -> 
                 {
                     percentage = 1.0;
+                    onInvisible();
                 });
                 whenFinished(() ->
                 {
-                    onInvisible();
                     visible = false;
                 });
             }

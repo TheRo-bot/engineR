@@ -57,7 +57,7 @@ public class CombatDemo
 
             /* player */
             player.setup(er);
-            player.trackToCamera();
+            player.startCameraTracking();
             test.setup(er);
 
             Drawable grid = new Drawable()

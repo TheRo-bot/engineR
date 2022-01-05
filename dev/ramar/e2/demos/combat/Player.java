@@ -13,22 +13,42 @@ import dev.ramar.e2.rendering.control.KeyCombo;
 
 import dev.ramar.e2.rendering.drawing.stateless.RectDrawer.RectMods;
 
+import dev.ramar.e2.rendering.console.Command;
+import dev.ramar.e2.rendering.console.ConsoleParser;
+import dev.ramar.e2.rendering.console.ObjectParser;
+
+import dev.ramar.e2.rendering.console.commands.Debug;
+
+
+import java.util.List;
+import java.util.ArrayList;
+
+import java.util.Map;
+import java.util.HashMap;
+
 public class Player implements Drawable
 {
     // position and velocity
-    protected double x = 0, y = 0, xv = 0, yv = 0;
+    double x = 0, y = 0, xv = 0, yv = 0;
 
     protected int r = 255, g = 255, b = 255;
 
     protected EngineR2 er;
 
+    final int id;
+
+    private static int idCounter = -1;
+    static List<Player> allPlayers = new ArrayList<>();
     public Player()
     {
-       
+        idCounter++;
+        id = idCounter;
+        allPlayers.add(this);
     }
 
     public Player(double x, double y)
     {
+        this();
         this.x = x;
         this.y = y;
     } 
@@ -125,9 +145,95 @@ public class Player implements Drawable
         {}
     });
 
+    private static Command playerCommand = new Command()
+    {
+        private Map<String, Command> subCommands = new HashMap<>();
+
+        private void list(ConsoleParser cp)
+        {
+            String[] lines = new String[subCommands.size()];
+            int pointer = 0;
+            for( String s : subCommands.keySet() )
+            {
+                lines[pointer] = "... players <sel> " + s;
+                pointer++;
+            }
+
+            pointer = 0;
+
+            int maxLen = 0;
+            for( int ii = 0; ii < lines.length; ii++ )
+                if( lines[ii].length() > maxLen )
+                    maxLen = lines[ii].length();
+
+            for( int ii = 0; ii < lines.length; ii++ )
+                while(lines[ii].length() < maxLen )
+                    lines[ii] += " ";
+
+            for( int ii = 0; ii < lines.length; ii++ )
+                for( String s : subCommands.keySet() )
+                    if( lines[ii].contains(s) )
+                        lines[ii] += " || " + subCommands.get(s).describeCommand();
+
+            for( int ii = 0; ii < lines.length; ii++ )
+                cp.ps.println(lines[ii]);
+
+            cp.ps.println("** <sel>: 'all' or <int(1-" + allPlayers.size() + ")> or <int(1-" + allPlayers.size() + ")>:<int(1-" + allPlayers.size() + ")>");
+
+        }
+
+
+
+        private void setup()
+        {
+            subCommands.put("highlight", PlayerCommandHelper.Highlight.command);
+            subCommands.put("modify", PlayerCommandHelper.Modify.command);
+            subCommands.put("focus", PlayerCommandHelper.Focus.command);
+        }
+
+        // debug players 0 <option> <operator> <double>
+        // debug players all ||          ||         ||
+        // debug players 0 highlight || temporarily highlights that player
+        // debug players 0 modify maxSpeed += 10
+        private boolean firstRun = true;
+        public Object run(ConsoleParser cp, Object[] args)
+        {
+            if( firstRun )
+            {
+                setup();
+                firstRun = false;
+            }
+
+            System.out.println(java.util.Arrays.toString(args));
+            if( args.length > 2 && ((String)args[2]).equals("list") )
+                list(cp);
+            else
+                PlayerCommandHelper.run(cp, args, subCommands);
+            return null;
+        }
+
+        public ObjectParser getParser()
+        {
+            return null;
+        }
+
+        public String describeCommand()
+        {
+            return "debug in relation to players in demos";
+        }
+    };
+
     public void setup(EngineR2 er)
     {
         this.er = er;
+
+        Debug d = (Debug)er.console.parser.getCommand("debug");
+        try
+        {
+            d.registerCommand("players", playerCommand);
+        }
+        catch(IllegalArgumentException e ) {}
+
         er.viewport.window.onClose.add(() ->
         {
             t.interrupt();
@@ -157,12 +263,12 @@ public class Player implements Drawable
 
     private boolean doCameraTrack = false;
 
-    public void trackToCamera()
+    public void startCameraTracking()
     {
         doCameraTrack = true;
     }
 
-    public void stopTracking()
+    public void stopCameraTracking()
     {
         doCameraTrack = false;
     }
@@ -170,21 +276,22 @@ public class Player implements Drawable
     private void processDirection(double delta)
     {
         // how fast per ms
-        int speed = 1250;
         if( directions[0] )
-            yv -= speed * delta;
+            yv -= movement_speed * delta;
         if( directions[1] )
-            yv += speed * delta;
+            yv += movement_speed * delta;
         if( directions[2] )
-            xv -= speed * delta;
+            xv -= movement_speed * delta;
         if( directions[3] )
-            xv += speed * delta;
+            xv += movement_speed * delta;
     }
 
 
     private long lastTime = -1;
-    private double maxSpeed = 150.0;
-    private double acceleration = 4;
+
+    public double movement_speed = 1250;
+    public double movement_maxSpeed = 150.0;
+    public double movement_acceleration = 4;
 
 
     public void update(double delta)
@@ -212,7 +319,7 @@ public class Player implements Drawable
             if( yv < 0 )
                 ang *= -1;
 
-            double dist = Math.min(maxSpeed, hyp);
+            double dist = Math.min(movement_maxSpeed, hyp);
 
             // we need to use the unrestricted triangle (UT) to
             // calculate theta and hypotenuse length so we can
@@ -230,8 +337,8 @@ public class Player implements Drawable
                           Math.max(ym, yv) ;  
 
 
-            xm = xm * delta * acceleration;
-            ym = ym * delta * acceleration;
+            xm = xm * delta * movement_acceleration;
+            ym = ym * delta * movement_acceleration;
 
             xv -= xm;
             yv -= ym;
@@ -256,11 +363,12 @@ public class Player implements Drawable
 
     private double lastX = 0, lastY = 0;
 
+    public double draw_playerSize = 60;
+
     public void drawAt(double xo, double yo, ViewPort vp)
     {
         // render
 
-        int sqSize = 60;
         vp.draw.stateless.rect.withMod()
             .withColour(r, g, b, 255)
             .withFill()
@@ -268,7 +376,7 @@ public class Player implements Drawable
             .withOffset(x, y)
         ;
 
-        vp.draw.stateless.rect.poslen(-sqSize/2, -sqSize/2, sqSize, sqSize);
+        vp.draw.stateless.rect.poslen(-draw_playerSize/2, -draw_playerSize/2, draw_playerSize, draw_playerSize);
 
         vp.draw.stateless.line.withMods(4)
             .withColour(0, 255, 255, 255)

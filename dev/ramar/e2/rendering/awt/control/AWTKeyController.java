@@ -48,6 +48,8 @@ public class AWTKeyController extends KeyController
         if they are active
     */
 
+    public KeyAdapter getAWTKeyAdapter()
+    {   return adapter;   }
 
     private KeyAdapter adapter = new KeyAdapter()
     {

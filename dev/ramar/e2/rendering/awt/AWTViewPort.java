@@ -8,6 +8,7 @@ import dev.ramar.e2.rendering.drawing.stateful.*;
 
 import dev.ramar.e2.structures.WindowSettings;
 import dev.ramar.e2.structures.Vec2;
+import dev.ramar.e2.EngineR2;
 
 
 import java.util.*;
@@ -46,6 +47,15 @@ public class AWTViewPort extends ViewPort
     {
         return (AWTWindow)window;
     }
+
+    public void doEngineStuff(EngineR2 er)
+    {
+        /** TO DO **/
+        /*
+        Create an FPS counter debug command
+        */
+    }
+
 
     /* World Center related abstract methods
     -===---------------------------------------
@@ -203,7 +213,6 @@ public class AWTViewPort extends ViewPort
                 timeToSecond += diffTime;
                 if( timeToSecond >= 1000 )
                 {
-                    System.out.println("FPS: " + frameCount);
                     frameCount = 0;
                     timeToSecond = 0;
                 }
@@ -296,8 +305,6 @@ public class AWTViewPort extends ViewPort
             }
         }
     }
-
-
 
 
 

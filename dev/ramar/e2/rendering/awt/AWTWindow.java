@@ -93,6 +93,8 @@ public class AWTWindow extends Window
 
     private void setupFullscreenState(FullscreenState fss, JFrame jf)
     {
+        canvas.removeKeyListener(((AWTKeyController)keys).getAWTKeyAdapter());
+
         switch(fss)
         {
             case FULLSCREEN: 

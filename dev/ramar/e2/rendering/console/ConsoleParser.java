@@ -27,6 +27,7 @@ public class ConsoleParser
  
         cp.addCommand("debug", new Debug());
 
+        cp.addCommand("screen", new Screen());
 
         cp.addCommand("list", new Command()
         {
@@ -82,25 +83,21 @@ public class ConsoleParser
     private final Map<String, Command> commands = new HashMap<>();
     private List<ObjectParser> objectParsers = new ArrayList<>();
     public final PrintStream ps;
-    private Console console;
+    public final Console console;
 
-
-    public ConsoleParser()
-    {
-        this.ps = System.out;
-    }
-
-    public ConsoleParser(PrintStream ps)
-    {  
-        this.ps = ps == null ? System.out : ps;
-    }
 
     public ConsoleParser(Console c)
     {
-        this(c.out);
         this.console = c;
+        this.ps = System.out;
     }  
 
+
+    public ConsoleParser(Console c, PrintStream ps)
+    {  
+        this.console = c;
+        this.ps = ps == null ? System.out : ps;
+    }
     public void addCommand(String s, Command c)
     {
         commands.put(s, c);

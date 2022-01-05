@@ -29,11 +29,11 @@ public class EngineR2
     public EngineR2()
     {
         viewport = new AWTViewPort();
-        console = new Console()
+        console = new Console(this)
             .withPos(100, 40)
         ;
 
-        viewport.draw.stateless.perm.add(console);
+        viewport.draw.stateless.top.add(console);
 
         ((AWTKeyController)viewport.window.keys).doEngineStuff(this);            
 

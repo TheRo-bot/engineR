@@ -60,8 +60,6 @@ public class Debug implements Command
 
     public Object run(ConsoleParser cp, Object[] args)
     {
-        cp.ps.println("debug!");
-        cp.ps.println(java.util.Arrays.toString(args));
         Object out = null;
         if( args.length > 1)
         {

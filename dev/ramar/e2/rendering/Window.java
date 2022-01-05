@@ -9,10 +9,24 @@ public abstract class Window
 {
     public enum FullscreenState
     {
-        WINDOWED,
-        FULLSCREEN,
+        WINDOWED
+        {
+            public String getName()
+            {   return "Windowed";   }
+        },
+        FULLSCREEN
+        {
+            public String getName()
+            {   return "Fullscreen";   }
+        },
         WINDOWED_BORDERLESS
-    }
+        {
+            public String getName()
+            {   return "Borderless";   }
+        };
+
+        public abstract String getName();
+    } 
 
 
     public final KeyController keys;
@@ -40,6 +54,8 @@ public abstract class Window
         this.mouse = mouse;
     }
 
+    public FullscreenState getFullScreenState()
+    {   return fullscreenState;   }
 
     public abstract void init();
 

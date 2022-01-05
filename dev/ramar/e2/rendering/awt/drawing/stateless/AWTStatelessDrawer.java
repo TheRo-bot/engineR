@@ -4,6 +4,7 @@ import dev.ramar.e2.rendering.drawing.StatelessDrawer;
 
 import dev.ramar.e2.rendering.awt.drawing.stateless.*;
 
+import dev.ramar.e2.rendering.ViewPort;
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 
 import dev.ramar.e2.rendering.awt.AWTWindow;
@@ -11,7 +12,10 @@ import dev.ramar.e2.rendering.awt.AWTWindow;
 import java.util.*;
 
 
+
 import java.awt.Graphics2D;
+
+import java.awt.geom.AffineTransform;
 
 
 public class AWTStatelessDrawer extends StatelessDrawer
@@ -61,6 +65,23 @@ public class AWTStatelessDrawer extends StatelessDrawer
         synchronized(this)
         {
             graphics = null;
+        }
+    }
+
+    protected AffineTransform topTransform = new AffineTransform();
+
+    @Override
+    protected void drawTop(double x, double y, ViewPort vp)
+    {
+        if( graphics != null )
+        {
+            AffineTransform bef = graphics.getTransform();
+
+            graphics.setTransform(topTransform);
+
+            super.drawTop(x, y, vp);
+
+            graphics.setTransform(bef);
         }
     }
 }
