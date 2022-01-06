@@ -358,10 +358,10 @@ class PlayerCommandHelper
                 else
                 {
                     for( Player p : Player.allPlayers )
-                        p.stopCameraTracking();
+                        p.stopCameraTracking(cp.console.engine);
 
                     if( !players.isEmpty() )
-                        players.get(0).startCameraTracking();
+                        players.get(0).startCameraTracking(cp.console.engine);
                 }
 
                 return null;

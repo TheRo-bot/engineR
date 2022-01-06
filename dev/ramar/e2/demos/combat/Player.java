@@ -33,12 +33,14 @@ public class Player implements Drawable
 
     protected int r = 255, g = 255, b = 255;
 
-    protected EngineR2 er;
+    protected List<EngineR2> ers;
 
     final int id;
 
     private static int idCounter = -1;
     static List<Player> allPlayers = new ArrayList<>();
+
+
     public Player()
     {
         idCounter++;
@@ -106,23 +108,28 @@ public class Player implements Drawable
         }
     };
 
-    public void setdown(EngineR2 er)
+    public void setdown(List<EngineR2> ers)
     {
-        er.viewport.window.keys.unbindPress(up, moveListener);
-        er.viewport.window.keys.  unbindRel(up, moveListener);
+        for( EngineR2 er : ers)
+        {
+            er.viewport.draw.stateless.perm.remove(drawer);
+
+            er.viewport.window.keys.unbindPress(up, moveListener);
+            er.viewport.window.keys.  unbindRel(up, moveListener);
 
 
-        er.viewport.window.keys.unbindPress(down, moveListener);
-        er.viewport.window.keys.  unbindRel(down, moveListener);
+            er.viewport.window.keys.unbindPress(down, moveListener);
+            er.viewport.window.keys.  unbindRel(down, moveListener);
 
 
 
-        er.viewport.window.keys.unbindPress(left, moveListener);
-        er.viewport.window.keys.  unbindRel(left, moveListener);
+            er.viewport.window.keys.unbindPress(left, moveListener);
+            er.viewport.window.keys.  unbindRel(left, moveListener);
 
 
-        er.viewport.window.keys.unbindPress(right, moveListener);
-        er.viewport.window.keys.  unbindRel(right, moveListener);
+            er.viewport.window.keys.unbindPress(right, moveListener);
+            er.viewport.window.keys.  unbindRel(right, moveListener);            
+        }
 
         t.interrupt();
     }
@@ -223,67 +230,113 @@ public class Player implements Drawable
         }
     };
 
-    public void setup(EngineR2 er)
+
+
+    public void setup(List<EngineR2> ers)
     {
-        this.er = er;
-
-        Debug d = (Debug)er.console.parser.getCommand("debug");
-        try
+        this.ers = ers;
+        for( EngineR2 er : ers )
         {
-            d.registerCommand("players", playerCommand);
+            Debug d = (Debug)er.console.parser.getCommand("debug");
+            try
+            {
+                d.registerCommand("players", playerCommand);
+            }
+            catch(IllegalArgumentException e ) {}
         }
-        catch(IllegalArgumentException e ) {}
 
-        er.viewport.window.onClose.add(() ->
+        ers.get(0).viewport.window.onClose.add(() ->
         {
             t.interrupt();
         });
         
         t.start();
 
-        
-
-        er.viewport.window.keys.bindPress(up, moveListener);
-        er.viewport.window.keys.  bindRel(up, moveListener);
-
-
-        er.viewport.window.keys.bindPress(down, moveListener);
-        er.viewport.window.keys.  bindRel(down, moveListener);
+        for( EngineR2 er : ers )
+        {
+            er.viewport.window.keys.bindPress(up, moveListener);
+            er.viewport.window.keys.  bindRel(up, moveListener);
 
 
+            er.viewport.window.keys.bindPress(down, moveListener);
+            er.viewport.window.keys.  bindRel(down, moveListener);
 
-        er.viewport.window.keys.bindPress(left, moveListener);
-        er.viewport.window.keys.  bindRel(left, moveListener);
 
 
-        er.viewport.window.keys.bindPress(right, moveListener);
-        er.viewport.window.keys.  bindRel(right, moveListener);
+            er.viewport.window.keys.bindPress(left, moveListener);
+            er.viewport.window.keys.  bindRel(left, moveListener);
+
+
+            er.viewport.window.keys.bindPress(right, moveListener);
+            er.viewport.window.keys.  bindRel(right, moveListener);
+        }
 
     }
 
-    private boolean doCameraTrack = false;
+    private List<EngineR2> trackstances = new ArrayList<>();
 
-    public void startCameraTracking()
+    public void startCameraTracking(EngineR2 instance)
     {
-        doCameraTrack = true;
+        trackstances.add(instance);
     }
 
-    public void stopCameraTracking()
+    public void stopCameraTracking(EngineR2 instance)
     {
-        doCameraTrack = false;
+        trackstances.remove(instance);
     }
 
+    private boolean addedDrawers = false;
+
+    private Drawable drawer = null;
     private void processDirection(double delta)
     {
-        // how fast per ms
+        double angle = 0.0;
+        boolean doMove = false;
+
+        double xm = 0.0,
+               ym = 0.0;
+
         if( directions[0] )
-            yv -= movement_speed * delta;
+            ym -= movement_speed * delta;
         if( directions[1] )
-            yv += movement_speed * delta;
+            ym += movement_speed * delta;
         if( directions[2] )
-            xv -= movement_speed * delta;
+            xm -= movement_speed * delta;
         if( directions[3] )
-            xv += movement_speed * delta;
+            xm += movement_speed * delta;
+
+
+        // we should move movement_speed * delta in the
+        // direction we're going.
+
+        // if the distance we're travelling is more than that
+        // (caused by pressing a horizontal and a vertical move
+        //  key at the same time) we need to do some trig to 
+        // fit everything back into place
+
+        double hyp = Math.sqrt(Math.pow(xm, 2) + Math.pow(ym, 2));
+
+        if( hyp > movement_speed * delta )
+        {
+            // since the hypotenuse isn't +- respective and is just
+            // "the distance of the hypotenuse given some x angle"
+            double ang = Math.acos(xm / hyp);
+            // we need to flip the angle if we're going upward,
+            // otherwise up+down == the same
+            if( ym < 0 )
+                ang *= -1;
+
+            // here's the actual thing that stops movement from
+            // exceeding our speed cap
+            double dist = Math.min(hyp, movement_speed * delta);
+
+            xm = Math.cos(ang) * dist;
+            ym = Math.sin(ang) * dist;
+        }
+
+
+        xv += xm;
+        yv += ym;
     }
 
 
@@ -296,6 +349,15 @@ public class Player implements Drawable
 
     public void update(double delta)
     {
+        /*
+        update concept:
+        {
+            processAbilities(delta);
+             - dive ability (blocks move, shoot ability)
+             - shoot ability (whenever, here's where reloading comes in too)
+             - move ability (processDirection(delta), all the movement code)
+        }
+        */
         processDirection(delta);
 
         if( Math.abs(xv) > 0.0001 || Math.abs(yv) > 0.0001 )
@@ -349,11 +411,12 @@ public class Player implements Drawable
 
         }
         
-        if( doCameraTrack && er != null )
+        for( EngineR2 instance : trackstances )
         {
-            er.viewport.setCenterX(-x);
-            er.viewport.setCenterY(-y);
+            instance.viewport.setCenterX(-x);
+            instance.viewport.setCenterY(-y);
         }
+
     }
 
     private double round(double a)

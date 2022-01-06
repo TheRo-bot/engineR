@@ -87,12 +87,13 @@ public abstract class StatelessDrawer
     {
         synchronized(perm.getList())
         {
-            for( Drawable d : perm.getList() )
-                d.drawAt(x, y, vp);
+            for( int ii = 0; ii < perm.getList().size(); ii++ )
+                perm.getList().get(ii).drawAt(x, y, vp);
         } 
+        
         for( Drawable d : perm.getRemoveQueue() )
             perm.remove(d);
-        
+
         perm.getRemoveQueue().clear();
     }
 

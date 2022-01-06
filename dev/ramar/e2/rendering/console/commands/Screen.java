@@ -105,7 +105,7 @@ public class Screen implements Command
             {
                 String sW = (String)args[2];
                 String sH = (String)args[3];
-                cp.ps.println("coverting '" + sW + "' and '" + sH + "'");
+                cp.ps.println("converting '" + sW + "' and '" + sH + "'");
                 try
                 {
                     int w = Integer.parseInt(sW);

@@ -3,6 +3,8 @@ package dev.ramar.e2;
 
 import dev.ramar.e2.rendering.ViewPort;
 
+import java.util.List;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -20,76 +22,79 @@ public class TestDemos
 
     public interface Demo
     {
-        public void start(EngineR2 instance);
-        public void stop(EngineR2 instance);
+        public void start(List<EngineR2> instance);
+        public void stop(List<EngineR2> instance);
     }
 
-    EngineR2 instance;
+    List<EngineR2> instances;
 
     String currDemo = null;
 
     private Map<String, Demo> demos = new HashMap<>();
 
-    public TestDemos(EngineR2 instance)
+    public TestDemos(List<EngineR2> instances)
     {
-        this.instance = instance;
+        this.instances = instances;
 
         demos.put("combat", new dev.ramar.e2.demos.combat.CombatDemoBuilder() );
 
-        // 'demo (combat|explore|cutscene)'
-        instance.console.parser.addCommand("demo", new Command()
+        for( EngineR2 instance : instances )
         {
-            private final ObjectParser PARSER = new StringSplitter(" ");
 
-            public Object run(ConsoleParser cp, Object[] args)
+            instance.console.parser.addCommand("demo", new Command()
             {
-                if( args.length > 1 )
+                private final ObjectParser PARSER = new StringSplitter(" ");
+
+                public Object run(ConsoleParser cp, Object[] args)
                 {
-                    switch((String)args[1])
+                    if( args.length > 1 )
                     {
-                        case "stop":
-                            if( currDemo != null )
-                                cp.ps.println("Stopping the " + currDemo + " demo!");   
-                            stopDemo();
-                            break;
-                        case "list":
-                            String out = "Available demos:";
-                            for( String s : demos.keySet() )
-                            {
-                                out += "\n" + s;
-                            }
-                            cp.ps.println(out);
-                            break;
-                        default:
-                            try
-                            {
-                                if( demos.containsKey((String)args[1]) )
-                                    cp.ps.println("Starting the " + args[1] + " demo!");
-                                startDemo((String)args[1]);
-                            }
-                            catch(IllegalArgumentException e)
-                            {
-                                cp.ps.println(e.getMessage());
-                            }
+                        switch((String)args[1])
+                        {
+                            case "stop":
+                                if( currDemo != null )
+                                    cp.ps.println("Stopping the " + currDemo + " demo!");   
+                                stopDemo();
+                                break;
+                            case "list":
+                                String out = "Available demos:";
+                                for( String s : demos.keySet() )
+                                {
+                                    out += "\n" + s;
+                                }
+                                cp.ps.println(out);
+                                break;
+                            default:
+                                try
+                                {
+                                    if( demos.containsKey((String)args[1]) )
+                                        cp.ps.println("Starting the " + args[1] + " demo!");
+                                    startDemo((String)args[1]);
+                                }
+                                catch(IllegalArgumentException e)
+                                {
+                                    cp.ps.println(e.getMessage());
+                                }
+                        }
                     }
+                    return null;
                 }
-                return null;
-            }
 
-            public ObjectParser getParser()
-            {
-                return PARSER;
-            }
+                public ObjectParser getParser()
+                {
+                    return PARSER;
+                }
 
-            public String describeCommand()
-            { return "runs demos. available demos: 'combat', 'explore', 'cutscene'. 'stop' to stop the current demo"; }
-        });
+                public String describeCommand()
+                { return "runs demos. available demos: 'combat', 'explore', 'cutscene'. 'stop' to stop the current demo"; }
+            });
+        }
     }
 
     public void stopDemo()
     {
         if( demos.get(currDemo) != null )
-            demos.get(currDemo).stop(instance);
+            demos.get(currDemo).stop(instances);
         currDemo = null;
     }
 
@@ -100,7 +105,7 @@ public class TestDemos
         if( d != null )
         {
             currDemo = s;
-            d.start(instance);
+            d.start(instances);
         }
         else
             throw new IllegalArgumentException("'" + s + "' is an unknown demo!");

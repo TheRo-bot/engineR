@@ -21,7 +21,7 @@ public class CombatDemo
 
     private List<Drawable> drawables = new ArrayList<>();
 
-    private EngineR2 er;
+    private List<EngineR2> ers = new ArrayList<>();
     
 
     private Player player = new Player();
@@ -29,10 +29,9 @@ public class CombatDemo
     {
 
         @Override
-        public void setup(EngineR2 er)
+        public void setup(List<EngineR2> ers)
         {
-            super.setup(er);
-
+            super.setup(ers);
             up.clearChars();
             up.withChar('i');
             down.clearChars();
@@ -47,18 +46,17 @@ public class CombatDemo
         }
     };
 
-    private void initialise(EngineR2 er)
+    private void initialise(List<EngineR2> ers)
     {
-        this.er = er;
+        this.ers = ers;
         if( !initialised )
         {
             initialised = true;
-            er.console.out.println("first time startup of combat demo");
+            for( EngineR2 er : ers )
+                er.console.out.println("first time startup of combat demo");
 
-            /* player */
-            player.setup(er);
-            player.startCameraTracking();
-            test.setup(er);
+            player.setup(ers);
+            test.setup(ers);
 
             Drawable grid = new Drawable()
             {
@@ -101,7 +99,6 @@ public class CombatDemo
             };
 
             drawables.add(grid);
-
             drawables.add(player);
             drawables.add(test);
 
@@ -111,33 +108,31 @@ public class CombatDemo
     }
 
 
-    private void uninitialise(EngineR2 er)
+    private void uninitialise(List<EngineR2> ers)
     {
-        player.setdown(er);
-        test.setdown(er);
+        player.setdown(ers);
+        test.setdown(ers);
 
         drawables.clear();
     }
 
-    public void start(EngineR2 er)
+    public void start(List<EngineR2> ers)
     {
-        initialise(er);
+        initialise(ers);
+        for( EngineR2 er : ers )
+            for( Drawable d : drawables )
+                er.viewport.draw.stateless.perm.add(d);
 
-        for( Drawable d : drawables )
-        {
-            er.viewport.draw.stateless.perm.add(d);
-        }
     }
 
 
-    public void stop(EngineR2 er)
+    public void stop(List<EngineR2> ers)
     {
-        for( Drawable d : drawables )
-        {
-            er.viewport.draw.stateless.perm.remove(d);
-        }
+        for( EngineR2 er : ers )
+            for( Drawable d : drawables )
+                er.viewport.draw.stateless.perm.remove(d);
 
-        uninitialise(er);
+        uninitialise(ers);
     }
 
 

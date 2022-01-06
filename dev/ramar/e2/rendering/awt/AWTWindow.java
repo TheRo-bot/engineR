@@ -102,11 +102,13 @@ public class AWTWindow extends Window
                     {
                         public void windowGainedFocus(WindowEvent we)
                         {
-                            frame.setState(Frame.NORMAL);
+                            if( jf == frame )
+                                frame.setState(Frame.NORMAL);
                         }
                         public void windowLostFocus(WindowEvent we)
                         {
-                            frame.setState(Frame.ICONIFIED);
+                            if( jf == frame )
+                                frame.setState(Frame.ICONIFIED);
                         }
                     });
             case WINDOWED_BORDERLESS:
@@ -119,6 +121,9 @@ public class AWTWindow extends Window
                 jf.setUndecorated(false);
                 break;
         }
+
+
+
     }
 
     public void setupFrame(JFrame jf)

@@ -29,12 +29,8 @@ public class EngineR2
     public EngineR2()
     {
         viewport = new AWTViewPort();
-        console = new Console(this)
-            .withPos(100, 40)
-        ;
 
-        viewport.draw.stateless.top.add(console);
-
+        console = new Console(this);
         ((AWTKeyController)viewport.window.keys).doEngineStuff(this);            
 
 
@@ -96,6 +92,13 @@ public class EngineR2
     {
         wi.build(viewport);
         viewport.start();
+
+
+        console.withPos(0, viewport.window.height() * 0.0125)
+               .withSize(0, 0)
+        ;
+        viewport.draw.stateless.top.add(console);
+
     }
 
 

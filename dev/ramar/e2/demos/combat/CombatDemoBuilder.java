@@ -3,22 +3,24 @@ package dev.ramar.e2.demos.combat;
 import dev.ramar.e2.TestDemos.Demo;
 import dev.ramar.e2.EngineR2;
 
+import java.util.List;
+
 public class CombatDemoBuilder implements Demo
 {
     public CombatDemoBuilder()
     {
 
     }
-    private CombatDemo currInstance;
-    public void start(EngineR2 er)
+    private static CombatDemo currInstance;
+    public void start(List<EngineR2> ers)
     {
         currInstance = new CombatDemo();
-        currInstance.start(er);
+        currInstance.start(ers);
     }
 
-    public void stop(EngineR2 er)
+    public void stop(List<EngineR2> ers)
     {
-        currInstance.stop(er);
+        currInstance.stop(ers);
         currInstance = null;
     }
 }

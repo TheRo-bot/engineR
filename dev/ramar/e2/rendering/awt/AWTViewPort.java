@@ -285,16 +285,23 @@ public class AWTViewPort extends ViewPort
                         scaleY = (double)window.height() / (double)lHeight;
 
                     // System.out.println("(" + scaleX + ", " + scaleY + ") scaling (" + window.width() + ", " + window.height() + ") to (" + (window.width() * scaleX) + ", " + (window.height() * scaleY) + ")");
-                    at.scale(scaleX, scaleY);    
+                    at.scale(scaleX, scaleY); 
                 }
 
 
                 g2d.setTransform(at);
 
-                double offX = worldCenter.getX() + window.width() / 2,
-                       offY = worldCenter.getY() + window.height() / 2;
+                double offX = worldCenter.getX() + getLogicalWidth() / 2,
+                       offY = worldCenter.getY() + getLogicalHeight() / 2;
 
                 BACKGROUND.drawAt(0, 0, this);
+
+                draw.stateless.rect.withMod()
+                    .withColour(0, 0, 0, 255)
+                    .withFill()
+                ;
+
+                draw.stateless.rect.poslen(0, 0, getLogicalWidth(), getLogicalHeight());
 
                 draw.stateless.drawAt(offX, offY, this);
                 draw.stateful.drawAt(offX, offY, this);

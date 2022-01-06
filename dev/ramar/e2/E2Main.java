@@ -61,17 +61,18 @@ public class E2Main
 
 	public E2Main()
 	{
+        List<EngineR2> instances = new ArrayList<>();
 
         e2 = new EngineR2();
         e2.initialise(e2.setup()
             .withSize(1280, 720)
             .withFullscreenState(FullscreenState.WINDOWED)
             .withTitle("EngineR2 Main")
-        );
+        );  
+        instances.add(e2);
 
-        TestDemos td = new TestDemos(e2);
+        TestDemos td = new TestDemos(instances);
         e2.console.parser.parseCommand("demo combat");
-        
     }
 
     private boolean allDone = false;
