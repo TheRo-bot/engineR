@@ -36,6 +36,14 @@ public class KeyController
             currModifiers[ii] = false;
     }
 
+    public boolean isPressed(char c)
+    { return currPressed.contains(c); }
+
+    public void copyPressed(Set<Character> in)
+    {
+        in.clear();
+        in.addAll(currPressed);
+    }
 
     public void bindPress(KeyCombo kc, KeyPressListener kpl)
     {
@@ -132,7 +140,7 @@ public class KeyController
     // (defined as any character. i.e. '|' (shift + '\'))
     protected void onCharIn(char c)
     {
-        if( !((KCStealer)thieves).onKeyIn(c) )
+        if( ((KCStealer)thieves).onKeyIn(c) )
             // this isn't flawless, ':' wouldn't be ';',
             // but that's not the end of the world since
             // this edge case is very unlikely to be reached
@@ -279,7 +287,6 @@ public class KeyController
 
         private boolean onKeyIn(char c)
         {
-            boolean wasStolen = false;
             synchronized(charStealers)
             {
                 for( int ii = 0; ii < charStealers.size(); ii++ )
@@ -294,11 +301,16 @@ public class KeyController
                     if( canSteal )
                     {
                         stealer.onSteal(this, c);
-                        wasStolen = true;
                     }
                 }
+
+                boolean permitted = true;
+                for( Stealer<Character> stealer : charStealers )
+                    permitted = permitted &&
+                                stealer.allowSimultaneousThievery(null);
+
+                return permitted;
             }
-            return wasStolen;
         }
 
 

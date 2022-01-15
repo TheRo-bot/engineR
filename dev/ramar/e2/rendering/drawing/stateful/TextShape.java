@@ -40,9 +40,9 @@ public class TextShape extends Shape
         {
             if( index >= 0 )
             {
-                exp += mod.getWidthOfChar(text.charAt(index)) / 2;
+                exp += mod.getWidthOfText(text.charAt(index)) / 2;
                 if( index > 0 )
-                    exp += mod.getWidthOfString(text.substring(0, Math.max(0, index - 1)));
+                    exp += mod.getWidthOfText(text.substring(0, Math.max(0, index - 1)));
 
             }
         }
@@ -53,7 +53,7 @@ public class TextShape extends Shape
     public double getWidth()
     {
         return mod != null && text != null ? 
-                   mod.getWidthOfString(text) :
+                   mod.getWidthOfText(text) :
                    0.0;
     }
 

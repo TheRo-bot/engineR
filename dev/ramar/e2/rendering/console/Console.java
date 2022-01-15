@@ -98,7 +98,7 @@ public class Console implements Drawable
 
         public boolean allowSimultaneousThievery(Stealer<Character> c)
         {
-            return true;
+            return c != null;
         }
     };
 

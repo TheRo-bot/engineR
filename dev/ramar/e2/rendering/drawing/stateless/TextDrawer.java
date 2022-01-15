@@ -274,13 +274,15 @@ public abstract class TextDrawer
             return exp;
         }
 
-        public double getWidthOfChar(char c)
+        public double getWidthOfText(String s)
         {
             onFontUpdate();
+            return metrics != null ? metrics.stringWidth(s) : 0.0;
+        }
 
-            return metrics != null ? 
-                           metrics.stringWidth("" + c) :
-                           0.0;
+        public double getWidthOfText(char c)
+        {
+            return getWidthOfText("" + c);
         }
 
         public double getStringHeight()

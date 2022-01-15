@@ -41,6 +41,9 @@ public class CombatDemo
             left.clearChars();
             left.withChar('j');
 
+            moveToPoint.clearChars();
+            moveToPoint.withChar('v');
+
             this.g = 0;
             this.b = 0;
         }

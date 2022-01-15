@@ -19,9 +19,16 @@ import dev.ramar.e2.rendering.console.ObjectParser;
 
 import dev.ramar.e2.rendering.console.commands.Debug;
 
+import dev.ramar.e2.demos.combat.actions.*;
+import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
+
+import dev.ramar.utils.nodes.Node;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import java.util.Set;
+import java.util.TreeSet;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -39,6 +46,8 @@ public class Player implements Drawable
 
     private static int idCounter = -1;
     static List<Player> allPlayers = new ArrayList<>();
+
+    private ActionManager actions = new ActionManager();
 
 
     public Player()
@@ -61,6 +70,35 @@ public class Player implements Drawable
         this.y = y;
     }
 
+    public void setX(double x)
+    {
+        this.x = x;
+    }
+
+    public double getX() { return x; }
+
+    public void setY(double y)
+    {
+        this.y = y;
+    }
+
+    public double getY() { return y; }
+
+    public void setXV(double x)
+    {
+        this.xv = x;
+    }
+
+    public double getXV() { return xv; }
+
+    public void setYV(double y)
+    {
+        this.yv = y;
+    }
+
+    public double getYV() { return yv; }
+
+
     // up down left right
     private boolean[] directions = new boolean[]{false, false, false, false};
 
@@ -72,44 +110,26 @@ public class Player implements Drawable
 
     protected final KeyCombo right = new KeyCombo("right").withChar('d');
 
+    protected final KeyCombo moveToPoint = new KeyCombo("to-point").withChar('b');
 
     protected final KeyListener moveListener = new KeyListener()
     {
         public void onPress(KeyCombo kc)
         {
-            processAction(kc.getName(), true);
+            actions.blockedRun(actions.get("movement"), 
+                     new Object[]{kc.getName(), true});
         }
 
         public void onRelease(KeyCombo kc)
         {
-            processAction(kc.getName(), false);
-        }
-
-        public void processAction(String name, boolean pressed)
-        {
-            switch(name)
-            {
-                case "up":
-                    directions[0] = pressed;
-                    break;
-
-                case "down":
-                    directions[1] = pressed;
-                    break;
-
-                case "left":
-                    directions[2] = pressed;
-                    break;
-
-                case "right":
-                    directions[3] = pressed;
-                    break;
-            }
+            actions.blockedRun(actions.get("movement"),
+                     new Object[]{kc.getName(), false});
         }
     };
 
     public void setdown(List<EngineR2> ers)
     {
+        actionsSetdown(ers);
         for( EngineR2 er : ers)
         {
             er.viewport.draw.stateless.perm.remove(drawer);
@@ -234,6 +254,7 @@ public class Player implements Drawable
 
     public void setup(List<EngineR2> ers)
     {
+        actionsSetup(ers);    
         this.ers = ers;
         for( EngineR2 er : ers )
         {
@@ -416,7 +437,6 @@ public class Player implements Drawable
             instance.viewport.setCenterX(-x);
             instance.viewport.setCenterY(-y);
         }
-
     }
 
     private double round(double a)
@@ -465,5 +485,100 @@ public class Player implements Drawable
         vp.draw.stateless.text.pos_c(0, 10, "" + roundedAng);
 
 
+    }
+
+    public void actionsSetdown(List<EngineR2> ers)
+    {
+        actions.clean();
+    }
+
+
+    public void actionsSetup(List<EngineR2> ers)
+    {
+        final Action movement = new Action()
+        {
+            public String getName() { return "movement"; }
+
+            public boolean act(Object[] o)
+            {
+                String name = (String)o[0];
+                boolean pressed = (boolean)o[1],
+                          acted = false;
+
+                process((String)o[0], (boolean)o[1]);
+
+                return acted;
+            }
+
+            Set<String> pressed = new TreeSet<>();
+
+            public boolean blockedAct(Object[] o)
+            {
+                String name = (String)o[0];
+                boolean process = (boolean)o[1];
+
+                if( process )
+                    pressed.add(name);
+                else
+                    pressed.remove(name);
+
+                return process(name, false);
+            }
+
+            public boolean isBlocking()
+            {
+                return false;
+            }
+            
+            public void onUnblock()
+            {
+                for( Object o : pressed.toArray() )
+                {
+                    String s = (String)o;
+                    pressed.remove(s);
+                    process(s, true);
+                }
+            }   
+
+            private boolean process(String name, boolean pressed)
+            {
+                boolean acted = false;
+                switch(name)
+                {
+                    case "up":
+                        directions[0] = pressed;
+                        acted = true;
+                        break;
+
+                    case "down":
+                        directions[1] = pressed;
+                        acted = true;
+                        break;
+
+                    case "left":
+                        directions[2] = pressed;
+                        acted = true;
+                        break;
+
+                    case "right":
+                        directions[3] = pressed;
+                        acted = true;
+                        break;
+                }
+
+                return acted;
+            }
+
+
+        };
+        actions.add(movement);
+
+        final WaypointMoveAction wma = new WaypointMoveAction(this, actions, movement);
+        actions.add(wma);
+        final EngineR2 er1 = ers.get(0);
+        er1.viewport.window.keys.bindPress(moveToPoint, (KeyCombo k) ->
+        {
+            actions.blockedRun(wma, new Object[]{er1.viewport.window.mouse.getMouseX(), er1.viewport.window.mouse.getMouseY()});
+        });
     }
 }   

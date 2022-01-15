@@ -24,8 +24,9 @@ public class ConsoleParser
     {
         ConsoleParser cp = new ConsoleParser(c);
 
- 
-        cp.addCommand("debug", new Debug());
+        Debug dbg = new Debug();
+        cp.addCommand("debug", dbg);
+        dbg.registerCommand("keylog", new Keys(c.engine));
 
         cp.addCommand("screen", new Screen());
 
