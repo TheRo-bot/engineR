@@ -17,8 +17,9 @@ WASD to move white, IJKL to move red.
 til (\`) to open console.
 
 USEFUL COMMANDS:
-debug players all highlight
-debug players 1 focus // FOCUSES white
-debug players 2 focus // FOCUSES red
+debug players all highlight || highlights all players with their IDs
+debug players 1 focus || focuses viewport on WHITE
+debug players 2 focus || focuses viewport on RED
+
 
 typically, 'list' will tell you what commands you can run, check System.out for the console log, i haven't implemented the console printstream yet sadly!
