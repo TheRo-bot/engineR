@@ -27,6 +27,12 @@ import javax.imageio.ImageIO;
 import dev.ramar.e2.rendering.awt.AWTImage;
 
 
+import java.awt.Cursor;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.image.MemoryImageSource;
+
 public class E2Main
 {
 
@@ -71,6 +77,8 @@ public class E2Main
         );  
         instances.add(e2);
 
+
+        // this is a test !
         TestDemos td = new TestDemos(instances);
         e2.console.parser.parseCommand("demo combat");
     }
