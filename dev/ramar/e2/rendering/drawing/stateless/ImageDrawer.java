@@ -85,6 +85,13 @@ public abstract class ImageDrawer
             return this;
         }
 
+        public ImageMods withOffsetOnly(double x, double y)
+        {
+            offX = x;
+            offY = y;
+            return this;
+        }
+
 
         public ImageMods withAlignment(double hori, double vert)
         {

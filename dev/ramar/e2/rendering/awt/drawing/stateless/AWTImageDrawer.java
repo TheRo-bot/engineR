@@ -80,7 +80,6 @@ public class AWTImageDrawer extends ImageDrawer
         height *= scaleY;
 
 
-
         double rotAncX = 0, rotAncY = 0;
 
         // -1 -> 1 to 0 -> 2
@@ -97,7 +96,6 @@ public class AWTImageDrawer extends ImageDrawer
         at.rotate(Math.toRadians(rotZ));
         at.translate(-rotAncX, -rotAncY);
         at.scale(scaleX, scaleY);
-
 
 
         if( at.getDeterminant() == 0 )

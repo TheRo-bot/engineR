@@ -21,6 +21,4 @@ public abstract class Image
 
     public abstract double getRotZ();
 
-
-
 }

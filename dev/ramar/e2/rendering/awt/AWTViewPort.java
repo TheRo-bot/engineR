@@ -213,6 +213,7 @@ public class AWTViewPort extends ViewPort
                 timeToSecond += diffTime;
                 if( timeToSecond >= 1000 )
                 {
+                    System.out.println("FPS: " + frameCount);
                     frameCount = 0;
                     timeToSecond = 0;
                 }
