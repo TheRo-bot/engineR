@@ -127,6 +127,22 @@ public class Player implements Drawable
         }
     };
 
+    protected final KeyCombo dodge = new KeyCombo().withShift(Directionality.LEFT);
+    
+    protected final KeyListener dodgeListener = new KeyListener()
+    {
+        public void onPress(KeyCombo kc)
+        {
+            actions.blockedRun(actions.get("dodge"));
+        }
+
+        public void onRelease(KeyCombo kc)
+        {
+            actions.blockedRun(actions.get("dodge"));
+        }
+    }
+
+
     public void setdown(List<EngineR2> ers)
     {
         actionsSetdown(ers);
