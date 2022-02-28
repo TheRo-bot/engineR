@@ -29,10 +29,16 @@ public class ActionManager
 
         public abstract boolean act(Object[] o);
 
+        public abstract boolean act();
+
         public void onUnblock() {}
 
         public boolean blockedAct(Object[] o)
         { return false; }
+
+        public boolean blockedAct()
+        { return false; }
+
     }
 
     public DiGraph<Action> actions = new DiGraph<>();
@@ -115,8 +121,9 @@ public class ActionManager
     public boolean permitRun(Action a)
     {
         Node<Action> n = actions.get(a);
-
-        return n.getLinks().isEmpty();
+        if( n != null )
+            return n.getLinks() != null && n.getLinks().isEmpty();
+        return true;
     }
 
         // bind(kc, (KeyCombo press) ->
@@ -124,14 +131,37 @@ public class ActionManager
         //     actionManager.blockedRun(myAction);
         // });
 
-    public boolean blockedRun(Action a, Object[] o)
+    public boolean blockedRun(Action a)
     {
         boolean fired = false;
 
-        if( permitRun(a) )
-            a.act(o);
-        else
-            a.blockedAct(o);
+        if( a != null )
+        {
+            if( permitRun(a) ) 
+            {
+                a.act();
+                fired = true;
+            }
+            else
+                a.blockedAct();
+        }
+
+        return fired;
+    }
+
+    public boolean blockedRun(Action a, Object[] o)
+    {
+        boolean fired = false;
+        if( a != null )
+        {
+            if( permitRun(a) )
+            {
+                a.act(o);
+                fired = true;
+            }
+            else
+                a.blockedAct(o);
+        }
 
         return fired;
     }

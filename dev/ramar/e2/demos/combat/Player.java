@@ -22,7 +22,10 @@ import dev.ramar.e2.rendering.console.commands.Debug;
 import dev.ramar.e2.demos.combat.actions.*;
 import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
 
+import dev.ramar.e2.rendering.control.KeyCombo.Directionality;
+
 import dev.ramar.utils.nodes.Node;
+
 
 import java.util.List;
 import java.util.ArrayList;
@@ -112,6 +115,8 @@ public class Player implements Drawable
 
     protected final KeyCombo moveToPoint = new KeyCombo("to-point").withChar('b');
 
+    protected final KeyCombo dodge = new KeyCombo("dodge").withTShift(Directionality.LEFT);
+
     protected final KeyListener moveListener = new KeyListener()
     {
         public void onPress(KeyCombo kc)
@@ -127,20 +132,30 @@ public class Player implements Drawable
         }
     };
 
-    protected final KeyCombo dodge = new KeyCombo().withShift(Directionality.LEFT);
     
     protected final KeyListener dodgeListener = new KeyListener()
     {
+        boolean acting = false;
         public void onPress(KeyCombo kc)
         {
-            actions.blockedRun(actions.get("dodge"));
+            if( !acting )
+            {
+                acting = true;
+                System.out.println("ONPRESS DODGE");
+                actions.blockedRun(actions.get("dodge"));
+            }
         }
 
         public void onRelease(KeyCombo kc)
         {
-            actions.blockedRun(actions.get("dodge"));
+            if( acting )
+            {
+                acting = false;
+                // ((DodgeAction)actions.get("dodge")).stop();
+                // System.out.println("UNPRESS DODGE");
+            }
         }
-    }
+    };
 
 
     public void setdown(List<EngineR2> ers)
@@ -157,14 +172,17 @@ public class Player implements Drawable
             er.viewport.window.keys.unbindPress(down, moveListener);
             er.viewport.window.keys.  unbindRel(down, moveListener);
 
-
+            er.viewport.window.keys.unbindPress(dodge, dodgeListener);
+            er.viewport.window.keys.  unbindRel(dodge, dodgeListener);
 
             er.viewport.window.keys.unbindPress(left, moveListener);
             er.viewport.window.keys.  unbindRel(left, moveListener);
 
 
             er.viewport.window.keys.unbindPress(right, moveListener);
-            er.viewport.window.keys.  unbindRel(right, moveListener);            
+            er.viewport.window.keys.  unbindRel(right, moveListener); 
+
+
         }
 
         t.interrupt();
@@ -299,6 +317,8 @@ public class Player implements Drawable
             er.viewport.window.keys.  bindRel(down, moveListener);
 
 
+            er.viewport.window.keys.bindPress(dodge, dodgeListener);
+            er.viewport.window.keys.  bindRel(dodge, dodgeListener);
 
             er.viewport.window.keys.bindPress(left, moveListener);
             er.viewport.window.keys.  bindRel(left, moveListener);
@@ -526,6 +546,11 @@ public class Player implements Drawable
                 return acted;
             }
 
+            public boolean act()
+            {
+                return false;
+            }
+
             Set<String> pressed = new TreeSet<>();
 
             public boolean blockedAct(Object[] o)
@@ -591,6 +616,9 @@ public class Player implements Drawable
 
         final WaypointMoveAction wma = new WaypointMoveAction(this, actions, movement);
         actions.add(wma);
+        final DodgeAction da = new DodgeAction(this);
+        actions.add(da);
+
         final EngineR2 er1 = ers.get(0);
         er1.viewport.window.keys.bindPress(moveToPoint, (KeyCombo k) ->
         {

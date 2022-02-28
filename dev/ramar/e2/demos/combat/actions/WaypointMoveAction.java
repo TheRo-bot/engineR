@@ -97,6 +97,11 @@ public class WaypointMoveAction extends Action
         return actor != null && actor.isAlive();
     }
 
+    public boolean act()
+    {
+        return false;
+    }
+
     @Override
     public boolean blockedAct(Object[] o)
     { 
