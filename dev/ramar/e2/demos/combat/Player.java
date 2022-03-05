@@ -78,11 +78,21 @@ public class Player implements Drawable
         this.x = x;
     }
 
+    public void modX(double x)
+    {
+        this.x += x;
+    }
+
     public double getX() { return x; }
 
     public void setY(double y)
     {
         this.y = y;
+    }
+
+    public void modY(double y)
+    {
+        this.y += y;
     }
 
     public double getY() { return y; }
@@ -92,6 +102,11 @@ public class Player implements Drawable
         this.xv = x;
     }
 
+    public void modXV(double x)
+    {
+        this.xv += x;
+    }
+
     public double getXV() { return xv; }
 
     public void setYV(double y)
@@ -99,11 +114,24 @@ public class Player implements Drawable
         this.yv = y;
     }
 
+    public void modYV(double y)
+    {
+        this.yv += y;
+    }
+
     public double getYV() { return yv; }
 
 
     // up down left right
     private boolean[] directions = new boolean[]{false, false, false, false};
+
+    public void setDirections(boolean up, boolean down, boolean left, boolean right)
+    {
+        this.directions[0] =    up;
+        this.directions[1] =  down;
+        this.directions[2] =  left;
+        this.directions[3] = right;
+    }
 
     protected final KeyCombo    up = new KeyCombo("up").withChar('w');
 
@@ -416,7 +444,7 @@ public class Player implements Drawable
         }
         */
         processDirection(delta);
-
+        System.out.println("processDirection (" + xv + ", " + yv + ")");
         if( Math.abs(xv) > 0.0001 || Math.abs(yv) > 0.0001 )
         {
             // once we calculate the hypotenuse we need to
@@ -531,93 +559,21 @@ public class Player implements Drawable
 
     public void actionsSetup(List<EngineR2> ers)
     {
-        final Action movement = new Action()
-        {
-            public String getName() { return "movement"; }
-
-            public boolean act(Object[] o)
-            {
-                String name = (String)o[0];
-                boolean pressed = (boolean)o[1],
-                          acted = false;
-
-                process((String)o[0], (boolean)o[1]);
-
-                return acted;
-            }
-
-            public boolean act()
-            {
-                return false;
-            }
-
-            Set<String> pressed = new TreeSet<>();
-
-            public boolean blockedAct(Object[] o)
-            {
-                String name = (String)o[0];
-                boolean process = (boolean)o[1];
-
-                if( process )
-                    pressed.add(name);
-                else
-                    pressed.remove(name);
-
-                return process(name, false);
-            }
-
-            public boolean isBlocking()
-            {
-                return false;
-            }
-            
-            public void onUnblock()
-            {
-                for( Object o : pressed.toArray() )
-                {
-                    String s = (String)o;
-                    pressed.remove(s);
-                    process(s, true);
-                }
-            }   
-
-            private boolean process(String name, boolean pressed)
-            {
-                boolean acted = false;
-                switch(name)
-                {
-                    case "up":
-                        directions[0] = pressed;
-                        acted = true;
-                        break;
-
-                    case "down":
-                        directions[1] = pressed;
-                        acted = true;
-                        break;
-
-                    case "left":
-                        directions[2] = pressed;
-                        acted = true;
-                        break;
-
-                    case "right":
-                        directions[3] = pressed;
-                        acted = true;
-                        break;
-                }
-
-                return acted;
-            }
 
 
-        };
+        final MovementAction movement = new MovementAction(this); 
         actions.add(movement);
 
-        final WaypointMoveAction wma = new WaypointMoveAction(this, actions, movement);
+        final WaypointMoveAction wma = new WaypointMoveAction(this);
+        wma.toBlock.add(movement);
+
         actions.add(wma);
+
         final DodgeAction da = new DodgeAction(this);
+        da.toBlock.add(movement);
+
         actions.add(da);
+
 
         final EngineR2 er1 = ers.get(0);
         er1.viewport.window.keys.bindPress(moveToPoint, (KeyCombo k) ->

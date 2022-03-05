@@ -2,6 +2,10 @@ package dev.ramar.e2.demos.combat.actions;
 
 import dev.ramar.utils.DiGraph;
 import dev.ramar.utils.nodes.Node;
+import dev.ramar.utils.HiddenList;
+
+import java.util.List;
+import java.util.ArrayList;
 
 /*
 Class: ActionManager
@@ -18,6 +22,16 @@ public class ActionManager
         {
 
         }   
+
+        public HiddenList<Action> toBlock = new ActionList();
+
+        private class ActionList extends HiddenList<Action>
+        {
+            private List<Action> getList()
+            {
+                return this.list;
+            }
+        }
         public boolean equals(Object in)
         {
             return in != null &&
@@ -25,19 +39,38 @@ public class ActionManager
                    ((Action)in).getName().equals(getName());
         }
 
+
+        protected void blockAll(ActionManager am)
+        {
+            for( Action a : ((ActionList)this.toBlock).getList() )
+                am.block(this, a);
+        }
+
+        protected void unblockAll(ActionManager am)
+        {
+            for( Action a : ((ActionList)this.toBlock).getList() )
+                am.unblock(this, a);
+        }
+
         public abstract String getName();
 
-        public abstract boolean act(Object[] o);
 
-        public abstract boolean act();
+        public abstract boolean act(ActionManager am, Object[] o);
+
+        public boolean act(ActionManager am)
+        {
+            return this.act(am, null);
+        }
 
         public void onUnblock() {}
 
-        public boolean blockedAct(Object[] o)
+        public boolean blockedAct(ActionManager am, Object[] o)
         { return false; }
 
-        public boolean blockedAct()
-        { return false; }
+        public boolean blockedAct(ActionManager am)
+        { 
+            return this.blockedAct(am, null);
+        }
 
     }
 
@@ -139,11 +172,11 @@ public class ActionManager
         {
             if( permitRun(a) ) 
             {
-                a.act();
+                a.act(this, null);
                 fired = true;
             }
             else
-                a.blockedAct();
+                a.blockedAct(this, null);
         }
 
         return fired;
@@ -156,11 +189,11 @@ public class ActionManager
         {
             if( permitRun(a) )
             {
-                a.act(o);
+                a.act(this, o);
                 fired = true;
             }
             else
-                a.blockedAct(o);
+                a.blockedAct(this, o);
         }
 
         return fired;
