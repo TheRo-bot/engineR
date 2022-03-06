@@ -136,6 +136,7 @@ public class ActionManager
                 b.onUnblock();
         }
     }
+    
     public void unblock(String a, String b)
     {
         Action aa = get(a),
@@ -170,6 +171,7 @@ public class ActionManager
 
         if( a != null )
         {
+            // System.out.println(a.getName() + (permitRun(a) ? "normal" :"blocked") + " run");
             if( permitRun(a) ) 
             {
                 a.act(this, null);
@@ -187,6 +189,7 @@ public class ActionManager
         boolean fired = false;
         if( a != null )
         {
+            // System.out.println(a.getName() + " " + (permitRun(a) ? "normal" :"blocked") + " run with " + java.util.Arrays.toString(o));
             if( permitRun(a) )
             {
                 a.act(this, o);

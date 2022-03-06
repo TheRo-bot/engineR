@@ -4,134 +4,123 @@ import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
 
 import dev.ramar.e2.demos.combat.Player;
 
+import dev.ramar.e2.demos.combat.Player.Updatable;
+
+import dev.ramar.e2.structures.Vec2;
+
+
+/*
+Action: DodgeAction
+ - Makes the player dodge... holy shit that's crazy
+*/
 public class DodgeAction extends Action
 {
     private Player player;
 
+    // this is our movement vector that the player gives us
+    private Vec2 vector;
+
+    private MovementAction ma = null;
+
     public DodgeAction(Player p)
     {   
         this.player = p;
+        this.ma = (MovementAction)this.player.actions.get("movement");
+
+
+        // even though DODGE_POWER is used twice it doesn't feel the same
+        // if you remove one of them / scale the other to be the same
+        this.vector = this.player.vecs.create((double mod) ->
+        {
+            return mod * DODGE_POWER;
+        });
     }
 
     public String getName()
-    {
-        return "dodge";
-    }
+    {   return "dodge";   }
 
 
-    Thread t;
+    private static final double DODGE_POWER = 6;
+    private static final double DODGE_POWER_2 = 6;
+    private static final double DODGE_DURA = 0.25;
 
-    private static final double DODGE_DIST = 400;
-    private static final double DODGE_DURA = 0.6;
+
     public boolean act(ActionManager am, Object[] info)
     {
-        boolean out = false;
-
-
         double xVel = this.player.getXV(),
                yVel = this.player.getYV();
 
-        if( t != null && Math.abs(xVel) > 1.0 || Math.abs(yVel) > 1.0 )
+        if( Math.abs(xVel) > 0.1 || Math.abs(yVel) > 0.1 )
         {
             double abs = Math.sqrt(xVel * xVel + yVel * yVel);
-
-            final double xVelNorm = xVel / abs,
-                         yVelNorm = yVel / abs;
+            double xVelNorm = xVel / abs,
+                   yVelNorm = yVel / abs;
+            
+            final double xDist = xVelNorm * DODGE_POWER_2,
+                         yDist = yVelNorm * DODGE_POWER_2;  
 
             this.blockAll(am);
-
-            t = new Thread(() -> 
+            Updatable updater = new Updatable()
             {
-                try
+                private double delta = DODGE_DURA;
+
+                public boolean update(double delta)
                 {
-                    long lastTime = System.currentTimeMillis();
-                    double delta = 0.0;
-                    while(delta < this.DODGE_DURA)
+                    boolean stop = false;
+                    this.delta -= delta;
+
+                    double power = (this.delta / DODGE_DURA);
+                    if( this.delta < 0)
+                        stop = true;
+                    else
+                        DodgeAction.this.vector.add(xDist * power, yDist * power);
+
+                    // when the main dodge movement is meant to end, we want to end it with
+                    // a smooth transition from dodge to anything else.'
+
+                    // we also want to block this dodge from happening again, so in that time
+                    // we re-block this action
+                    if( stop )
                     {
-                        long currTime = System.currentTimeMillis();
-                        double d = (currTime - lastTime) / 1000.0;
-                        lastTime = currTime;
-                        delta += d;
+                        // in the next update, add this updatable which lasts for 0.3 seconds,
+                        // and slows down the vector
+                        DodgeAction.this.player.toUpdate.queueAdd(new Updatable()
+                        {
+                            private double delta = 0.3;
 
-                        // x distance in seconds
-                        double xMove = xVelNorm * DODGE_DIST;
-                        double yMove = yVelNorm * DODGE_DIST;
+                            public boolean update(double delta)
+                            {
+                                boolean _stop = false;
+                                this.delta -= delta;
+                                if( this.delta < 0 )
+                                    _stop = true;
+                                else
+                                    DodgeAction.this.vector.multiply(0.98);
 
-                        xMove *= d;
-                        yMove *= d;
+                                if( _stop )
+                                {
+                                    am.unblock(DodgeAction.this, DodgeAction.this);
+                                    DodgeAction.this.vector.clear();
+                                }
 
-                        this.player.modX(xMove);
-                        this.player.modY(yMove);
+                                return _stop;
+                            }
+                        });
+                        // clear everything we're meant to block
+                        DodgeAction.this.unblockAll(am);
+                        // and make sure we're blocked while the inner updatable finishes off
+                        am.block(DodgeAction.this, DodgeAction.this);
 
-                        Thread.sleep(1);
                     }
+
+                    return stop;
                 }
-                catch(InterruptedException e) {}
-                this.unblockAll(am);
-            });
+            };
 
-            t.start();
-
-            out = true;            
+            this.player.toUpdate.add(updater);
         }
 
-        return out || (t != null && t.isAlive());
-    }
-
-
-    public boolean actDEP()
-    {
-        boolean out = false;
-        final double  xv = this.player.getXV() * 0.5,
-                      yv = this.player.getYV() * 0.5,
-                    time = 5.0;
-        System.out.println("act (" + xv + ", " + yv + ")");
-        if( Math.abs(xv) > 10 || Math.abs(yv) > 10 )
-        {
-            t = new Thread(() -> 
-            {
-                System.out.println("dodge time for " + this.player + ":)");
-                try
-                {
-                    double delta = 0.0,
-                           mod = 1.0; 
-                    long lastTime = System.currentTimeMillis();
-                    while(delta < time)
-                    {
-                        long currTime = System.currentTimeMillis();
-                        double d = (currTime - lastTime) / 1000.0;
-                        delta += d;
-
-                        mod = 1 - (delta / time);
-                        this.player.setX(this.player.getX() + (xv * mod * d));
-                        this.player.setY(this.player.getY() + (yv * mod * d));
-                        Thread.sleep(10);
-                    }
-                }
-                catch(InterruptedException e) {}
-            });
-            t.start();
-            out = true;
-        }
-        return out;
-    }
-
-    public boolean blockedAct(Object... args)
-    {
-        return blockedAct();
-    }
-
-
-    public boolean blockedAct()
-    {
-        if( t != null )
-            t.interrupt();
-        return true;
-    }
-
-    public void stop()
-    {
-        if( t != null )
-            t.interrupt();
+            
+        return false;
     }
 }

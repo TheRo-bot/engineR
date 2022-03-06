@@ -114,8 +114,11 @@ public class Console implements Drawable
 
     public Console(EngineR2 engine)
     {
-        this();
         this.engine = engine;
+        parser = ConsoleParser.createParser(this);
+        out = System.out;
+        setup();
+        animationsSetup();
     }
 
 

@@ -233,6 +233,18 @@ public abstract class RectDrawer
         return rm;
     }
 
+    public RectMods activeMod()
+    {
+        if( tempMod != null )
+            return tempMod;
+        return currMods;
+    }
+
+    public RectMods withTempMod()
+    {
+        return withTempMod(new RectMods());
+    }
+
 
     public RectMods withTempMod(RectMods rm)
     {

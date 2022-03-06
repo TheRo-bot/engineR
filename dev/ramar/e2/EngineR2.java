@@ -34,7 +34,7 @@ public class EngineR2
         ((AWTKeyController)viewport.window.keys).doEngineStuff(this);            
 
 
-        viewport.window.keys.bindRel(new KeyCombo("console_toggle")
+        viewport.window.keys.bindPress(new KeyCombo("console_toggle")
                                          .withChar('`'),
         (KeyCombo kc) ->
         {

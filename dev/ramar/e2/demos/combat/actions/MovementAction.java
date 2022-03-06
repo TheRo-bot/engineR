@@ -4,130 +4,145 @@ import dev.ramar.e2.demos.combat.*;
 import dev.ramar.e2.demos.combat.actions.*;
 import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
 
+import dev.ramar.e2.structures.Vec2;
+
+import dev.ramar.utils.PairedValues;
+
+import java.util.Set;
+import java.util.HashSet;
 
 public class MovementAction extends Action
 {
-    Player player = new Player();
+    Player player = null;
+    private ActionManager am = null;
 
-    private double xFactor = 0.0,
-                   yFactor = 0.0;
+    private Vec2 vec = null;
+    private boolean[] directions = new boolean[4];
 
-    // units per second
-    private static final double MOVE_SPEED = 200.0;
+    private static final double SPEED = 2;
+    private static final double ACCEL = 10;
 
-    public MovementAction(Player p)
+    public MovementAction(ActionManager am, Player p)
     {
+        this.am = am;
         this.player = p;
-        t = new Thread(() -> {
-            try
-            {
-                long lastTime = System.currentTimeMillis();
-                while(true)
-                {
-                    long currTime = System.currentTimeMillis();
-                    double delta = currTime = lastTime;
-                    lastTime = currTime;
-
-                    double xF = 0.0,
-                           yF = 0.0;
-                    synchronized(MovementAction.this)
-                    {
-                        xF = xFactor * MovementAction.this.MOVE_SPEED;
-                        yF = yFactor * MovementAction.this.MOVE_SPEED;
-                    }
-
-                    double abs = Math.sqrt(xF * xF + yF * yF);
-
-                    double xDist = xF / abs,
-                           yDist = yF / abs; 
-
-                    this.player.setXV(xF);
-                    this.player.setYV(yF);
-
-                    Thread.sleep(10);
-                }
-            }
-            catch(InterruptedException e) {}
+        this.vec = this.player.vecs.create((double val) ->
+        {
+            return val * SPEED * ACCEL;
         });
 
-        t.start();
+        this.player.toUpdate.add((double delta) -> 
+        {
+            boolean stop = false;
+            double x = 0.0,
+                   y = 0.0;
+            if( directions[0] )
+                y -= 1.0;
+            if( directions[1] )
+                y += 1.0;
+            if( directions[2] )
+                x -= 1.0;
+            if( directions[3] )
+                x += 1.0;
+
+            if( this.am.permitRun(MovementAction.this) )
+            {
+                double abs = Math.sqrt(x * x + y * y);
+                if( abs > 0 )
+                    this.vec.add(x / abs, y / abs);
+
+                // TODO: limit speed?
+            }
+
+            return stop;
+        }); 
     }
 
-    public String getName()
-    {   return "movement";   }
-
-    Thread t;
-
+    public String getName() { return "movement"; }
 
     public boolean act(ActionManager am, Object[] o)
     {
-        boolean out = false;
+        String name = (String)o[0];
+        boolean pressed = (boolean)o[1],
+                  acted = false;
+        this.blockAll(am);
+        acted = process((String)o[0], (boolean)o[1]);
+        this.unblockAll(am);
 
-        if( o != null && o.length > 1 )
-        {
-            String name = (String)o[0];
-            boolean state = (boolean)o[1];
-            boolean didSomething = true;
-            synchronized(this)
-            {
-                switch(name)
-                {
-                    case "up":
-                        yFactor += state ? -MOVE_SPEED : MOVE_SPEED;
-                        break;
-                    case "down":
-                        yFactor += state ? MOVE_SPEED : -MOVE_SPEED;
-                        break;
-                    case "left":
-                        xFactor += state ? -MOVE_SPEED : MOVE_SPEED; 
-                        break;
-                    case "right":
-                        xFactor += state ? MOVE_SPEED : -MOVE_SPEED;
-                        break;
-                    default:
-                        didSomething = false;
-                }
-            }
-
-            out = didSomething;
-        }
-
-        return out;
+        return acted;
     }
+
+    public boolean act(ActionManager am)
+    {
+        return false;
+    }
+
+
+    private Set<PairedValues<String, Boolean>> toParse = new HashSet<>();
 
 
     public boolean blockedAct(ActionManager am, Object[] o)
     {
-        boolean out = false;
-        if( o != null && o.length > 0 )
-        {
-            String name = (String)o[0];
+        String name = (String)o[0];
+        boolean process = (boolean)o[1];
 
-            boolean didSomething = true;
-            synchronized(this)
+        boolean didOverride = false;
+
+        for( PairedValues<String, Boolean> sb : toParse )
+            if( sb.getK().equals(name) )
             {
-                switch(name)
-                {
-                    case "up":
-                        yFactor += 1.0;
-                        break;
-                    case "down":
-                        yFactor += -1.0;
-                        break;
-                    case "left":
-                        xFactor += 1.0; 
-                        break;
-                    case "right":
-                        xFactor += -1.0;
-                        break;
-                    default:
-                        didSomething = false;
-                }
+                sb.setV(process);
+                didOverride = true;
+                break;
             }
-            out = didSomething;
+
+        if( !didOverride )
+            toParse.add(new PairedValues<String, Boolean>(name, process));
+
+        return false;
+    }
+
+    public void onUnblock()
+    {
+        for( PairedValues<String, Boolean> vals : toParse )
+        {
+            String name = vals.getK();
+            boolean type = vals.getV();
+            process(name, type);
+        }
+        toParse.clear();
+    }   
+
+
+
+    private boolean process(String name, boolean pressed)
+    {
+        boolean acted = false;
+
+        switch(name)
+        {
+            case "up":
+                this.directions[0] = pressed;
+                acted = true;
+                break;
+
+            case "down":
+                this.directions[1] = pressed;
+                acted = true;
+                break;
+
+            case "left":
+                this.directions[2] = pressed;
+                acted = true;
+                break;
+
+            case "right":
+                this.directions[3] = pressed;
+                acted = true;
+                break;
         }
 
-        return out;
+        return acted;
     }
 
 }

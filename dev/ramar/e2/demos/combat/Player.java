@@ -7,7 +7,7 @@ import dev.ramar.e2.EngineR2;
 
 import dev.ramar.e2.structures.Vec2;
 
-
+    
 import dev.ramar.e2.rendering.control.KeyListener;
 import dev.ramar.e2.rendering.control.KeyCombo;
 
@@ -24,11 +24,16 @@ import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
 
 import dev.ramar.e2.rendering.control.KeyCombo.Directionality;
 
+import dev.ramar.utils.PairedValues;
+
 import dev.ramar.utils.nodes.Node;
+import dev.ramar.utils.HiddenList;
 
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -50,8 +55,41 @@ public class Player implements Drawable
     private static int idCounter = -1;
     static List<Player> allPlayers = new ArrayList<>();
 
-    private ActionManager actions = new ActionManager();
+    public final ActionManager actions = new ActionManager();
 
+    public final LocalList<Updatable> toUpdate = new LocalList<>(); 
+
+    public interface Updatable
+    {
+        //     v returns if it should be removed
+        public boolean update(double delta);
+    }
+
+    public class LocalList<E> extends HiddenList<E>
+    {
+        private List<PairedValues<E, Boolean>> toParse = new LinkedList<>();
+
+        private List<E> getList()
+        {
+            return this.list; 
+        }
+
+        public void queueAdd(E e)
+        {
+            synchronized(this)
+            {
+                toParse.add(new PairedValues(e, true));
+            }
+        }
+
+        public void queueRemove(E e)
+        {
+            synchronized(this)
+            {
+                toParse.add(new PairedValues(e, false));
+            }
+        }
+    }
 
     public Player()
     {
@@ -65,7 +103,7 @@ public class Player implements Drawable
         this();
         this.x = x;
         this.y = y;
-    } 
+    }
 
     public void setPos(double x, double y)
     {
@@ -107,7 +145,8 @@ public class Player implements Drawable
         this.xv += x;
     }
 
-    public double getXV() { return xv; }
+    public double getXV() 
+    {    return this.xv;   }
 
     public void setYV(double y)
     {
@@ -122,14 +161,71 @@ public class Player implements Drawable
     public double getYV() { return yv; }
 
 
+    public interface VecModifier
+    {
+        public double modify(double input);
+    }
+
+    public final VecList vecs = new VecList();
+
+    public class VecList extends HiddenList<PairedValues<Vec2, VecModifier>> 
+    {
+        public Vec2 create()
+        {
+            return this.create(null);
+        }
+
+        public Vec2 create(VecModifier vm)
+        {
+            Vec2 move = new Vec2();
+
+            this.add(new PairedValues<>(move, vm));
+            return move;
+        }
+
+        public PairedValues<Vec2, VecModifier> find(VecModifier vm)
+        {
+            for( PairedValues<Vec2, VecModifier> pv : this.list )
+                if( pv.getV().equals(vm) )
+                    return pv;
+
+            return null;
+        }
+
+        public PairedValues<Vec2, VecModifier> find(Vec2 v2)
+        {
+            for( PairedValues<Vec2, VecModifier> pv : this.list )
+                if( pv.getK().equals(v2) )
+                    return pv;
+
+            return null;
+        }
+
+        public void remove(VecModifier vm)
+        {
+            this.remove(this.find(vm));
+        }
+
+        public void remove(Vec2 v2)
+        {
+            this.remove(this.find(v2));
+        }
+
+        private List<PairedValues<Vec2, VecModifier>> getList()
+        {
+            return this.list;
+        }
+    }
+
+
     // up down left right
-    private boolean[] directions = new boolean[]{false, false, false, false};
+    public final boolean[] directions = new boolean[]{false, false, false, false};
 
     public void setDirections(boolean up, boolean down, boolean left, boolean right)
     {
         this.directions[0] =    up;
         this.directions[1] =  down;
-        this.directions[2] =  left;
+        this.directions[2] =  left; 
         this.directions[3] = right;
     }
 
@@ -169,7 +265,6 @@ public class Player implements Drawable
             if( !acting )
             {
                 acting = true;
-                System.out.println("ONPRESS DODGE");
                 actions.blockedRun(actions.get("dodge"));
             }
         }
@@ -180,7 +275,6 @@ public class Player implements Drawable
             {
                 acting = false;
                 // ((DodgeAction)actions.get("dodge")).stop();
-                // System.out.println("UNPRESS DODGE");
             }
         }
     };
@@ -293,7 +387,6 @@ public class Player implements Drawable
                 firstRun = false;
             }
 
-            System.out.println(java.util.Arrays.toString(args));
             if( args.length > 2 && ((String)args[2]).equals("list") )
                 list(cp);
             else
@@ -410,7 +503,6 @@ public class Player implements Drawable
             // otherwise up+down == the same
             if( ym < 0 )
                 ang *= -1;
-
             // here's the actual thing that stops movement from
             // exceeding our speed cap
             double dist = Math.min(hyp, movement_speed * delta);
@@ -444,58 +536,64 @@ public class Player implements Drawable
         }
         */
         processDirection(delta);
-        System.out.println("processDirection (" + xv + ", " + yv + ")");
-        if( Math.abs(xv) > 0.0001 || Math.abs(yv) > 0.0001 )
+
+        synchronized(toUpdate)
         {
-            // once we calculate the hypotenuse we need to
-            // ensure it's length is constrained
+            LocalList<Updatable> list = (LocalList<Updatable>)toUpdate;
 
-            // right now we have the 'unrestricted triangle',
-            // defined by <xv> and <yv>, it isn't within the radius
-            // that maxSpeed defines.
+            for( PairedValues<Updatable, Boolean> vs : list.toParse )
+            {
+                if( vs.getV() )
+                    list.getList().add(vs.getK());
+                else
+                    list.getList().remove(vs.getK());
+            }
 
-            // <xv> and <yv> define the triangle. calculate the
-            // angle and hypotenuse
+            list.toParse.clear();
 
-        
-        
-            double hyp = Math.sqrt(Math.pow(xv, 2) + Math.pow(yv, 2));
+            ListIterator<Updatable> iter = list.getList().listIterator();
+            while(iter.hasNext())
+            {
+                Updatable u = iter.next();
 
-            double ang = Math.acos(xv / hyp);
+                boolean remove = u.update(delta);
+                if( remove )
+                    iter.remove();
 
-            if( yv < 0 )
-                ang *= -1;
-
-            double dist = Math.min(movement_maxSpeed, hyp);
-
-            // we need to use the unrestricted triangle (UT) to
-            // calculate theta and hypotenuse length so we can
-            // create the restricted triangle (RT) and extract
-            // its adjacent and opposite lengths for a bounded
-            // step.
-
-            double xm = Math.cos(ang) * dist,
-                   ym = Math.sin(ang) * dist;
-
-            xv = xv > 0 ? Math.min(xm, xv) :
-                          Math.max(xm, xv) ;
-
-            yv = yv > 0 ? Math.min(ym, yv) :
-                          Math.max(ym, yv) ;  
-
-
-            xm = xm * delta * movement_acceleration;
-            ym = ym * delta * movement_acceleration;
-
-            xv -= xm;
-            yv -= ym;
-
-            x += xm;
-            y += ym;
-
-
+            }
         }
-        
+
+        // Strategy for: arbitrarily moving the player around the world each update
+        //  - accumulate a vector which consists of Vec2 being modified by their VecModifier in <vecs>
+        //  
+
+        double thisXV = 0.0,
+               thisYV = 0.0;
+
+        for( PairedValues<Vec2, VecModifier> vs : vecs.getList() )
+        {
+            Vec2 v = vs.getK();
+            double _x = v.getX() * delta,
+                   _y = v.getY() * delta;
+
+            if( vs.getV() != null )
+            {
+                _x = vs.getV().modify(_x);
+                _y = vs.getV().modify(_y);
+            }
+            v.take(_x, _y);
+
+            thisXV += _x;
+            thisYV += _y;
+        }
+
+        this.xv = thisXV;
+        this.yv = thisYV;
+
+        x += thisXV;
+        y += thisYV;
+
+
         for( EngineR2 instance : trackstances )
         {
             instance.viewport.setCenterX(-x);
@@ -525,14 +623,45 @@ public class Player implements Drawable
 
         vp.draw.stateless.rect.poslen(-draw_playerSize/2, -draw_playerSize/2, draw_playerSize, draw_playerSize);
 
-        vp.draw.stateless.line.withMods(4)
+        vp.draw.stateless.line.withTempMod()
             .withColour(0, 255, 255, 255)
             .withOffset(xo + x, yo + y)
         ;
 
-        vp.draw.stateless.line.pospos(0, 0,  xv,yv);
-        vp.draw.stateless.line.pospos(0, 0,  xv, 0);
-        vp.draw.stateless.line.pospos(xv, 0, xv, yv);
+
+        double lx = 0.0,
+               ly = 0.0,
+               sumX = 0.0,
+               sumY = 0.0;
+
+        Vec2 last = new Vec2(0, 0);
+        for( PairedValues<Vec2, VecModifier> vs : vecs.getList() )
+        {
+            double x = vs.getK().getX();
+            double y = vs.getK().getY();
+            if( vs.getV() != null )
+            {
+                vs.getV().modify(x);
+                vs.getV().modify(y);
+            }
+
+            sumX += x;
+            sumY += y;
+
+            vp.draw.stateless.line.pospos(lx, ly, x, y);
+
+            lx = x;
+            ly = y;
+        }
+        vp.draw.stateless.line.activeMod()
+            .withColour(255, 0, 0, 255)
+        ;
+        vp.draw.stateless.line.pospos(0, 0, sumX, sumY);
+
+        vp.draw.stateless.line.clearTempMod();
+        // vp.draw.stateless.line.pospos(0, 0,  xv,yv);
+        // vp.draw.stateless.line.pospos(0, 0,  xv, 0);
+        // vp.draw.stateless.line.pospos(xv, 0, xv, yv);
 
         vp.draw.stateless.text.withMod()
             .withOffset(xo + x, yo + y)
@@ -561,7 +690,7 @@ public class Player implements Drawable
     {
 
 
-        final MovementAction movement = new MovementAction(this); 
+        final MovementAction movement = new MovementAction(actions, this); 
         actions.add(movement);
 
         final WaypointMoveAction wma = new WaypointMoveAction(this);
@@ -571,6 +700,7 @@ public class Player implements Drawable
 
         final DodgeAction da = new DodgeAction(this);
         da.toBlock.add(movement);
+        da.toBlock.add(da);
 
         actions.add(da);
 

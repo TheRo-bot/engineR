@@ -25,29 +25,29 @@ public class CombatDemo
     
 
     private Player player = new Player();
-    private Player test = new Player()
-    {
+    // private Player test = new Player()
+    // {
 
-        @Override
-        public void setup(List<EngineR2> ers)
-        {
-            super.setup(ers);
-            up.clearChars();
-            up.withChar('i');
-            down.clearChars();
-            down.withChar('k');
-            right.clearChars();
-            right.withChar('l');
-            left.clearChars();
-            left.withChar('j');
+    //     @Override
+    //     public void setup(List<EngineR2> ers)
+    //     {
+    //         super.setup(ers);
+    //         up.clearChars();
+    //         up.withChar('i');
+    //         down.clearChars();
+    //         down.withChar('k');
+    //         right.clearChars();
+    //         right.withChar('l');
+    //         left.clearChars();
+    //         left.withChar('j');
 
-            moveToPoint.clearChars();
-            moveToPoint.withChar('v');
+    //         moveToPoint.clearChars();
+    //         moveToPoint.withChar('v');
 
-            this.g = 0;
-            this.b = 0;
-        }
-    };
+    //         this.g = 0;
+    //         this.b = 0;
+    //     }
+    // };
 
     private void initialise(List<EngineR2> ers)
     {
@@ -59,7 +59,7 @@ public class CombatDemo
                 er.console.out.println("first time startup of combat demo");
 
             player.setup(ers);
-            test.setup(ers);
+            // test.setup(ers);
 
             Drawable grid = new Drawable()
             {
@@ -103,7 +103,7 @@ public class CombatDemo
 
             drawables.add(grid);
             drawables.add(player);
-            drawables.add(test);
+            // drawables.add(test);
 
 
         }
@@ -114,7 +114,7 @@ public class CombatDemo
     private void uninitialise(List<EngineR2> ers)
     {
         player.setdown(ers);
-        test.setdown(ers);
+        // test.setdown(ers);
 
         drawables.clear();
     }

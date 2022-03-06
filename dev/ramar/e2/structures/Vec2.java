@@ -7,15 +7,17 @@ import java.text.DecimalFormat;
 public class Vec2
 {
 
-	private static DecimalFormat df = new DecimalFormat("0.00");
+	private static final DecimalFormat df = new DecimalFormat("0.0000");
 
 	static
 	{
 		df.setRoundingMode(RoundingMode.HALF_UP);
 	}
 
-	private double x;
-	private double y;
+	private double x = 0.0;
+	private double y = 0.0;
+
+	public Vec2() {}
 
 	public Vec2(double x, double y)
 	{
