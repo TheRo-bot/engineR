@@ -14,12 +14,195 @@ import dev.ramar.e2.rendering.ViewPort.ViewPortFrameListener;
 
 import dev.ramar.utils.PairedValues;
 
+import java.util.Arrays;
+
 import java.util.List;
 import java.util.LinkedList;
 
 public class FPS implements Command
 {
     public static final ObjectParser PARSER = new StringSplitter(" "); 
+
+    /*
+    SubCommand: list
+     - lists all commands FPS has
+    */
+    SubCommand list = (ConsoleParser cp, Object... args) ->
+    {
+        String name = "<..>";
+        if( args.length > 0 && args[0] instanceof String)
+            name = (String)args[0];
+
+        cp.ps.println(name +" show <..> || shows a given counter on the screen");
+        cp.ps.println(name +" hide <..> || hides a given counter on the screen");
+        cp.ps.println(name +" edit <..> || edits a given counter");
+    };
+
+
+    /*
+    SubCommand: show
+     - shows certain graphs
+    */
+    SubCommand show = new SubCommand()
+    {
+        /*
+        SubCommand: show list
+         - Lists options
+        */
+        SubCommand list = (ConsoleParser cp, Object... args) ->
+        {
+            cp.ps.println("<..> show mspf || shows the mspf graph");
+            cp.ps.println("<..> show fps  || shows the fps graph");
+        };
+
+        /*
+        SubCommand: show mspf
+         - shows the mspf Drawable
+        */
+        SubCommand mspf = (ConsoleParser cp, Object... args) -> 
+        {
+            FPS.this.er.viewport.draw.stateless.top.add(FPS.this.mspf);
+        };
+
+        /*
+        SubCommand: show fps
+         - Shows the fps Drawable
+        */
+        SubCommand fps = (ConsoleParser cp, Object... args) -> 
+        {
+            FPS.this.er.viewport.draw.stateless.top.add(FPS.this.fps);
+        };
+
+        public void run(ConsoleParser cp, Object... args)
+        {
+            if( args.length > 1 )
+            {
+                String message = (String)args[1];
+                Object[] next = Arrays.copyOfRange(args, 1, args.length - 1);
+
+                switch(message)
+                {
+                    case "list":
+                        list.run(cp, next);
+                        break;
+                    case "mspf":
+                        mspf.run(cp, next);
+                        break;
+                    case "fps":
+                        fps.run(cp, next);
+                        break;
+                }
+            }
+        }
+    };
+
+    SubCommand hide = new SubCommand()
+    {
+        /*
+        SubCommand: hide list
+         - Lists options 
+        */
+        SubCommand list = (ConsoleParser cp, Object... args) ->
+        {
+            cp.ps.println("<..> hide mspf || hides the mspf graph");
+            cp.ps.println("<..> hide fps  || hides the fps graph");
+        };
+
+        /*
+        SubCommand: hide mspf
+         -  Removes the mspf Drawable from vp.draw.stateless.top
+        */
+        SubCommand mspf = (ConsoleParser cp, Object... args) -> 
+        {   
+            FPS.this.er.viewport.draw.stateless.top.remove(FPS.this.mspf);
+        };
+
+        /*
+        SubCommand: hide fps
+         -  Removes the fps Drawable from vp.draw.stateless.top
+        */
+        SubCommand fps = (ConsoleParser cp, Object... args) ->
+        {
+            FPS.this.er.viewport.draw.stateless.top.remove(FPS.this.fps);
+        };
+
+        public void run(ConsoleParser cp, Object... args)
+        {
+            if( args.length > 1 && args[0] instanceof String )
+            {
+                String message = (String)args[1];
+                switch(message)
+                {
+                    case "list":
+                        this.list.run(cp, args);
+                        break;
+                    case "mspf":
+                        this.mspf.run(cp, args);
+                        break;
+                    case "fps":
+                        this.fps.run(cp, args);
+                        break;
+                }
+            }
+        }
+    };
+
+
+    /*
+    SubCommand: edit
+     - Allows modification of graph parameters
+    */
+    SubCommand edit = new SubCommand()
+    {
+        /*
+        SubCommand: edit list
+         - Lists options
+        */
+        SubCommand list = (ConsoleParser cp, Object... args) ->
+        {
+            cp.ps.println("<..> edit mspf <..> || edits parameters of the mspf graph");
+            cp.ps.println("<..> edit fps  <..> || edits parameters of the fps graph");
+        };
+
+        /*
+        SubCommand: edit mspf
+         - Edits the mspf graph
+        */
+        SubCommand mspf = (ConsoleParser cp, Object... args) ->
+        {
+            cp.ps.println("can't edit shit rn!");
+        };
+
+        /*
+        SubCommand: edit fps
+         - Edits the fps graph
+        */
+        SubCommand fps = (ConsoleParser cp, Object... args) ->
+        {
+            cp.ps.println("can't edit shit rn!");
+        };
+
+        public void run(ConsoleParser cp, Object... args)
+        {
+            if( args.length > 1 && args[0] instanceof String )
+            {
+                String message = (String)args[1];
+                Object[] next = Arrays.copyOfRange(args, 1, args.length);
+                switch(message)
+                {
+                    case "list":
+                        list.run(cp, next);
+                        break;
+                    case "mspf":
+                        mspf.run(cp, next);
+                        break;
+                    case "fps":
+                        fps.run(cp, next);
+                        break;
+                }
+            }
+        }
+    };
 
     public Data data = new Data();
 
@@ -28,7 +211,7 @@ public class FPS implements Command
         private double mspf = 0.0;
         private double fps = 0.0;
 
-        private double[] mspf_average = new double[50];
+        private double[] mspf_average = new double[5];
         private int mspf_average_pointer = 0;
 
         List<Long> frameStartBuff = new LinkedList<>();
@@ -61,7 +244,7 @@ public class FPS implements Command
                 double average = calcAverage(mspf_average);
                 synchronized(mspfBuffer)
                 {
-                    mspfBuffer.add(mspf);
+                    mspfBuffer.add(average);
                 }
                 mspf_average_pointer = 0;
             }
@@ -81,45 +264,33 @@ public class FPS implements Command
         this.er.viewport.frameListeners.add(this.data);
     }
 
-    /*
-    frames show mspf
-    frames show fps
-    frames list
-    */
+
     public Object run(ConsoleParser cp, Object[] args)
     {
         if( args.length > 1 )
         {
             String message = (String)args[1];
-            if( message.equals("list") )
-                list(cp);
-            else if( message.equals("show"))
-                show(cp, args);
+            Object[] next = Arrays.copyOfRange(args, 1, args.length);
+
+            switch(message)
+            {
+                case "list":
+                    this.list.run(cp, next);
+                    break;
+                case "show":
+                    this.show.run(cp, next);
+                    break;
+                case "hide":
+                    this.hide.run(cp, next);
+                    break;
+                case "edit":
+                    this.edit.run(cp, next);
+            }
         }
 
         return null;
     }
 
-
-    private void list(ConsoleParser cp)
-    {
-        cp.ps.println("frames show mspf || puts the mspf counter on the screen");
-        cp.ps.println("frames show fps  || puts the fps counter on the screen");
-    }
-
-
-    private void show(ConsoleParser cp, Object[] args)
-    {
-        // args = [frames, show, ...]
-        if( args.length > 2 )
-        {
-            String message = (String)args[2];
-            if( message.equals("mspf") )
-                show_mspf(cp, args);
-            else if( message.equals("fps"))
-                show_fps(cp, args);
-        }
-    }
 
     Drawable mspf = (double x, double y, ViewPort vp) ->
     {
@@ -197,18 +368,7 @@ public class FPS implements Command
 
         vp.draw.stateless.text.pos_c(0, 0, "fps: " + this.data.fps);
     };
-
-    private void show_mspf(ConsoleParser cp, Object[] args)
-    {
-        er.viewport.draw.stateless.top.remove(fps);
-        er.viewport.draw.stateless.top.add(mspf);
-    }
-
-    private void show_fps(ConsoleParser cp, Object[] args)
-    {
-        er.viewport.draw.stateless.top.add(fps);
-        er.viewport.draw.stateless.top.remove(mspf);
-    }
+    
 
     public ObjectParser getParser()
     {   return this.PARSER; }

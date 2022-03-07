@@ -95,7 +95,8 @@ public class Player implements Drawable
     {
         idCounter++;
         id = idCounter;
-        allPlayers.add(this);
+
+        PlayerCommand.players.add(this);
     }
 
     public Player(double x, double y)
@@ -161,12 +162,13 @@ public class Player implements Drawable
     public double getYV() { return yv; }
 
 
+
+    public final VecList vecs = new VecList();
+
     public interface VecModifier
     {
         public double modify(double input);
     }
-
-    public final VecList vecs = new VecList();
 
     public class VecList extends HiddenList<PairedValues<Vec2, VecModifier>> 
     {
@@ -217,18 +219,6 @@ public class Player implements Drawable
         }
     }
 
-
-    // up down left right
-    public final boolean[] directions = new boolean[]{false, false, false, false};
-
-    public void setDirections(boolean up, boolean down, boolean left, boolean right)
-    {
-        this.directions[0] =    up;
-        this.directions[1] =  down;
-        this.directions[2] =  left; 
-        this.directions[3] = right;
-    }
-
     protected final KeyCombo    up = new KeyCombo("up").withChar('w');
 
     protected final KeyCombo  down = new KeyCombo("down").withChar('s');
@@ -256,7 +246,6 @@ public class Player implements Drawable
         }
     };
 
-    
     protected final KeyListener dodgeListener = new KeyListener()
     {
         boolean acting = false;
@@ -466,55 +455,56 @@ public class Player implements Drawable
     private boolean addedDrawers = false;
 
     private Drawable drawer = null;
-    private void processDirection(double delta)
-    {
-        double angle = 0.0;
-        boolean doMove = false;
 
-        double xm = 0.0,
-               ym = 0.0;
+    // private void processDirection(double delta)
+    // {
+    //     double angle = 0.0;
+    //     boolean doMove = false;
 
-        if( directions[0] )
-            ym -= movement_speed * delta;
-        if( directions[1] )
-            ym += movement_speed * delta;
-        if( directions[2] )
-            xm -= movement_speed * delta;
-        if( directions[3] )
-            xm += movement_speed * delta;
+    //     double xm = 0.0,
+    //            ym = 0.0;
 
-
-        // we should move movement_speed * delta in the
-        // direction we're going.
-
-        // if the distance we're travelling is more than that
-        // (caused by pressing a horizontal and a vertical move
-        //  key at the same time) we need to do some trig to 
-        // fit everything back into place
-
-        double hyp = Math.sqrt(Math.pow(xm, 2) + Math.pow(ym, 2));
-
-        if( hyp > movement_speed * delta )
-        {
-            // since the hypotenuse isn't +- respective and is just
-            // "the distance of the hypotenuse given some x angle"
-            double ang = Math.acos(xm / hyp);
-            // we need to flip the angle if we're going upward,
-            // otherwise up+down == the same
-            if( ym < 0 )
-                ang *= -1;
-            // here's the actual thing that stops movement from
-            // exceeding our speed cap
-            double dist = Math.min(hyp, movement_speed * delta);
-
-            xm = Math.cos(ang) * dist;
-            ym = Math.sin(ang) * dist;
-        }
+    //     if( directions[0] )
+    //         ym -= movement_speed * delta;
+    //     if( directions[1] )
+    //         ym += movement_speed * delta;
+    //     if( directions[2] )
+    //         xm -= movement_speed * delta;
+    //     if( directions[3] )
+    //         xm += movement_speed * delta;
 
 
-        xv += xm;
-        yv += ym;
-    }
+    //     // we should move movement_speed * delta in the
+    //     // direction we're going.
+
+    //     // if the distance we're travelling is more than that
+    //     // (caused by pressing a horizontal and a vertical move
+    //     //  key at the same time) we need to do some trig to 
+    //     // fit everything back into place
+
+    //     double hyp = Math.sqrt(Math.pow(xm, 2) + Math.pow(ym, 2));
+
+    //     if( hyp > movement_speed * delta )
+    //     {
+    //         // since the hypotenuse isn't +- respective and is just
+    //         // "the distance of the hypotenuse given some x angle"
+    //         double ang = Math.acos(xm / hyp);
+    //         // we need to flip the angle if we're going upward,
+    //         // otherwise up+down == the same
+    //         if( ym < 0 )
+    //             ang *= -1;
+    //         // here's the actual thing that stops movement from
+    //         // exceeding our speed cap
+    //         double dist = Math.min(hyp, movement_speed * delta);
+
+    //         xm = Math.cos(ang) * dist;
+    //         ym = Math.sin(ang) * dist;
+    //     }
+
+
+    //     xv += xm;
+    //     yv += ym;
+    // }
 
 
     private long lastTime = -1;
@@ -535,7 +525,7 @@ public class Player implements Drawable
              - move ability (processDirection(delta), all the movement code)
         }
         */
-        processDirection(delta);
+        // processDirection(delta);
 
         synchronized(toUpdate)
         {
