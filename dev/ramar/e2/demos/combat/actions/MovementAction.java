@@ -36,7 +36,7 @@ public class MovementAction extends Action
             return val * SPEED * ACCEL;
         });
 
-        this.player.toUpdate.add((double delta) -> 
+        DeltaUpdater.getInstance().toUpdate.add((double delta) -> 
         {
             boolean stop = false;
             double x = 0.0,

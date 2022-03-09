@@ -18,14 +18,15 @@ import java.util.Arrays;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.ArrayList;
 
-public class FPS implements Command
+public class Stats implements Command
 {
     public static final ObjectParser PARSER = new StringSplitter(" "); 
 
     /*
     SubCommand: list
-     - lists all commands FPS has
+     - lists all commands Stats has
     */
     SubCommand list = (ConsoleParser cp, Object... args) ->
     {
@@ -51,8 +52,9 @@ public class FPS implements Command
         */
         SubCommand list = (ConsoleParser cp, Object... args) ->
         {
-            cp.ps.println("<..> show mspf || shows the mspf graph");
-            cp.ps.println("<..> show fps  || shows the fps graph");
+            cp.ps.println("<..> show mspf    || shows the mspf graph");
+            cp.ps.println("<..> show fps     || shows the fps graph");
+            cp.ps.println("<..> show memory  || shows the memory graph");
         };
 
         /*
@@ -61,7 +63,7 @@ public class FPS implements Command
         */
         SubCommand mspf = (ConsoleParser cp, Object... args) -> 
         {
-            FPS.this.er.viewport.draw.stateless.top.add(FPS.this.mspf);
+            Stats.this.er.viewport.draw.stateless.top.add(Stats.this.mspf);
         };
 
         /*
@@ -70,7 +72,12 @@ public class FPS implements Command
         */
         SubCommand fps = (ConsoleParser cp, Object... args) -> 
         {
-            FPS.this.er.viewport.draw.stateless.top.add(FPS.this.fps);
+            Stats.this.er.viewport.draw.stateless.top.add(Stats.this.fps);
+        };
+
+        SubCommand memory = (ConsoleParser cp, Object... args) ->
+        {
+            Stats.this.er.viewport.draw.stateless.top.add(Stats.this.memory);
         };
 
         public void run(ConsoleParser cp, Object... args)
@@ -91,6 +98,8 @@ public class FPS implements Command
                     case "fps":
                         fps.run(cp, next);
                         break;
+                    case "memory":
+                        memory.run(cp, next);
                 }
             }
         }
@@ -104,8 +113,9 @@ public class FPS implements Command
         */
         SubCommand list = (ConsoleParser cp, Object... args) ->
         {
-            cp.ps.println("<..> hide mspf || hides the mspf graph");
-            cp.ps.println("<..> hide fps  || hides the fps graph");
+            cp.ps.println("<..> hide mspf    || hides the mspf graph");
+            cp.ps.println("<..> hide fps     || hides the fps graph");
+            cp.ps.println("<..> hide memory  || hides the memory graph");
         };
 
         /*
@@ -114,7 +124,7 @@ public class FPS implements Command
         */
         SubCommand mspf = (ConsoleParser cp, Object... args) -> 
         {   
-            FPS.this.er.viewport.draw.stateless.top.remove(FPS.this.mspf);
+            Stats.this.er.viewport.draw.stateless.top.remove(Stats.this.mspf);
         };
 
         /*
@@ -123,7 +133,12 @@ public class FPS implements Command
         */
         SubCommand fps = (ConsoleParser cp, Object... args) ->
         {
-            FPS.this.er.viewport.draw.stateless.top.remove(FPS.this.fps);
+            Stats.this.er.viewport.draw.stateless.top.remove(Stats.this.fps);
+        };
+
+        SubCommand memory = (ConsoleParser cp, Object... args) ->
+        {
+            Stats.this.er.viewport.draw.stateless.top.remove(Stats.this.memory);
         };
 
         public void run(ConsoleParser cp, Object... args)
@@ -141,6 +156,9 @@ public class FPS implements Command
                         break;
                     case "fps":
                         this.fps.run(cp, args);
+                        break;
+                    case "memory":
+                        this.memory.run(cp, args);
                         break;
                 }
             }
@@ -208,49 +226,25 @@ public class FPS implements Command
 
     public class Data implements ViewPortFrameListener
     {
-        private double mspf = 0.0;
-        private double fps = 0.0;
-
-        private double[] mspf_average = new double[5];
-        private int mspf_average_pointer = 0;
-
-        List<Long> frameStartBuff = new LinkedList<>();
         List<Double> mspfBuffer = new LinkedList<>();
 
-        private long lastFrameStart = 0;
+        double mspfs[] = new double[100];
+        int start = 0;
+
+        private long lastFrameStart = 0;    
 
         public void frameStarted(long ns)
         {   
-            this.frameStartBuff.add(ns);
+            // this.frameStartBuff.add(ns);
             this.lastFrameStart = ns;
         }
 
-        private double calcAverage(double[] buff)
-        {
-            double out = 0.0;
-            for( double d : buff )
-                out += d;
-
-            return out / (double)buff.length;
-        }
 
         public void frameEnded(long ns)
         {
-            this.mspf = (ns - this.lastFrameStart) / 1000000.0;
-            this.mspf_average[mspf_average_pointer] = mspf;
-            mspf_average_pointer++;
-            if( mspf_average_pointer >= mspf_average.length )
-            {
-                double average = calcAverage(mspf_average);
-                synchronized(mspfBuffer)
-                {
-                    mspfBuffer.add(average);
-                }
-                mspf_average_pointer = 0;
-            }
-
-            if( this.mspfBuffer.size() > 50 )
-                this.mspfBuffer.remove(0);
+            mspfBuffer.add((ns - this.lastFrameStart) * 0.000001);
+            if( mspfBuffer.size() > 25 )
+                mspfBuffer.remove(0);
         }
     }
 
@@ -258,7 +252,7 @@ public class FPS implements Command
 
     private Vec2 pos = new Vec2(0, 30);
 
-    public FPS(EngineR2 er)
+    public Stats(EngineR2 er)
     {
         this.er = er;
         this.er.viewport.frameListeners.add(this.data);
@@ -366,9 +360,69 @@ public class FPS implements Command
             .withOffset(pos.getX(), pos.getY())
         ;   
 
-        vp.draw.stateless.text.pos_c(0, 0, "fps: " + this.data.fps);
     };
     
+
+    Drawable memory = new Drawable()
+    {
+
+        private double timer = 0.01;
+        private double delta = 0.0;
+        private long lastTime = System.currentTimeMillis();
+
+        private List<Long> heaps = new ArrayList<>();
+
+        private double x = 200, 
+                       y = 40;
+
+        private double min = 1.0;
+        private double max = 1.0;
+
+        public void drawAt(double x, double y, ViewPort vp)
+        {
+            vp.draw.stateless.rect.withTempMod()
+                .withColour(255, 255, 255, 255)
+                .withFill()
+                .withOffset(this.x, this.y)
+                .withOffset(x, y)
+            ;
+            int  width = 100,
+                height = 40;
+            int border = 1;
+
+            vp.draw.stateless.rect.poslen(-width/2 - border, -height/2 - border, width + border * 2, height + border * 2);
+
+            vp.draw.stateless.rect.activeMod()
+                .withColour(50, 50, 50, 255)
+            ;
+            vp.draw.stateless.rect.poslen(-width/2, -height/2, width, height);
+
+            vp.draw.stateless.rect.clearTempMod();
+
+            vp.draw.stateless.text.withTempMod()
+                .withColour(255, 255, 255, 255)
+                .withOffset(this.x, this.y)
+                .withOffset(x, y - 5)
+            ;
+            vp.draw.stateless.text.pos_c(0, 0,  "memory");
+            vp.draw.stateless.text.pos_c(0, 12, "" + this.getHeap() / (1000000));
+
+            vp.draw.stateless.text.clearTempMod();
+        }
+
+        private long getHeap()
+        {
+            return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        }
+
+        private void update()
+        {
+            long currHeap = this.getHeap();
+            heaps.add(currHeap);
+            if( heaps.size() > 100 )
+                heaps.remove(0);
+        }
+    };
 
     public ObjectParser getParser()
     {   return this.PARSER; }

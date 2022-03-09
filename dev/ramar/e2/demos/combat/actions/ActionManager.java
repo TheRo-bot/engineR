@@ -55,22 +55,12 @@ public class ActionManager
         public abstract String getName();
 
 
-        public abstract boolean act(ActionManager am, Object[] o);
-
-        public boolean act(ActionManager am)
-        {
-            return this.act(am, null);
-        }
+        public abstract boolean act(ActionManager am, Object... o);
 
         public void onUnblock() {}
 
-        public boolean blockedAct(ActionManager am, Object[] o)
+        public boolean blockedAct(ActionManager am, Object... o)
         { return false; }
-
-        public boolean blockedAct(ActionManager am)
-        { 
-            return this.blockedAct(am, null);
-        }
 
     }
 
@@ -171,25 +161,23 @@ public class ActionManager
 
         if( a != null )
         {
-            // System.out.println(a.getName() + (permitRun(a) ? "normal" :"blocked") + " run");
             if( permitRun(a) ) 
             {
-                a.act(this, null);
+                a.act(this);
                 fired = true;
             }
             else
-                a.blockedAct(this, null);
+                a.blockedAct(this);
         }
 
         return fired;
     }
 
-    public boolean blockedRun(Action a, Object[] o)
+    public boolean blockedRun(Action a, Object... o)
     {
         boolean fired = false;
         if( a != null )
         {
-            // System.out.println(a.getName() + " " + (permitRun(a) ? "normal" :"blocked") + " run with " + java.util.Arrays.toString(o));
             if( permitRun(a) )
             {
                 a.act(this, o);

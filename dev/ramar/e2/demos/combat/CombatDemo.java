@@ -52,11 +52,24 @@ public class CombatDemo
     private void initialise(List<EngineR2> ers)
     {
         this.ers = ers;
+
+
+
         if( !initialised )
         {
             initialised = true;
             for( EngineR2 er : ers )
                 er.console.out.println("first time startup of combat demo");
+
+            DeltaUpdater.getInstance().start();
+            ers.get(0).viewport.window.onClose.add(() ->
+            {
+                try
+                {
+                    DeltaUpdater.getInstance().close();
+                }
+                catch(InterruptedException e) {   System.out.println("Couldn't wait for close: " + e.getMessage());   }
+            });
 
             player.setup(ers);
             // test.setup(ers);

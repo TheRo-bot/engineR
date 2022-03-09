@@ -190,7 +190,7 @@ public class PlayerCommand implements Command
     		switch(message)
     		{
     			case "list":
-		    		this.list.run(cp, null);
+		    		this.list.run(cp);
 		    		break;
 	    		case "highlight":
 	    			this.highlight.run(cp, makeArgs(cp, args));

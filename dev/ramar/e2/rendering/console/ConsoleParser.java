@@ -25,7 +25,7 @@ public class ConsoleParser
     {
         ConsoleParser cp = new ConsoleParser(c);
 
-        cp.addCommand("frames", new FPS(c.engine));
+        cp.addCommand("stats", new Stats(c.engine));
 
         Debug dbg = new Debug();
         cp.addCommand("debug", dbg);

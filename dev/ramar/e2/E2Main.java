@@ -81,6 +81,7 @@ public class E2Main
         // this is a test !
         TestDemos td = new TestDemos(instances);
         e2.console.parser.parseCommand("demo combat");
+        e2.console.parser.parseCommand("stats show memory");
     }
 
     private boolean allDone = false;
@@ -90,6 +91,15 @@ public class E2Main
         {
             e2.viewport.window.onClose.add(() ->
             {
+                try
+                {
+                    dev.ramar.e2.demos.combat.DeltaUpdater.getInstance().close();
+                }
+                catch(InterruptedException e) 
+                {
+                    System.out.println("Couldn't wait for deltaupdater to close!!");
+                }
+
                 allDone = true;
             });
 

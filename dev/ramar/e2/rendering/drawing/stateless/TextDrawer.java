@@ -311,6 +311,14 @@ public abstract class TextDrawer
         return tm;
     }
 
+
+    public TextMods withTempMod()
+    {
+        TextMods tm = new TextMods();
+        this.withTempMod(tm);
+        return tm;
+    }
+
     public void withTempMod(TextMods tm)
     {
         tempMod = tm;

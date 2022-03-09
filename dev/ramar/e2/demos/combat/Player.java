@@ -19,16 +19,21 @@ import dev.ramar.e2.rendering.console.ObjectParser;
 
 import dev.ramar.e2.rendering.console.commands.Debug;
 
+import dev.ramar.e2.demos.combat.DeltaUpdater.Updatable;
 import dev.ramar.e2.demos.combat.actions.*;
 import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
+import dev.ramar.e2.demos.combat.player.*;
 
 import dev.ramar.e2.rendering.control.KeyCombo.Directionality;
+import dev.ramar.e2.rendering.control.MouseController.MouseListener;
+
+import dev.ramar.e2.demos.combat.player.items.guns.*;
+
 
 import dev.ramar.utils.PairedValues;
 
 import dev.ramar.utils.nodes.Node;
 import dev.ramar.utils.HiddenList;
-
 
 import java.util.List;
 import java.util.ArrayList;
@@ -57,39 +62,6 @@ public class Player implements Drawable
 
     public final ActionManager actions = new ActionManager();
 
-    public final LocalList<Updatable> toUpdate = new LocalList<>(); 
-
-    public interface Updatable
-    {
-        //     v returns if it should be removed
-        public boolean update(double delta);
-    }
-
-    public class LocalList<E> extends HiddenList<E>
-    {
-        private List<PairedValues<E, Boolean>> toParse = new LinkedList<>();
-
-        private List<E> getList()
-        {
-            return this.list; 
-        }
-
-        public void queueAdd(E e)
-        {
-            synchronized(this)
-            {
-                toParse.add(new PairedValues(e, true));
-            }
-        }
-
-        public void queueRemove(E e)
-        {
-            synchronized(this)
-            {
-                toParse.add(new PairedValues(e, false));
-            }
-        }
-    }
 
     public Player()
     {
@@ -97,6 +69,9 @@ public class Player implements Drawable
         id = idCounter;
 
         PlayerCommand.players.add(this);
+
+        this.inventory.setHotBarSlots(new RifleGun(this));
+        this.inventory.selectHotBar(0);
     }
 
     public Player(double x, double y)
@@ -268,12 +243,76 @@ public class Player implements Drawable
         }
     };
 
+    private Inventory inventory = new Inventory()
+        .withHotBarSlots(4)
+    ;
+
+    protected final KeyListener inventoryKeyListener = new KeyListener()
+    {
+
+        public void onPress(KeyCombo kc)
+        {
+            switch(kc.getName())
+            {
+                case "reload":
+                    Item i = inventory.getHeldItem();
+                    if( i != null && i instanceof Gun )
+                    {
+                        // Player.this.actions.blockedRun(g.actions.reload);
+                        i.actions.get("reload").act(i.actions);
+                    }
+                    break;
+            }
+        }
+
+        public void onRelease(KeyCombo kc)
+        {
+            
+        }
+
+    };
+
+    protected final MouseListener inventoryMouseListener = new MouseListener()
+    {
+
+        public void mousePressed(int button, double x, double y)
+        {
+            if( button == 1 )
+            {
+                Item i = inventory.getHeldItem();
+                if( i != null )
+                {
+                    Action a = i.actions.get("gun:shoot:start");
+                    if( a != null )
+                        a.act(i.actions, x, y);
+                }
+
+            }
+        }
+
+        public void mouseReleased(int button, double x, double y)
+        {
+            if( button == 1 )
+            {
+                Item i = inventory.getHeldItem();
+
+                if( i != null )
+                {
+                    Action a = i.actions.get("gun:shoot:stop");
+                    if( a != null )
+                        a.act(i.actions, x, y);
+                }
+            }
+        }
+
+    };
 
     public void setdown(List<EngineR2> ers)
     {
         actionsSetdown(ers);
         for( EngineR2 er : ers)
         {
+            Gun.viewports.remove(er.viewport);
             er.viewport.draw.stateless.perm.remove(drawer);
 
             er.viewport.window.keys.unbindPress(up, moveListener);
@@ -293,29 +332,11 @@ public class Player implements Drawable
             er.viewport.window.keys.unbindPress(right, moveListener);
             er.viewport.window.keys.  unbindRel(right, moveListener); 
 
-
+            er.viewport.window.mouse.onPress.remove(this.inventoryMouseListener);
+            er.viewport.window.mouse.onRelease.remove(this.inventoryMouseListener);
         }
-
-        t.interrupt();
     }
 
-    Thread t = new Thread(() ->
-    {
-        try
-        {
-            long lastTime = System.currentTimeMillis();
-            while(true)
-            {
-                Thread.sleep(1);
-                long nowTime = System.currentTimeMillis();
-                double delta = (nowTime - lastTime) / 1000.0; 
-                ((Player)this).update(delta);
-                lastTime = nowTime;
-            }
-        }   
-        catch(InterruptedException e)
-        {}
-    });
 
     private static Command playerCommand = new Command()
     {
@@ -380,6 +401,7 @@ public class Player implements Drawable
                 list(cp);
             else
                 PlayerCommandHelper.run(cp, args, subCommands);
+
             return null;
         }
 
@@ -395,6 +417,48 @@ public class Player implements Drawable
     };
 
 
+    private Updatable updateCycle = (double delta) ->
+    {
+        boolean stop = false;
+        // Strategy for: arbitrarily moving the player around the world each update
+        //  - accumulate a vector which consists of Vec2 being modified by their VecModifier in <vecs>
+        //  
+
+        double thisXV = 0.0,
+               thisYV = 0.0;
+
+        for( PairedValues<Vec2, VecModifier> vs : Player.this.vecs.getList() )
+        {
+            Vec2 v = vs.getK();
+            double _x = v.getX() * delta,
+                   _y = v.getY() * delta;
+
+            if( vs.getV() != null )
+            {
+                _x = vs.getV().modify(_x);
+                _y = vs.getV().modify(_y);
+            }
+            v.take(_x, _y);
+
+            thisXV += _x;
+            thisYV += _y;
+        }
+
+        Player.this.xv = thisXV;
+        Player.this.yv = thisYV;
+
+        x += thisXV;
+        y += thisYV;
+
+
+        for( EngineR2 instance : Player.this.trackstances )
+        {
+            instance.viewport.setCenterX(-x);
+            instance.viewport.setCenterY(-y);
+        }
+
+        return stop;
+    };
 
     public void setup(List<EngineR2> ers)
     {
@@ -402,6 +466,7 @@ public class Player implements Drawable
         this.ers = ers;
         for( EngineR2 er : ers )
         {
+            Gun.viewports.add(er.viewport);
             Debug d = (Debug)er.console.parser.getCommand("debug");
             try
             {
@@ -410,12 +475,10 @@ public class Player implements Drawable
             catch(IllegalArgumentException e ) {}
         }
 
-        ers.get(0).viewport.window.onClose.add(() ->
-        {
-            t.interrupt();
-        });
+
         
-        t.start();
+        if( !DeltaUpdater.getInstance().toUpdate.contains(this.updateCycle) )
+            DeltaUpdater.getInstance().toUpdate.add(this.updateCycle);
 
         for( EngineR2 er : ers )
         {
@@ -436,6 +499,9 @@ public class Player implements Drawable
 
             er.viewport.window.keys.bindPress(right, moveListener);
             er.viewport.window.keys.  bindRel(right, moveListener);
+
+            er.viewport.window.mouse.onPress.add(this.inventoryMouseListener);
+            er.viewport.window.mouse.onRelease.add(this.inventoryMouseListener);
         }
 
     }
@@ -456,140 +522,10 @@ public class Player implements Drawable
 
     private Drawable drawer = null;
 
-    // private void processDirection(double delta)
-    // {
-    //     double angle = 0.0;
-    //     boolean doMove = false;
-
-    //     double xm = 0.0,
-    //            ym = 0.0;
-
-    //     if( directions[0] )
-    //         ym -= movement_speed * delta;
-    //     if( directions[1] )
-    //         ym += movement_speed * delta;
-    //     if( directions[2] )
-    //         xm -= movement_speed * delta;
-    //     if( directions[3] )
-    //         xm += movement_speed * delta;
-
-
-    //     // we should move movement_speed * delta in the
-    //     // direction we're going.
-
-    //     // if the distance we're travelling is more than that
-    //     // (caused by pressing a horizontal and a vertical move
-    //     //  key at the same time) we need to do some trig to 
-    //     // fit everything back into place
-
-    //     double hyp = Math.sqrt(Math.pow(xm, 2) + Math.pow(ym, 2));
-
-    //     if( hyp > movement_speed * delta )
-    //     {
-    //         // since the hypotenuse isn't +- respective and is just
-    //         // "the distance of the hypotenuse given some x angle"
-    //         double ang = Math.acos(xm / hyp);
-    //         // we need to flip the angle if we're going upward,
-    //         // otherwise up+down == the same
-    //         if( ym < 0 )
-    //             ang *= -1;
-    //         // here's the actual thing that stops movement from
-    //         // exceeding our speed cap
-    //         double dist = Math.min(hyp, movement_speed * delta);
-
-    //         xm = Math.cos(ang) * dist;
-    //         ym = Math.sin(ang) * dist;
-    //     }
-
-
-    //     xv += xm;
-    //     yv += ym;
-    // }
-
-
-    private long lastTime = -1;
-
     public double movement_speed = 1250;
     public double movement_maxSpeed = 150.0;
     public double movement_acceleration = 4;
 
-
-    public void update(double delta)
-    {
-        /*
-        update concept:
-        {
-            processAbilities(delta);
-             - dive ability (blocks move, shoot ability)
-             - shoot ability (whenever, here's where reloading comes in too)
-             - move ability (processDirection(delta), all the movement code)
-        }
-        */
-        // processDirection(delta);
-
-        synchronized(toUpdate)
-        {
-            LocalList<Updatable> list = (LocalList<Updatable>)toUpdate;
-
-            for( PairedValues<Updatable, Boolean> vs : list.toParse )
-            {
-                if( vs.getV() )
-                    list.getList().add(vs.getK());
-                else
-                    list.getList().remove(vs.getK());
-            }
-
-            list.toParse.clear();
-
-            ListIterator<Updatable> iter = list.getList().listIterator();
-            while(iter.hasNext())
-            {
-                Updatable u = iter.next();
-
-                boolean remove = u.update(delta);
-                if( remove )
-                    iter.remove();
-
-            }
-        }
-
-        // Strategy for: arbitrarily moving the player around the world each update
-        //  - accumulate a vector which consists of Vec2 being modified by their VecModifier in <vecs>
-        //  
-
-        double thisXV = 0.0,
-               thisYV = 0.0;
-
-        for( PairedValues<Vec2, VecModifier> vs : vecs.getList() )
-        {
-            Vec2 v = vs.getK();
-            double _x = v.getX() * delta,
-                   _y = v.getY() * delta;
-
-            if( vs.getV() != null )
-            {
-                _x = vs.getV().modify(_x);
-                _y = vs.getV().modify(_y);
-            }
-            v.take(_x, _y);
-
-            thisXV += _x;
-            thisYV += _y;
-        }
-
-        this.xv = thisXV;
-        this.yv = thisYV;
-
-        x += thisXV;
-        y += thisYV;
-
-
-        for( EngineR2 instance : trackstances )
-        {
-            instance.viewport.setCenterX(-x);
-            instance.viewport.setCenterY(-y);
-        }
-    }
 
     private double round(double a)
     {

@@ -2,9 +2,8 @@ package dev.ramar.e2.demos.combat.actions;
 
 import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
 
-import dev.ramar.e2.demos.combat.Player;
-
-import dev.ramar.e2.demos.combat.Player.Updatable;
+import dev.ramar.e2.demos.combat.*;
+import dev.ramar.e2.demos.combat.DeltaUpdater.Updatable;
 
 import dev.ramar.e2.structures.Vec2;
 
@@ -45,7 +44,7 @@ public class DodgeAction extends Action
     private static final double DODGE_DURA = 0.25;
 
 
-    public boolean act(ActionManager am, Object[] info)
+    public boolean act(ActionManager am, Object... info)
     {
         double xVel = this.player.getXV(),
                yVel = this.player.getYV();
@@ -84,7 +83,7 @@ public class DodgeAction extends Action
                     {
                         // in the next update, add this updatable which lasts for 0.3 seconds,
                         // and slows down the vector
-                        DodgeAction.this.player.toUpdate.queueAdd(new Updatable()
+                        DeltaUpdater.getInstance().toUpdate.queueAdd(new Updatable()
                         {
                             private double delta = 0.3;
 
@@ -117,7 +116,7 @@ public class DodgeAction extends Action
                 }
             };
 
-            this.player.toUpdate.add(updater);
+            DeltaUpdater.getInstance().toUpdate.add(updater);
         }
 
             
