@@ -12,7 +12,7 @@ Java based game engine that's hopefully gonna be dope
     `/dev/ramar/e2/...`
     `/bin/`
 - Compile (in `/`): `javac -d /bin/ /dev/ramar/e2/Main.java`
-- Run (in `/bin/`): `java dev.ramar.e2.Main.java`
+- Run (in `/bin/`): `java dev.ramar.e2.Main`
    ** NOTE: make sure your console has access to a window manager (powershell for windows, you know what you're doing with \*nix systems)
 
 important keys:
