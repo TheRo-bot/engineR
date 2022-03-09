@@ -283,8 +283,9 @@ public class Player implements Drawable
                 if( i != null )
                 {
                     Action a = i.actions.get("gun:shoot:start");
-                    if( a != null )
-                        a.act(i.actions, x, y);
+                    if( !a.toBlock.contains(Player.this.actions.get("dodge")) )
+                        a.toBlock.add(Player.this.actions.get("dodge"));
+                    Player.this.actions.blockedRun(a, x, y);
                 }
 
             }

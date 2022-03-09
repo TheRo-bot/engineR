@@ -55,10 +55,9 @@ public class RifleGun extends Gun
 	public class RifleStats extends GunStats
 	{
 		// in a second
-		public static final double DEFAULT_FIRE_RATE = 30.0;
+		public static final double DEFAULT_FIRE_RATE = 99.0;
 
-		public double fireRate;
-
+		public double fireRate = RifleStats.DEFAULT_FIRE_RATE;
 		public RifleStats withFireRate(double fireRate)
 		{
 			this.fireRate = fireRate;
@@ -67,12 +66,7 @@ public class RifleGun extends Gun
 
 		public RifleStats()
 		{
-			this.withFireRate(RifleStats.DEFAULT_FIRE_RATE);
-		}
-
-		protected RifleStats(double fireRate)
-		{
-			this.withFireRate(fireRate);
+			super();
 		}
 	};	
 

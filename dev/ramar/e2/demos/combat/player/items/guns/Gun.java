@@ -199,38 +199,32 @@ public class Gun extends Item
 
 		private static int    DEFAULT_CLIP_SIZE = 30;
 		private static double DEFAULT_RELOAD_TIME = 1.0;
-		private static double VELOCITY = 1000;
+		private static double VELOCITY = 3000;
 
-		public final int clipSize;
-		public final double reloadTime;
-		public final double velocity;
-
-		public GunStats()
+		public int clipSize = GunStats.DEFAULT_CLIP_SIZE;
+		public GunStats withClipSize(int cs)
 		{
-			this.clipSize   = GunStats.DEFAULT_CLIP_SIZE;
-			this.reloadTime = GunStats.DEFAULT_RELOAD_TIME;
-			this.velocity   = GunStats.VELOCITY;
+			this.clipSize = cs;
+			return this;
 		}
 
-		protected GunStats(int clipSize)
+
+		public double reloadTime = GunStats.DEFAULT_RELOAD_TIME;
+		public GunStats withReloadTime(double rt)
 		{
-			this.clipSize   = clipSize;
-			this.reloadTime = GunStats.DEFAULT_RELOAD_TIME;
-			this.velocity   = GunStats.VELOCITY;
+			this.reloadTime = rt;
+			return this;
 		}
 
-		protected GunStats(int clipSize, double reloadTime)
+
+		public double velocity = GunStats.VELOCITY;
+		public GunStats withClipSize(double v)
 		{
-			this.clipSize   = clipSize;
-			this.reloadTime = reloadTime;
-			this.velocity   = GunStats.VELOCITY;
+			this.velocity = v;
+			return this;
 		}
 
-		protected GunStats(int clipSize, double reloadTime, double velocity)
-		{
-			this.clipSize   = clipSize;
-			this.reloadTime = reloadTime;
-			this.velocity   = velocity;
-		}
+
+		public GunStats() {}
 	}
 }
