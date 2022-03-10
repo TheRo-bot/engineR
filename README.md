@@ -3,6 +3,9 @@ Java based game engine that's hopefully gonna be dope
 
 Welcome to the combat demo babyyyyy >:)
 
+\*\*
+THIS SHIT IS MINE (RAMAR/ROBOT). ASK FOR PERMISSION TO USE IT YOU HETHEN.
+
 !! Eventually this project will be a RamaRepo (https://github.com/TheRo-bot/RamaRepo), but in the meantime you've gotta compile my shit manually
 
 # How to compile my shit manually
