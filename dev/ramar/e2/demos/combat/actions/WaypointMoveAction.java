@@ -1,7 +1,5 @@
 package dev.ramar.e2.demos.combat.actions;
 
-import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
-
 import dev.ramar.e2.demos.combat.Player;
 
 import java.util.List;
@@ -13,6 +11,7 @@ public class WaypointMoveAction extends Action
 
     public WaypointMoveAction(Player p)
     {
+        super("ability:player:waypoint move");
         this.p = p;
     }
 
@@ -22,10 +21,8 @@ public class WaypointMoveAction extends Action
 
     private double ups = 2000;
 
-    public String getName() { return "waypoint-move"; } 
-
     @Override
-    public boolean act(ActionManager am, Object[] o)
+    public void act(ActionManager am, Object[] o)
     {
         synchronized(this)
         {
@@ -35,7 +32,7 @@ public class WaypointMoveAction extends Action
 
         if( actor == null )
         {
-            this.blockAll(am);
+            this.toBlock.block(am);
 
             actor = new Thread(() -> 
             {
@@ -82,13 +79,12 @@ public class WaypointMoveAction extends Action
                 }
                 catch(InterruptedException e) {}
 
-                this.unblockAll(am);
+                this.toBlock.unblock(am);
                 actor = null;
             });
             
             actor.start();
         }
-        return actor != null && actor.isAlive();
     }
 
     public boolean act()
@@ -96,9 +92,4 @@ public class WaypointMoveAction extends Action
         return false;
     }
 
-    @Override
-    public boolean blockedAct(ActionManager am, Object[] o)
-    { 
-        return false;
-    }
 }

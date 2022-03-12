@@ -71,6 +71,9 @@ public class CombatDemo
                 catch(InterruptedException e) {   System.out.println("Couldn't wait for close: " + e.getMessage());   }
             });
 
+            for( EngineR2 er : ers )
+                RegisteredER2Instances.getInstance().instances.add(er);
+
             player.setup(ers);
             // test.setup(ers);
 

@@ -8,6 +8,8 @@ import dev.ramar.e2.EngineR2;
 import dev.ramar.e2.structures.Vec2;
 
     
+import dev.ramar.e2.rendering.control.*;
+/* KeyCombo, KeyListener, KeyPressListener */
 import dev.ramar.e2.rendering.control.KeyListener;
 import dev.ramar.e2.rendering.control.KeyCombo;
 
@@ -20,15 +22,16 @@ import dev.ramar.e2.rendering.console.ObjectParser;
 import dev.ramar.e2.rendering.console.commands.Debug;
 
 import dev.ramar.e2.demos.combat.DeltaUpdater.Updatable;
+
 import dev.ramar.e2.demos.combat.actions.*;
-import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
-import dev.ramar.e2.demos.combat.player.*;
+/* ActionManager, Action, DodgeAction, MovementAction, WaypointMoveAction */
 
 import dev.ramar.e2.rendering.control.KeyCombo.Directionality;
 import dev.ramar.e2.rendering.control.MouseController.MouseListener;
 
-import dev.ramar.e2.demos.combat.player.items.guns.*;
-
+import dev.ramar.e2.demos.combat.player.guns.*;
+/* Gun, GunActions, GunStats */
+import dev.ramar.e2.demos.combat.player.guns.fullauto.FullAutoGun;
 
 import dev.ramar.utils.PairedValues;
 
@@ -46,7 +49,7 @@ import java.util.TreeSet;
 import java.util.Map;
 import java.util.HashMap;
 
-public class Player implements Drawable
+public class Player implements Drawable, Anchor
 {
     // position and velocity
     double x = 0, y = 0, xv = 0, yv = 0;
@@ -62,16 +65,24 @@ public class Player implements Drawable
 
     public final ActionManager actions = new ActionManager();
 
+    private EngineR2 mainstance;
+
+    private FullAutoGun gun = new FullAutoGun();
 
     public Player()
     {
         idCounter++;
         id = idCounter;
 
+        gun.withAnchor(this);
+        gun.stats
+            .withVelocity(2000)
+            .withFireRate(30)
+        ;
+        this.actions.add(gun.actions.aim);
+        System.out.println(this.actions + ", " + gun.actions.aim);
         PlayerCommand.players.add(this);
 
-        this.inventory.setHotBarSlots(new RifleGun(this));
-        this.inventory.selectHotBar(0);
     }
 
     public Player(double x, double y)
@@ -210,102 +221,39 @@ public class Player implements Drawable
     {
         public void onPress(KeyCombo kc)
         {
-            actions.blockedRun(actions.get("movement"), 
+            actions.blockedRun(actions.get(MovementAction.NAME), 
                      new Object[]{kc.getName(), true});
         }
 
         public void onRelease(KeyCombo kc)
         {
-            actions.blockedRun(actions.get("movement"),
+            actions.blockedRun(actions.get(MovementAction.NAME),
                      new Object[]{kc.getName(), false});
         }
     };
 
-    protected final KeyListener dodgeListener = new KeyListener()
+    protected final KeyPressListener dodgeListener = (KeyCombo kc) -> 
     {
-        boolean acting = false;
-        public void onPress(KeyCombo kc)
-        {
-            if( !acting )
-            {
-                acting = true;
-                actions.blockedRun(actions.get("dodge"));
-            }
-        }
-
-        public void onRelease(KeyCombo kc)
-        {
-            if( acting )
-            {
-                acting = false;
-                // ((DodgeAction)actions.get("dodge")).stop();
-            }
-        }
+        actions.blockedRun(actions.get(DodgeAction.NAME));
     };
 
-    private Inventory inventory = new Inventory()
-        .withHotBarSlots(4)
-    ;
 
-    protected final KeyListener inventoryKeyListener = new KeyListener()
+    protected final MouseListener shooter = new MouseListener()
     {
-
-        public void onPress(KeyCombo kc)
+        int times = 5;
+        public void mousePressed(int bID, double x, double y)
         {
-            switch(kc.getName())
+            times--;
+            if( times < 0 )
             {
-                case "reload":
-                    Item i = inventory.getHeldItem();
-                    if( i != null && i instanceof Gun )
-                    {
-                        // Player.this.actions.blockedRun(g.actions.reload);
-                        i.actions.get("reload").act(i.actions);
-                    }
-                    break;
+                Player.this.actions.blockedRun(Player.this.gun.actions.startShooting);
             }
         }
 
-        public void onRelease(KeyCombo kc)
+        public void mouseReleased(int bID, double x, double y) 
         {
-            
+            Player.this.actions.blockedRun(Player.this.gun.actions.stopShooting);
         }
-
-    };
-
-    protected final MouseListener inventoryMouseListener = new MouseListener()
-    {
-
-        public void mousePressed(int button, double x, double y)
-        {
-            if( button == 1 )
-            {
-                Item i = inventory.getHeldItem();
-                if( i != null )
-                {
-                    Action a = i.actions.get("gun:shoot:start");
-                    if( !a.toBlock.contains(Player.this.actions.get("dodge")) )
-                        a.toBlock.add(Player.this.actions.get("dodge"));
-                    Player.this.actions.blockedRun(a, x, y);
-                }
-
-            }
-        }
-
-        public void mouseReleased(int button, double x, double y)
-        {
-            if( button == 1 )
-            {
-                Item i = inventory.getHeldItem();
-
-                if( i != null )
-                {
-                    Action a = i.actions.get("gun:shoot:stop");
-                    if( a != null )
-                        a.act(i.actions, x, y);
-                }
-            }
-        }
-
     };
 
     public void setdown(List<EngineR2> ers)
@@ -313,7 +261,6 @@ public class Player implements Drawable
         actionsSetdown(ers);
         for( EngineR2 er : ers)
         {
-            Gun.viewports.remove(er.viewport);
             er.viewport.draw.stateless.perm.remove(drawer);
 
             er.viewport.window.keys.unbindPress(up, moveListener);
@@ -324,7 +271,6 @@ public class Player implements Drawable
             er.viewport.window.keys.  unbindRel(down, moveListener);
 
             er.viewport.window.keys.unbindPress(dodge, dodgeListener);
-            er.viewport.window.keys.  unbindRel(dodge, dodgeListener);
 
             er.viewport.window.keys.unbindPress(left, moveListener);
             er.viewport.window.keys.  unbindRel(left, moveListener);
@@ -333,8 +279,10 @@ public class Player implements Drawable
             er.viewport.window.keys.unbindPress(right, moveListener);
             er.viewport.window.keys.  unbindRel(right, moveListener); 
 
-            er.viewport.window.mouse.onPress.remove(this.inventoryMouseListener);
-            er.viewport.window.mouse.onRelease.remove(this.inventoryMouseListener);
+            er.viewport.window.mouse.onPress.remove(shooter);
+            er.viewport.window.mouse.onRelease.remove(shooter);
+
+            er.viewport.draw.stateless.perm.remove(this.gun);
         }
     }
 
@@ -428,6 +376,11 @@ public class Player implements Drawable
         double thisXV = 0.0,
                thisYV = 0.0;
 
+        double mouseX = this.mainstance.viewport.window.mouse.getMouseX(),
+               mouseY = this.mainstance.viewport.window.mouse.getMouseY();
+
+        this.gun.aim(mouseX, mouseY);
+
         for( PairedValues<Vec2, VecModifier> vs : Player.this.vecs.getList() )
         {
             Vec2 v = vs.getK();
@@ -465,9 +418,12 @@ public class Player implements Drawable
     {
         actionsSetup(ers);    
         this.ers = ers;
+
         for( EngineR2 er : ers )
         {
-            Gun.viewports.add(er.viewport);
+            if( this.mainstance == null )
+                this.mainstance = er;
+
             Debug d = (Debug)er.console.parser.getCommand("debug");
             try
             {
@@ -492,7 +448,6 @@ public class Player implements Drawable
 
 
             er.viewport.window.keys.bindPress(dodge, dodgeListener);
-            er.viewport.window.keys.  bindRel(dodge, dodgeListener);
 
             er.viewport.window.keys.bindPress(left, moveListener);
             er.viewport.window.keys.  bindRel(left, moveListener);
@@ -501,8 +456,10 @@ public class Player implements Drawable
             er.viewport.window.keys.bindPress(right, moveListener);
             er.viewport.window.keys.  bindRel(right, moveListener);
 
-            er.viewport.window.mouse.onPress.add(this.inventoryMouseListener);
-            er.viewport.window.mouse.onRelease.add(this.inventoryMouseListener);
+            er.viewport.window.mouse.onPress.add(shooter);
+            er.viewport.window.mouse.onRelease.add(shooter);
+
+            er.viewport.draw.stateless.perm.add(this.gun);
         }
 
     }
@@ -609,7 +566,7 @@ public class Player implements Drawable
 
     public void actionsSetdown(List<EngineR2> ers)
     {
-        actions.clean();
+        actions.clear();
     }
 
 
@@ -628,6 +585,8 @@ public class Player implements Drawable
         final DodgeAction da = new DodgeAction(this);
         da.toBlock.add(movement);
         da.toBlock.add(da);
+        da.toBlock.add(gun.actions.aim);
+        da.toBlock.add(gun.actions.startShooting);
 
         actions.add(da);
 

@@ -15,61 +15,13 @@ Class: ActionManager
 */
 public class ActionManager
 {
-
-    public static abstract class Action
-    {
-        public Action()
-        {
-
-        }   
-
-        public HiddenList<Action> toBlock = new ActionList();
-
-        private class ActionList extends HiddenList<Action>
-        {
-            private List<Action> getList()
-            {
-                return this.list;
-            }
-        }
-        public boolean equals(Object in)
-        {
-            return in != null &&
-                   in instanceof Action &&
-                   ((Action)in).getName().equals(getName());
-        }
-
-
-        protected void blockAll(ActionManager am)
-        {
-            for( Action a : ((ActionList)this.toBlock).getList() )
-                am.block(this, a);
-        }
-
-        protected void unblockAll(ActionManager am)
-        {
-            for( Action a : ((ActionList)this.toBlock).getList() )
-                am.unblock(this, a);
-        }
-
-        public abstract String getName();
-
-
-        public abstract boolean act(ActionManager am, Object... o);
-
-        public void onUnblock() {}
-
-        public boolean blockedAct(ActionManager am, Object... o)
-        { return false; }
-
-    }
-
     public DiGraph<Action> actions = new DiGraph<>();
 
     public ActionManager()
     {
 
     }
+
 
     public void add(Action a)
     {
@@ -92,6 +44,8 @@ public class ActionManager
         return null;
     }
 
+
+    // b will be blocked by a
     public void block(Action a, Action b)
     {
         if( !actions.contains(a) )
@@ -102,6 +56,7 @@ public class ActionManager
         actions.connect(b, a);
     }
 
+    // b will be blocked by a
     public void block(String a, String b)
     {
 
@@ -122,7 +77,9 @@ public class ActionManager
             Node<Action> from = actions.get(b),
                            to = actions.get(a);
             from.removeLink(to);
-            if( b != null && permitRun(b))
+
+            // only fire if we're the last one to unblock
+            if( ! this.isBlocked(b))
                 b.onUnblock();
         }
     }
@@ -144,8 +101,9 @@ public class ActionManager
     public boolean isBlocked(String s)
     {
         boolean out = false;
-        if( this.actions.contains(s) )
-            out = this.isBlocked(this.actions.get(s));
+        Action act = this.get(s);
+        if( this.actions.contains(act) )
+            out = this.isBlocked(act);
 
         return out;
     }
@@ -155,35 +113,19 @@ public class ActionManager
         boolean out = false;
 
         // if the node of <act> has links, then it's being blocked by those links.
-        Node<Actions> node = this.actions.get(act);
+        Node<Action> node = this.actions.get(act);
         if( node != null )
-            out = n.getLinks() != null && !n.getLinks().isEmpty();
+            out = node.getLinks() != null && !node.getLinks().isEmpty();
 
         return out;
     }
 
 
-    public boolean blockedRun(Action a)
-    {
-        boolean fired = false;
-
-        if( a != null )
-        {
-            if( !this.isBlocked(a) ) 
-            {
-                a.act(this);
-                fired = true;
-            }
-            else
-                a.blockedAct(this);
-        }
-
-        return fired;
-    }
 
     public boolean blockedRun(Action a, Object... o)
     {
         boolean fired = false;
+
         if( a != null )
         {
             if( !this.isBlocked(a) )
@@ -198,8 +140,9 @@ public class ActionManager
         return fired;
     }
 
-    public void clean()
+    public void clear()
     {
-
+        this.actions.clear();
     }
+
 }

@@ -1,6 +1,5 @@
 package dev.ramar.e2.demos.combat.actions;
 
-import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
 
 import dev.ramar.e2.demos.combat.*;
 import dev.ramar.e2.demos.combat.DeltaUpdater.Updatable;
@@ -14,6 +13,7 @@ Action: DodgeAction
 */
 public class DodgeAction extends Action
 {
+    public static final String NAME = "ability:player:dodge";
     private Player player;
 
     // this is our movement vector that the player gives us
@@ -23,6 +23,7 @@ public class DodgeAction extends Action
 
     public DodgeAction(Player p)
     {   
+        super(DodgeAction.NAME);
         this.player = p;
         this.ma = (MovementAction)this.player.actions.get("movement");
 
@@ -35,16 +36,12 @@ public class DodgeAction extends Action
         });
     }
 
-    public String getName()
-    {   return "dodge";   }
-
-
     private static final double DODGE_POWER = 6;
     private static final double DODGE_POWER_2 = 6;
     private static final double DODGE_DURA = 0.25;
 
 
-    public boolean act(ActionManager am, Object... info)
+    public void act(ActionManager am, Object... info)
     {
         double xVel = this.player.getXV(),
                yVel = this.player.getYV();
@@ -58,7 +55,7 @@ public class DodgeAction extends Action
             final double xDist = xVelNorm * DODGE_POWER_2,
                          yDist = yVelNorm * DODGE_POWER_2;  
 
-            this.blockAll(am);
+            this.toBlock.block(am);
             Updatable updater = new Updatable()
             {
                 private double delta = DODGE_DURA;
@@ -106,7 +103,7 @@ public class DodgeAction extends Action
                             }
                         });
                         // clear everything we're meant to block
-                        DodgeAction.this.unblockAll(am);
+                        DodgeAction.this.toBlock.unblock(am);
                         // and make sure we're blocked while the inner updatable finishes off
                         am.block(DodgeAction.this, DodgeAction.this);
 
@@ -120,6 +117,5 @@ public class DodgeAction extends Action
         }
 
             
-        return false;
     }
 }

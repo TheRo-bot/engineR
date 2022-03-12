@@ -2,7 +2,6 @@ package dev.ramar.e2.demos.combat.actions;
 
 import dev.ramar.e2.demos.combat.*;
 import dev.ramar.e2.demos.combat.actions.*;
-import dev.ramar.e2.demos.combat.actions.ActionManager.Action;
 
 import dev.ramar.e2.structures.Vec2;
 
@@ -18,6 +17,8 @@ Action: MovementAction
 */
 public class MovementAction extends Action
 {
+    public static final String NAME = "ability:player:movement";
+
     Player player = null;
     private ActionManager am = null;
 
@@ -29,6 +30,8 @@ public class MovementAction extends Action
 
     public MovementAction(ActionManager am, Player p)
     {
+        super(MovementAction.NAME);
+
         this.am = am;
         this.player = p;
         this.vec = this.player.vecs.create((double val) ->
@@ -50,43 +53,38 @@ public class MovementAction extends Action
             if( directions[3] )
                 x += 1.0;
 
-            if( this.am.permitRun(MovementAction.this) )
+            if( !this.am.isBlocked(MovementAction.this) )
             {
                 double abs = Math.sqrt(x * x + y * y);
                 if( abs > 0 )
                     this.vec.add(x / abs, y / abs);
 
                 // TODO: limit speed?
+                // not needed, we have good movement code B)
             }
 
             return stop;
         }); 
     }
 
-    public String getName() { return "movement"; }
-
-    public boolean act(ActionManager am, Object[] o)
+    public void act(ActionManager am, Object... o)
     {
-        String name = (String)o[0];
-        boolean pressed = (boolean)o[1],
-                  acted = false;
-        this.blockAll(am);
-        acted = process((String)o[0], (boolean)o[1]);
-        this.unblockAll(am);
+        if( o.length > 1 )
+        {
+            String name = (String)o[0];
+            boolean pressed = (boolean)o[1];
 
-        return acted;
+            this.toBlock.block(am);
+
+            this.process((String)o[0], (boolean)o[1]);
+
+            this.toBlock.unblock(am);
+        }
     }
-
-    public boolean act(ActionManager am)
-    {
-        return false;
-    }
-
 
     private Set<PairedValues<String, Boolean>> toParse = new HashSet<>();
 
-
-    public boolean blockedAct(ActionManager am, Object[] o)
+    public void blockedAct(ActionManager am, Object... o)
     {
         String name = (String)o[0];
         boolean process = (boolean)o[1];
@@ -103,8 +101,6 @@ public class MovementAction extends Action
 
         if( !didOverride )
             toParse.add(new PairedValues<String, Boolean>(name, process));
-
-        return false;
     }
 
     public void onUnblock()

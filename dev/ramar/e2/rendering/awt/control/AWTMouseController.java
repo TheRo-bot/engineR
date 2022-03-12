@@ -104,7 +104,16 @@ public class AWTMouseController extends MouseController
         // monitorX
         exp += MouseInfo.getPointerInfo().getLocation().getX();
         // top left offset
-        exp -= ((AWTWindow)vp.window).getCanvas().getLocationOnScreen().getX();
+        try
+        {
+            exp -= ((AWTWindow)vp.window).getCanvas().getLocationOnScreen().getX();
+        }
+        catch(java.awt.IllegalComponentStateException e)
+        {
+            System.out.println("WARNING\n---------------------");
+            e.printStackTrace();
+            System.out.println("---------------------");
+        }
 
         // <pW> is a %age of
         // double pW = exp / vp.window.width();
@@ -123,7 +132,16 @@ public class AWTMouseController extends MouseController
         // monitorY
         exp += MouseInfo.getPointerInfo().getLocation().getY();
         // top left offset
-        exp -= ((AWTWindow)vp.window).getCanvas().getLocationOnScreen().getY();
+        try
+        {
+            exp -= ((AWTWindow)vp.window).getCanvas().getLocationOnScreen().getY();
+        }
+        catch(java.awt.IllegalComponentStateException e)
+        {
+            System.out.println("WARNING\n---------------------");
+            e.printStackTrace();
+            System.out.println("---------------------");
+        }
         // typical conversion
         exp = convertY(exp);
         
