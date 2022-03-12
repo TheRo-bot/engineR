@@ -141,19 +141,27 @@ public class ActionManager
     }
 
 
-
-    public boolean permitRun(Action a)
+    public boolean isBlocked(String s)
     {
-        Node<Action> n = actions.get(a);
-        if( n != null )
-            return n.getLinks() != null && n.getLinks().isEmpty();
-        return true;
+        boolean out = false;
+        if( this.actions.contains(s) )
+            out = this.isBlocked(this.actions.get(s));
+
+        return out;
     }
 
-        // bind(kc, (KeyCombo press) ->
-        // {
-        //     actionManager.blockedRun(myAction);
-        // });
+    public boolean isBlocked(Action act)
+    {
+        boolean out = false;
+
+        // if the node of <act> has links, then it's being blocked by those links.
+        Node<Actions> node = this.actions.get(act);
+        if( node != null )
+            out = n.getLinks() != null && !n.getLinks().isEmpty();
+
+        return out;
+    }
+
 
     public boolean blockedRun(Action a)
     {
@@ -161,7 +169,7 @@ public class ActionManager
 
         if( a != null )
         {
-            if( permitRun(a) ) 
+            if( !this.isBlocked(a) ) 
             {
                 a.act(this);
                 fired = true;
@@ -178,7 +186,7 @@ public class ActionManager
         boolean fired = false;
         if( a != null )
         {
-            if( permitRun(a) )
+            if( !this.isBlocked(a) )
             {
                 a.act(this, o);
                 fired = true;

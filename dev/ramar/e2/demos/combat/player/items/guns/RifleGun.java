@@ -87,8 +87,8 @@ public class RifleGun extends Gun
 				{
 					this.delta = 1.0 / ((RifleStats)RifleGun.this.stats).fireRate;
 					// shoot!
-					double x = Gun.viewports.get(0).window.mouse.getMouseX(); 
-					double y = Gun.viewports.get(0).window.mouse.getMouseY(); 
+					double x = Gun.viewports.get(0).window.mouse.getMouseX();
+					double y = Gun.viewports.get(0).window.mouse.getMouseY();
 				
 					RifleGun.this.actions.blockedRun(RifleGun.this.actions.get("gun:shoot"), x, y);
 				}
