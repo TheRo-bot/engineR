@@ -53,7 +53,7 @@ public class FullAutoGun extends Gun implements StartShootingListener, StopShoot
 	*/
 	private double updateDelta = 0;
 
-	private List<ActionManager> madeUsStart = new ArrayList<>();
+	private ActionManager madeUsStart = null;
 
 	private Updatable toUpdate = (double delta) ->
 	{
@@ -78,31 +78,15 @@ public class FullAutoGun extends Gun implements StartShootingListener, StopShoot
 				er.viewport.draw.stateless.perm.queueAdd(b);
 		}
 
-		boolean stop = false;
 
-		synchronized(madeUsStart)
-		{
-			for( ActionManager am : madeUsStart )
-			{
-				if( am.isBlocked(FullAutoGun.this.actions.startShooting) )
-				{
-					stop = true;
-					break;
-				}
-			}
-
-		}
-
+		boolean stop = madeUsStart != null && madeUsStart.isBlocked(FullAutoGun.this.actions.startShooting);
 		return stop;
 	};
 
-	public void onStart(ActionManager am)
+	public void onStart(ActionManager am, boolean blocked)
 	{
 		this.updateDelta = 0.0;
-		synchronized(madeUsStart)
-		{
-			madeUsStart.add(am);
-		}
+		madeUsStart = am;
 
 		DeltaUpdater.getInstance().toUpdate.queueAdd(this.toUpdate);
 	}
@@ -114,12 +98,10 @@ public class FullAutoGun extends Gun implements StartShootingListener, StopShoot
 
 	public void onStop(ActionManager am)
 	{
-		synchronized(madeUsStart)
-		{
-			madeUsStart.remove(am);
-			if( madeUsStart.isEmpty() )
-				DeltaUpdater.getInstance().toUpdate.queueRemove(this.toUpdate);
-		}
+		madeUsStart = null;
+		DeltaUpdater.getInstance().toUpdate.queueRemove(this.toUpdate);
+
+		// the updater should remove itself if madeUsStart is empty
 	}
 
 	/*

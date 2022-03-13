@@ -109,12 +109,11 @@ public class DeltaUpdater
 			            }
 
 			            list.toParse.clear();
-
+                        
 			            ListIterator<Updatable> iter = list.getList().listIterator();
 			            while(iter.hasNext())
 			            {
 			                Updatable u = iter.next();
-
 			                boolean remove = u.update(delta);
 			                if( remove )
 			                    iter.remove();

@@ -240,14 +240,9 @@ public class Player implements Drawable, Anchor
 
     protected final MouseListener shooter = new MouseListener()
     {
-        int times = 5;
         public void mousePressed(int bID, double x, double y)
         {
-            times--;
-            if( times < 0 )
-            {
-                Player.this.actions.blockedRun(Player.this.gun.actions.startShooting);
-            }
+            Player.this.actions.blockedRun(Player.this.gun.actions.startShooting);
         }
 
         public void mouseReleased(int bID, double x, double y) 

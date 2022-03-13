@@ -66,7 +66,7 @@ public class FullAutoActions extends GunActions
 
 	public interface StartShootingListener
 	{
-		public void onStart(ActionManager am);
+		public void onStart(ActionManager am, boolean blocked);
 	}
 
 	public interface StopShootingListener
@@ -83,14 +83,14 @@ public class FullAutoActions extends GunActions
 
 
 
-	protected void onStartShooting(ActionManager am)
+	protected void onStartShooting(ActionManager am, boolean blocked)
 	{
 		List<StartShootingListener> list = this.listeners.shooting.start.getList();
 
 		synchronized(list)
 		{
 			for( StartShootingListener ssl : list )
-				ssl.onStart(am);
+				ssl.onStart(am, blocked);
 		}
 	}
 
@@ -116,9 +116,13 @@ public class FullAutoActions extends GunActions
 	{
 		public void act(ActionManager am, Object... args)
 		{
-			FullAutoActions.this.onStartShooting(am);
+			FullAutoActions.this.onStartShooting(am, false);
 		}
 
+		public void blockedAct(ActionManager am, Object... args)
+		{
+			FullAutoActions.this.onStartShooting(am, true);
+		}
 	};
 
 	public final Action stopShooting = new Action("gun:shoot:stop")
