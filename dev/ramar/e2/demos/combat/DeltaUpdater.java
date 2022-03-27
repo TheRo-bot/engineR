@@ -54,7 +54,14 @@ public class DeltaUpdater
 
     public DeltaUpdater()
     {
-    	
+    	Runtime.getRuntime().addShutdownHook(new Thread(() -> 
+        {
+            try
+            {
+                DeltaUpdater.getInstance().close();
+            }
+            catch(InterruptedException e) {}
+        }));
     }
 
 
@@ -127,10 +134,7 @@ public class DeltaUpdater
 	            }
 	        }   
 	        catch(InterruptedException e)
-	        {
-                System.out.println("??" + e.getMessage());
-                e.printStackTrace();
-            }
+	        {}
     	});
     }
 }

@@ -103,7 +103,7 @@ public class MovementAction extends Action
             toParse.add(new PairedValues<String, Boolean>(name, process));
     }
 
-    public void onUnblock()
+    public void onUnblock(ActionManager am)
     {
         for( PairedValues<String, Boolean> vals : toParse )
         {

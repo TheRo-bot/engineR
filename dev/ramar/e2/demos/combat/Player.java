@@ -77,8 +77,14 @@ public class Player implements Drawable, Anchor
         gun.withAnchor(this);
         gun.stats
             .withVelocity(2000)
-            .withFireRate(30)
+            .withFireRate(15)
+            .withDeceleration(0.5)
+            .withSpread(2)
+            .withSpreadModifier(22)
+            .withSpreadReduction(1)
         ;
+
+        gun.setClip(Integer.MAX_VALUE);
         this.actions.add(gun.actions.aim);
         System.out.println(this.actions + ", " + gun.actions.aim);
         PlayerCommand.players.add(this);
@@ -249,6 +255,19 @@ public class Player implements Drawable, Anchor
         {
             Player.this.actions.blockedRun(Player.this.gun.actions.stopShooting);
         }
+    };
+
+    protected final KeyListener reloadListener = new KeyListener()
+    {
+        public void onPress(KeyCombo kc)
+        {
+            actions.blockedRun(gun.actions.manager.get("reload"));
+        }
+
+        public void onRelease(KeyCombo kc)
+        {
+            actions.blockedRun(gun.actions.manager.get("reloadInterrupt"))
+        } 
     };
 
     public void setdown(List<EngineR2> ers)

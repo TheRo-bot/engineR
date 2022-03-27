@@ -3,11 +3,15 @@ package dev.ramar.e2.demos.combat.player.guns;
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.ViewPort;
 
+import dev.ramar.e2.structures.Vec2;
+
 import dev.ramar.e2.demos.combat.Anchor;
 
-import dev.ramar.e2.demos.combat.player.guns.GunActions.AimListener;
 
-public abstract class Gun implements Drawable, AimListener
+import dev.ramar.e2.demos.combat.player.guns.GunActions.AimListener;
+import dev.ramar.e2.demos.combat.player.guns.GunActions.ReloadListener;
+
+public abstract class Gun implements Drawable, AimListener, ReloadListener
 {
 	public Gun()
 	{
@@ -25,6 +29,7 @@ public abstract class Gun implements Drawable, AimListener
 			this.actions = new GunActions();
 			this.stats = new GunStats();
 			this.actions.listeners.aim.add(this);
+			this.actions.listeners.reload.add(this);
 		}
 		else
 		{
@@ -39,6 +44,15 @@ public abstract class Gun implements Drawable, AimListener
 	--===-------------
 	*/
 
+	/*
+	Class-Field: clip
+	 - how many shots the gun do be having left doe
+	*/
+	protected int clip = 0;
+	public void setClip(int c)
+	{
+		this.clip = c;
+	}
 
 	public GunActions actions;
 	public Gun withActions(GunActions ga)
@@ -70,17 +84,25 @@ public abstract class Gun implements Drawable, AimListener
 		return this;
 	}
 
+	/* ReloadListener Implementation
+	--===------------------------------
+	*/
+
+	public void onReload()
+	{
+
+	}
+
 
 	/* AimListener implementation
 	--===------------------------------------
 	*/
-	protected double x = 0,
-					 y = 0;
+
+	protected Vec2 target = new Vec2();
 
 	public void onAim(double x, double y)
 	{
-		this.x = x;
-		this.y = y;
+		this.target.set(x, y);
 	}
 
 
@@ -107,15 +129,15 @@ public abstract class Gun implements Drawable, AimListener
 	public void drawAt(double x, double y, ViewPort vp)
 	{
 		vp.draw.stateless.line.withMod()
-			.withColour(255, 0, 0, 255)
+			.withColour(255, 0, 0, 125)
 			.withOffset(x, y)
-			.withThickness(2)
+			.withThickness(1)
 		;
 
 		// find the normal vector of the line {anchor.getX(), anchor.getY()} -> {this.x, this.y}
 
-		double xDist = this.x - this.anchor.getX(),
-			   yDist = this.y - this.anchor.getY();
+		double xDist = this.target.getX() - this.anchor.getX(),
+			   yDist = this.target.getY() - this.anchor.getY();
 
 		double hyp = Math.sqrt(xDist * xDist + yDist * yDist);
 

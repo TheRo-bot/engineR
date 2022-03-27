@@ -32,13 +32,20 @@ public class Bullet implements Drawable, Updatable
 		return this;
 	}
 
+
+	private double deceleration = 1.0;
+	public void setDeceleration(double decel)
+	{
+		this.deceleration = decel;
+	}
+
 	public boolean update(double delta)
 	{
 		this.timeToLive -= delta;
 
 
-		double deltaMoveX = this.vel.getX() * delta,
-			   deltaMoveY = this.vel.getY() * delta;
+		double deltaMoveX = this.vel.getX() * this.deceleration * delta,
+			   deltaMoveY = this.vel.getY() * this.deceleration * delta;
 
 		this.pos.add (deltaMoveX, deltaMoveY);
 		this.vel.take(deltaMoveX, deltaMoveY);
@@ -65,5 +72,13 @@ public class Bullet implements Drawable, Updatable
 
         double size = 3;
 		vp.draw.stateless.rect.poslen(-size, -size, size * size, size * 2);
+
+		vp.draw.stateless.line.withMod()
+			.withColour(0, 255, 0, 255)
+			.withThickness(1)
+			.withOffset(x, y)
+		;
+
+		vp.draw.stateless.line.poslen(this.pos.getX(), this.pos.getY(), -this.vel.getX() * 0.01, -this.vel.getY() * 0.01);
 	}
 }

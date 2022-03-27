@@ -71,7 +71,7 @@ public class FullAutoActions extends GunActions
 
 	public interface StopShootingListener
 	{
-		public void onStop(ActionManager am);
+		public void onStop(ActionManager am, boolean blocked);
 	}
 
 
@@ -94,13 +94,13 @@ public class FullAutoActions extends GunActions
 		}
 	}
 
-	protected void onStopShooting(ActionManager am)
+	protected void onStopShooting(ActionManager am, boolean blocked)
 	{
 		List<StopShootingListener> list = this.listeners.shooting.stop.getList();
 		synchronized(list)
 		{
 			for( StopShootingListener ssl : list )
-				ssl.onStop(am);
+				ssl.onStop(am, blocked);
 		}
 	}
 
@@ -129,24 +129,16 @@ public class FullAutoActions extends GunActions
 	{
 		public void act(ActionManager am, Object... args)
 		{
-			FullAutoActions.this.onStopShooting(am);
+			FullAutoActions.this.onStopShooting(am, false);
 		}
 
-		public boolean freeWhenSet = false;
 
 		public void blockedAct(ActionManager am, Object... args)
 		{
-			this.freeWhenSet = true;
+			FullAutoActions.this.onStopShooting(am, true);
 		}
 
-		public void onUnblock()
-		{
-			if( this.freeWhenSet )
-			{
-				FullAutoActions.this.onStopShooting(null);
-				this.freeWhenSet = false;
-			}
-		}
+
 	};
 
 

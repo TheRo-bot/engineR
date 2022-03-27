@@ -71,8 +71,8 @@ public class E2Main
 
         e2 = new EngineR2();
         e2.initialise(e2.setup()
-            .withSize(1280, 720)
-            .withFullscreenState(FullscreenState.WINDOWED)
+            .withSize(1920, 1080)
+            .withFullscreenState(FullscreenState.FULLSCREEN)
             .withTitle("EngineR2 Main")
         );  
         instances.add(e2);
@@ -82,6 +82,7 @@ public class E2Main
         TestDemos td = new TestDemos(instances);
         e2.console.parser.parseCommand("demo combat");
         e2.console.parser.parseCommand("stats show memory");
+        e2.console.parser.parseCommand("players focus 1");
     }
 
     private boolean allDone = false;

@@ -80,7 +80,7 @@ public class ActionManager
 
             // only fire if we're the last one to unblock
             if( ! this.isBlocked(b))
-                b.onUnblock();
+                b.onUnblock(this);
         }
     }
     

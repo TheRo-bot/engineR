@@ -63,5 +63,6 @@ public abstract class Action
 	--====------
 	*/
 
-	public void onUnblock() {}
+	// when there's nothing blocking this node
+	public void onUnblock(ActionManager am) {}
 }

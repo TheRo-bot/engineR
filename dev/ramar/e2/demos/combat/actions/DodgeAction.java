@@ -36,7 +36,7 @@ public class DodgeAction extends Action
         });
     }
 
-    private static final double DODGE_POWER = 6;
+    private static final double DODGE_POWER = 12;
     private static final double DODGE_POWER_2 = 6;
     private static final double DODGE_DURA = 0.25;
 
