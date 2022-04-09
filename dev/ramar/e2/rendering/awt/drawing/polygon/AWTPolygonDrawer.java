@@ -50,8 +50,8 @@ public class AWTPolygonDrawer extends PolygonDrawer
         PolygonMods mods = this.getMod();
         if( mods != null )
         {
-            offX = mods.getOffX();
-            offY = mods.getOffY();
+            offX = mods.offset.getX();
+            offY = mods.offset.getY();
         }
 
         int ii = 0;
@@ -73,8 +73,8 @@ public class AWTPolygonDrawer extends PolygonDrawer
         PolygonMods mods = this.getMod();
         if( mods != null )
         {
-            offX = mods.getOffX();
-            offY = mods.getOffY();
+            offX = mods.offset.getX();
+            offY = mods.offset.getY();
         }
 
         int[] xs = new int[offsets.length],
@@ -106,8 +106,8 @@ public class AWTPolygonDrawer extends PolygonDrawer
         PolygonMods mods = this.getMod();
         if( mods != null )
         {
-            offsetX += mods.getOffX();
-            offsetY += mods.getOffY();
+            offsetX += mods.offset.getX();
+            offsetY += mods.offset.getY();
         }
 
         int count = 0;
@@ -133,8 +133,8 @@ public class AWTPolygonDrawer extends PolygonDrawer
         PolygonMods mods = this.getMod();
         if( mods != null )
         {
-            offsetX += mods.getOffX();
-            offsetY += mods.getOffY();
+            offsetX += mods.offset.getX();
+            offsetY += mods.offset.getY();
         }
 
         xs[0] = (int)offsetX;
@@ -172,13 +172,13 @@ public class AWTPolygonDrawer extends PolygonDrawer
 
         if( mod != null )
         {
-            colour = mod.getColour();   
-            fill = mod.getFill();
+            colour = mod.colour.get();   
+            fill = mod.fill.get();
 
-            thickness = mod.getThickness();
-            capStyle = mod.getCapStyle().intify();
-            joinStyle = mod.getJoinStyle().intify();
-            miter = mod.getMiter();
+            thickness = (float)mod.thickness.get();
+            capStyle = mod.cap.get().intify();
+            joinStyle = mod.join.get().intify();
+            miter = mod.miter.get();
         }
 
         Stroke old = g2d.getStroke();

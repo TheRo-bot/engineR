@@ -20,7 +20,7 @@ import dev.ramar.e2.rendering.console.Command;
 import dev.ramar.e2.rendering.console.ObjectParser;
 import dev.ramar.e2.rendering.console.commands.Debug;
 
-import dev.ramar.e2.rendering.drawing.stateless.RectDrawer.RectMods;
+import dev.ramar.e2.rendering.drawing.rect.RectMods;
 
 public class AWTKeyController extends KeyController
 {
@@ -222,19 +222,19 @@ public class AWTKeyController extends KeyController
                     int bgh = 60;
 
                     RectMods rm = new RectMods()
-                        .withColour(150, 150, 150, 255)
-                        .withFill()
-                        .withOffset(vp.getLogicalWidth(), 0)
-                        .withOffset(-bgw/2 - 28, bgh/2 + 10)
+                        .colour.with(150, 150, 150, 255)
+                        .fill.with()
+                        .offset.with(vp.getLogicalWidth(), 0)
+                        .offset.with(-bgw/2 - 28, bgh/2 + 10)
                     ;
 
-                    vp.draw.stateless.rect.withTempMod(rm);
+                    vp.draw.layered.rect.withMod(rm);
 
                     int tness = 4;
-                    vp.draw.stateless.rect.poslen(-bgw/2, -bgh/2, bgw, bgh);
-                    rm.withColour(100, 100, 100, 255);
-                    vp.draw.stateless.rect.poslen(-bgw/2 + tness/2, -bgh/2 + tness/2, bgw - tness, bgh - tness);
-                    vp.draw.stateless.rect.clearTempMod();
+                    vp.draw.layered.rect.poslen(-bgw/2, -bgh/2, bgw, bgh);
+                    rm.colour.with(100, 100, 100, 255);
+                    vp.draw.layered.rect.poslen(-bgw/2 + tness/2, -bgh/2 + tness/2, bgw - tness, bgh - tness);
+                    vp.draw.layered.rect.clearMod();
 
 
                     for( int ii = 0; ii < states.length; ii++ )
@@ -245,19 +245,19 @@ public class AWTKeyController extends KeyController
                         int r = state ? 0 : 255, b = state ? 0 : 255;
 
 
-                        vp.draw.stateless.text.withMod()
-                            .withSize(12)
-                            .withColour(r, 255, b, 255)
-                            .withOffset(xOff2, cellH + 10)
+                        vp.draw.layered.text.withMod()
+                            .size.with(12)
+                            .colour.with(r, 255, b, 255)
+                            .offset.with(xOff2, cellH + 10)
                         ;
 
-                        vp.draw.stateless.text.pos_c(0, 0, name);
+                        vp.draw.layered.text.at(0, 0, name);
 
-                        vp.draw.stateless.rect.withMod()
-                            .withOffset(xOff2, cellH)
-                            .withColour(r, 255, b, 255)
+                        vp.draw.layered.rect.withMod()
+                            .offset.with(xOff2, cellH)
+                            .colour.with(r, 255, b, 255)
                         ;
-                        vp.draw.stateless.rect.poslen(-cellW/2, -cellH/2, cellW, cellH);
+                        vp.draw.layered.rect.poslen(-cellW/2, -cellH/2, cellW, cellH);
                     }
 
               
@@ -270,9 +270,9 @@ public class AWTKeyController extends KeyController
                 isModifierOn = !isModifierOn;
 
                 if( isModifierOn )
-                    er.viewport.draw.stateless.perm.add(drawable);
+                    er.viewport.draw.layered.layers.mid.add(drawable);
                 else
-                    er.viewport.draw.stateless.perm.remove(drawable);
+                    er.viewport.draw.layered.layers.mid.remove(drawable);
             }   
 
             private void toggleKeyLog(EngineR2 er)

@@ -5,13 +5,9 @@ import dev.ramar.e2.structures.*;
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 import dev.ramar.e2.rendering.awt.AWTWindow;
 import dev.ramar.e2.rendering.*;
-import dev.ramar.e2.rendering.drawing.stateless.RectDrawer.RectMods;
-import dev.ramar.e2.rendering.drawing.stateful.Rect;
 import dev.ramar.e2.structures.WindowSettings;
 
 import dev.ramar.e2.rendering.Window.FullscreenState;
-
-import dev.ramar.e2.rendering.drawing.stateful.*;
 
 import java.io.*;
 
@@ -80,25 +76,23 @@ public class E2Main
             instances.add(e2);
         }
 
-        e2.viewport.draw.stateless.perm.add(new Drawable()
+        e2.viewport.draw.layered.layers.mid.add(new Drawable()
         {
             private List<Vec2> vecs = new LinkedList<>();
             Vec2[] used = new Vec2[0];
-            private double timer = 0.25;
+            private double timer = 0.01;
             private double delta = timer;
             private long lastTime = System.currentTimeMillis();
-
+            private int max = 500;
             private Random rd = new Random();
 
             public double rangeX(ViewPort vp)
             {
-                int max = 300;
                 return rd.nextInt(max) - max / 2.0  + rd.nextDouble();
             }
 
             public double rangeY(ViewPort vp)
             {
-                int max = 300;
                 return rd.nextInt(max) - max / 2.0 + rd.nextDouble();
             }
 
@@ -107,42 +101,40 @@ public class E2Main
             {
                 long currTime = System.currentTimeMillis();
 
-                delta -= currTime - lastTime;
-
+                delta -= (currTime - lastTime) / 1000.0;
                 this.lastTime = currTime;
 
                 if( delta <= 0 )
                 {
                     delta = timer;
+                    if( rd.nextDouble() >= 0.9 )
+                        max = rd.nextInt(1000) + 1;
 
-                    if( rd.nextDouble() >= 0.99 )
-                    {
-                        vecs.add(new Vec2(rangeX(vp), rangeY(vp)));
-                        used = new Vec2[vecs.size()];
-                        vecs.toArray(used);
-                    }
+                    vecs.add(new Vec2(rangeX(vp), rangeY(vp)));
+                    used = new Vec2[vecs.size()];
+                    vecs.toArray(used);
 
-                    for( Vec2 v : used )
-                    {
-                        int xFlip = rd.nextBoolean() ? 1 : -1,
-                            yFlip = rd.nextBoolean() ? 1 : -1;
+                    // for( Vec2 v : used )
+                    // {
+                    //     int xFlip = rd.nextBoolean() ? 1 : -1,
+                    //         yFlip = rd.nextBoolean() ? 1 : -1;
 
-                        v.add((rd.nextInt(1) + rd.nextDouble()) * xFlip, (rd.nextInt(1) + rd.nextDouble()) * yFlip);
-                    }
+                    //     v.add((rd.nextInt(1) + rd.nextDouble()) * xFlip, (rd.nextInt(1) + rd.nextDouble()) * yFlip);
+                    // }
                 }
 
-                vp.draw.stateless.polygon.withMod()
-                    .withColour(255, 0, 0, 255)
-                    .withThickness(2)
-                    .withFill()
-                    .withOffset(vp.getLogicalWidth() / 2, vp.getLogicalHeight() / 2)
-                    .withJoinStyle(dev.ramar.e2.rendering.drawing.JoinStyle.Round)
-                    .withCapStyle(dev.ramar.e2.rendering.drawing.CapStyle.Round)
+                vp.draw.layered.polygon.withMod()
+                    .colour.with(255, 0, 0, 255)
+                    .thickness.with(2)
+                    .fill.with()
+                    .offset.with(vp.getLogicalWidth() / 2, vp.getLogicalHeight() / 2)
+                    // .cap.with(dev.ramar.e2.rendering.drawing.CapStyle.Round)
+                    // .join.with(dev.ramar.e2.rendering.drawing.JoinStyle.Round)
                 ;
 
-                vp.draw.stateless.polygon.points(used);
+                vp.draw.layered.polygon.points(used);
 
-                vp.draw.stateless.polygon.clearMod();
+                vp.draw.layered.polygon.clearMod();
             }
         });
 

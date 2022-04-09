@@ -11,8 +11,8 @@ import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.control.Stealer;
 import dev.ramar.e2.rendering.control.Stealable;
 
-import dev.ramar.e2.rendering.drawing.stateless.TextDrawer.TextMods;
-import dev.ramar.e2.rendering.drawing.stateless.RectDrawer.RectMods;
+import dev.ramar.e2.rendering.drawing.text.TextMods;
+import dev.ramar.e2.rendering.drawing.rect.RectMods;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -47,35 +47,35 @@ public class Keys implements Command
             int step = 16;
 
             TextMods tm = new TextMods()
-                .withSize(12)
-                .withColour(255, 255, 255, 255)
-                .withOffset(xc, yc)
+                .font.withSize(12)
+                .colour.with(255, 255, 255, 255)
+                .offset.with(xc, yc)
             ;
             synchronized(Keys.this)
             {
 
                 // draw the main rect
                 RectMods rm = new RectMods()
-                    .withOffset(xc, yc)
-                    .withColour(100, 100, 100, 150)
-                    .withFill()
+                    .offset.with(xc, yc)
+                    .colour.with(100, 100, 100, 150)
+                    .fill.with()
                 ;
                 double rectWidth = Math.max(tm.getWidthOfText("keylog"), step * toDisplay.size());
 
-                vp.draw.stateless.rect.withTempMod(rm);
-                vp.draw.stateless.rect.poslen(-rectWidth / 2 - 2, 
+                vp.draw.layered.rect.withMod(rm);
+                vp.draw.layered.rect.poslen(-rectWidth / 2 - 2, 
                                               -h/2 - 12,
                                               rectWidth + 4,
                                               h + 12);
-                rm.withColour(125, 125, 125, 150);
+                rm.colour.with(125, 125, 125, 150);
 
-                vp.draw.stateless.rect.poslen(-(step * toDisplay.size()) / 2, -h/4, step * toDisplay.size(), h/2);
-                vp.draw.stateless.rect.clearTempMod();
+                vp.draw.layered.rect.poslen(-(step * toDisplay.size()) / 2, -h/4, step * toDisplay.size(), h/2);
+                vp.draw.layered.rect.clearMod();
 
-                vp.draw.stateless.text.withTempMod(tm);
+                vp.draw.layered.text.withMod(tm);
                 // draw the 'keylog' title
-                vp.draw.stateless.text.pos_c(0, -h/2 - 6, "keylog");
-                vp.draw.stateless.text.clearTempMod();
+                vp.draw.layered.text.at(0, -h/2 - 6, "keylog");
+                vp.draw.layered.text.clearMod();
 
                 // draw each character
                 evenOff += step/2 * (toDisplay.size() - 1);
@@ -83,13 +83,13 @@ public class Keys implements Command
                 {
                     if( (int)c != 65565 )
                     {
-                        vp.draw.stateless.text.withMod()
-                            .withOffset(xc, yc)
-                            .withColour(255, 255, 255, 255)
-                            .withSize(12)
+                        vp.draw.layered.text.withMod()
+                            .offset.with(xc, yc)
+                            .colour.with(255, 255, 255, 255)
+                            .font.withSize(12)
                         ;
 
-                        vp.draw.stateless.text.pos_c(xOff + evenOff, 0, "" + c);
+                        vp.draw.layered.text.at(xOff + evenOff, 0, "" + c);
                         xOff -= step;
                     }
                 }
@@ -108,9 +108,9 @@ public class Keys implements Command
         enabled = ! enabled;
 
         if( enabled )
-            cp.console.engine.viewport.draw.stateless.perm.add(drawer);
+            cp.console.engine.viewport.draw.layered.layers.mid.add(drawer);
         else
-            cp.console.engine.viewport.draw.stateless.perm.remove(drawer);
+            cp.console.engine.viewport.draw.layered.layers.mid.remove(drawer);
         return null;
     }
 

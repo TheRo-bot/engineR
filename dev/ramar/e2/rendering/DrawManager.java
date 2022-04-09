@@ -1,7 +1,7 @@
 package dev.ramar.e2.rendering;
 
-import dev.ramar.e2.rendering.drawing.StatelessDrawer;
-import dev.ramar.e2.rendering.drawing.StatefulDrawer;
+import dev.ramar.e2.rendering.drawing.LayeredDrawer;
+// import dev.ramar.e2.rendering.drawing.StatefulDrawer;
 
 /*
 Abstract Class: DrawManager
@@ -12,26 +12,25 @@ Abstract Class: DrawManager
 */
 public abstract class DrawManager
 {
-    public final StatelessDrawer stateless;
-    public final StatefulDrawer stateful;
+    public final LayeredDrawer layered;
 
     /*
     Keeps images loaded by a name identifier
     */
     public final ImageCache image;
 
-    protected DrawManager(StatelessDrawer sl, StatefulDrawer sf, ImageCache image)
+    protected DrawManager(LayeredDrawer l, ImageCache image)
     {
-        stateless = sl;
-        stateful = sf;
+        this.layered = l;
+        // stateful = sf;
         this.image = image;
     }
 
 
-    protected DrawManager(StatelessDrawer sl, StatefulDrawer sf)
+    protected DrawManager(LayeredDrawer l)
     {
-        stateless = sl;
-        stateful = sf;
+        this.layered = l;
+        // stateful = sf;
         image = null;
     }
 

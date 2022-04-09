@@ -8,6 +8,10 @@ import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.console.*;
 import dev.ramar.e2.rendering.console.parsers.StringSplitter;
 
+
+import dev.ramar.e2.rendering.drawing.polygon.Polygon;
+import dev.ramar.e2.rendering.drawing.text.Text;
+
 import dev.ramar.e2.structures.Vec2;
 
 import dev.ramar.e2.rendering.ViewPort.ViewPortFrameListener;
@@ -63,7 +67,7 @@ public class Stats implements Command
         */
         SubCommand mspf = (ConsoleParser cp, Object... args) -> 
         {
-            Stats.this.er.viewport.draw.stateless.top.add(Stats.this.mspf);
+            Stats.this.er.viewport.draw.layered.layers.top.add(Stats.this.mspf);
         };
 
         /*
@@ -72,12 +76,12 @@ public class Stats implements Command
         */
         SubCommand fps = (ConsoleParser cp, Object... args) -> 
         {
-            Stats.this.er.viewport.draw.stateless.top.add(Stats.this.fps);
+            Stats.this.er.viewport.draw.layered.layers.top.add(Stats.this.fps);
         };
 
         SubCommand memory = (ConsoleParser cp, Object... args) ->
         {
-            Stats.this.er.viewport.draw.stateless.top.add(Stats.this.memory);
+            Stats.this.er.viewport.draw.layered.layers.top.add(Stats.this.memory);
         };
 
         public void run(ConsoleParser cp, Object... args)
@@ -120,25 +124,25 @@ public class Stats implements Command
 
         /*
         SubCommand: hide mspf
-         -  Removes the mspf Drawable from vp.draw.stateless.top
+         -  Removes the mspf Drawable from vp.draw.layered.layers.top
         */
         SubCommand mspf = (ConsoleParser cp, Object... args) -> 
         {   
-            Stats.this.er.viewport.draw.stateless.top.remove(Stats.this.mspf);
+            Stats.this.er.viewport.draw.layered.layers.top.remove(Stats.this.mspf);
         };
 
         /*
         SubCommand: hide fps
-         -  Removes the fps Drawable from vp.draw.stateless.top
+         -  Removes the fps Drawable from vp.draw.layered.top
         */
         SubCommand fps = (ConsoleParser cp, Object... args) ->
         {
-            Stats.this.er.viewport.draw.stateless.top.remove(Stats.this.fps);
+            Stats.this.er.viewport.draw.layered.layers.top.remove(Stats.this.fps);
         };
 
         SubCommand memory = (ConsoleParser cp, Object... args) ->
         {
-            Stats.this.er.viewport.draw.stateless.top.remove(Stats.this.memory);
+            Stats.this.er.viewport.draw.layered.layers.top.remove(Stats.this.memory);
         };
 
         public void run(ConsoleParser cp, Object... args)
@@ -226,9 +230,7 @@ public class Stats implements Command
 
     public class Data implements ViewPortFrameListener
     {
-        List<Double> mspfBuffer = new LinkedList<>();
-
-        double mspfs[] = new double[100];
+        double nspfs[] = new double[100];
         int start = 0;
 
         private long lastFrameStart = 0;    
@@ -242,9 +244,7 @@ public class Stats implements Command
 
         public void frameEnded(long ns)
         {
-            mspfBuffer.add((ns - this.lastFrameStart) * 0.000001);
-            if( mspfBuffer.size() > 25 )
-                mspfBuffer.remove(0);
+            nspfs[start] = ns - lastFrameStart;
         }
     }
 
@@ -286,80 +286,47 @@ public class Stats implements Command
     }
 
 
-    Drawable mspf = (double x, double y, ViewPort vp) ->
+    Drawable mspf = new Drawable()
     {
-        vp.draw.stateless.rect.withTempMod()
-            .withColour(50, 50, 50, 255)
-            .withOffset(x, y)
-            .withOffset(pos.getX(), pos.getY())
-            .withFill()
-        ;
-        vp.draw.stateless.rect.poslen(0, 0, 100, 30);
+        private double floor = 0.0,
+                       ceil = 30.0;
 
-        vp.draw.stateless.rect.activeMod()
-            .withColour(255, 255, 255, 255)
-            .withoutFill()
-        ;
 
-        vp.draw.stateless.rect.poslen(0, 0, 100, 30);
+        Polygon bg = new Polygon();
+        Text title = new Text("mspf");
+        Polygon graph = new Polygon();
 
-        vp.draw.stateless.rect.activeMod()
-            .withColour(0, 255, 0, 255)
-        ;
+        Text floorText = new Text("0.0");
+        Text ceilText = new Text("100.0");
 
-        // map our mspfs and draw them
-        double maxDist = -26;
-        double floor = 0;
-        double ceil = 1;
-
-        synchronized(this.data.mspfBuffer)
+        public void drawAt(double x, double y, ViewPort vp)
         {
-            double offX = 98;
-            for( double mspf : this.data.mspfBuffer )
-            {
-                double dist = (mspf - floor) / ceil;
-                vp.draw.stateless.rect.poslen(offX, 28, -4, dist * maxDist);
-                offX -= 4;
-            }
+            bg.drawAt(x, y, vp);
+            title.drawAt(x, y, vp);
+            graph.drawAt(x, y, vp);
+            floorText.drawAt(x, y, vp);
+            ceilText.drawAt(x, y, vp);
         }
-
-        vp.draw.stateless.rect.clearTempMod();
-
-        vp.draw.stateless.text.withMod()
-            .withOffset(x, y)
-            .withOffset(pos.getX() + 50, pos.getY() + 15)
-            .withAlignment(0, 0)
-            .withColour(255, 255, 255, 255)
-            .withSize(12)
-        ;
-
-        vp.draw.stateless.text.pos_c(0, 0, "mspf");
     };
 
     Drawable fps = (double x, double y, ViewPort vp) ->
     {
-        vp.draw.stateless.rect.withTempMod()
-            .withColour(50, 50, 50, 255)
-            .withOffset(x, y)
-            .withOffset(pos.getX(), pos.getY())
-            .withFill()
+        vp.draw.layered.rect.withMod()
+            .colour.with(50, 50, 50, 255)
+            .offset.with(x, y)
+            .offset.with(pos.getX(), pos.getY())
+            .fill.with()
         ;
-        vp.draw.stateless.rect.poslen(1, 1, 98, 28);
+        vp.draw.layered.rect.poslen(1, 1, 98, 28);
 
-        vp.draw.stateless.rect.activeMod()
-            .withColour(255, 255, 255, 255)
-            .withoutFill()
+        vp.draw.layered.rect.getMod()
+            .colour.with(255, 255, 255, 255)
+            .fill.without()
         ;
 
-        vp.draw.stateless.rect.poslen(0, 0, 100, 30);
+        vp.draw.layered.rect.poslen(0, 0, 100, 30);
 
-        vp.draw.stateless.rect.clearTempMod();
-
-        vp.draw.stateless.text.withMod()
-            .withOffset(x, y)
-            .withOffset(pos.getX(), pos.getY())
-        ;   
-
+        vp.draw.layered.rect.clearMod();
     };
     
 
@@ -380,34 +347,34 @@ public class Stats implements Command
 
         public void drawAt(double x, double y, ViewPort vp)
         {
-            vp.draw.stateless.rect.withTempMod()
-                .withColour(255, 255, 255, 255)
-                .withFill()
-                .withOffset(this.x, this.y)
-                .withOffset(x, y)
+            vp.draw.layered.rect.withMod()
+                .colour.with(255, 255, 255, 255)
+                .fill.with()
+                .offset.with(this.x, this.y)
+                .offset.with(x, y)
             ;
             int  width = 100,
                 height = 40;
             int border = 1;
 
-            vp.draw.stateless.rect.poslen(-width/2 - border, -height/2 - border, width + border * 2, height + border * 2);
+            vp.draw.layered.rect.poslen(-width/2 - border, -height/2 - border, width + border * 2, height + border * 2);
 
-            vp.draw.stateless.rect.activeMod()
-                .withColour(50, 50, 50, 255)
+            vp.draw.layered.rect.getMod()
+                .colour.with(50, 50, 50, 255)
             ;
-            vp.draw.stateless.rect.poslen(-width/2, -height/2, width, height);
+            vp.draw.layered.rect.poslen(-width/2, -height/2, width, height);
 
-            vp.draw.stateless.rect.clearTempMod();
+            vp.draw.layered.rect.clearMod();
 
-            vp.draw.stateless.text.withTempMod()
-                .withColour(255, 255, 255, 255)
-                .withOffset(this.x, this.y)
-                .withOffset(x, y - 5)
+            vp.draw.layered.text.withMod()
+                .colour.with(255, 255, 255, 255)
+                .offset.with(this.x, this.y)
+                .offset.with(x, y - 5)
             ;
-            vp.draw.stateless.text.pos_c(0, 0,  "memory");
-            vp.draw.stateless.text.pos_c(0, 12, "" + this.getHeap() / (1000000));
+            vp.draw.layered.text.at(0, 0,  "memory");
+            vp.draw.layered.text.at(0, 12, "" + this.getHeap() / (1000000));
 
-            vp.draw.stateless.text.clearTempMod();
+            vp.draw.layered.text.clearMod();
         }
 
         private long getHeap()

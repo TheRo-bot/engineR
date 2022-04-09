@@ -9,10 +9,9 @@ import dev.ramar.e2.rendering.control.KeyController;
 import dev.ramar.e2.rendering.control.Stealer;
 import dev.ramar.e2.rendering.control.Stealable;
 
-import dev.ramar.e2.rendering.drawing.stateful.Rect;
-import dev.ramar.e2.rendering.drawing.stateful.Shape;
+import dev.ramar.e2.rendering.drawing.rect.Rect;
 
-import dev.ramar.e2.rendering.ui.*;
+// import dev.ramar.e2.rendering.ui.*;
 import dev.ramar.e2.rendering.animations.*;
 
 import dev.ramar.utils.ValuePair;
@@ -50,50 +49,50 @@ public class Console implements Drawable
     {
         public void onSteal(Stealable<Character> s, Character c)
         {
-            TextField in = null;
-            for( ValuePair<String, Shape> pair : shapes )
-            {
-                if( pair.getOneVal().equals("consoleInput"))
-                {
-                    in = (TextField)pair.getTwoVal();
-                    break;
-                }
-            }
+            // TextField in = null;
+            // for( ValuePair<String, Drawable> pair : shapes )
+            // {
+            //     if( pair.getOneVal().equals("consoleInput"))
+            //     {
+            //         in = (TextField)pair.getTwoVal();
+            //         break;
+            //     }
+            // }
 
-            if( in != null )
-            {
-                String inputText = in.getInputText();
-                int intCode = (int)(char)c;
-                switch(intCode)
-                {
-                    // all codes we want to ignore:
-                    /*
-                        alt / cntrl / shift: 65535
-                    */
-                    case 65535:
-                        break;
+            // if( in != null )
+            // {
+            //     String inputText = in.getInputText();
+            //     int intCode = (int)(char)c;
+            //     switch(intCode)
+            //     {
+            //         // all codes we want to ignore:
+            //         /*
+            //             alt / cntrl / shift: 65535
+            //         */
+            //         case 65535:
+            //             break;
 
-                    // '`'
-                    case 8:
-                        if( inputText != null )
-                        {
-                            String newString = inputText.substring(0, Math.max(0,inputText.length() - 1));
-                            in.withInput(newString);
-                        }
+            //         // '`'
+            //         case 8:
+            //             if( inputText != null )
+            //             {
+            //                 String newString = inputText.substring(0, Math.max(0,inputText.length() - 1));
+            //                 in.withInput(newString);
+            //             }
 
-                        break;
-                    // return character ('\n')
-                    case 10:
-                        parser.parseCommand(inputText.trim().toLowerCase());
-                        break;
+            //             break;
+            //         // return character ('\n')
+            //         case 10:
+            //             parser.parseCommand(inputText.trim().toLowerCase());
+            //             break;
 
-                    case (int)'`':
-                        animation_SwapVisibility();
-                        break;
-                    default:
-                        in.withInput(inputText == null ? "" + c : inputText + c);
-                }
-            }
+            //         case (int)'`':
+            //             animation_SwapVisibility();
+            //             break;
+            //         default:
+            //             in.withInput(inputText == null ? "" + c : inputText + c);
+            //     }
+            // }
         }
 
         public boolean allowSimultaneousThievery(Stealer<Character> c)
@@ -161,7 +160,7 @@ public class Console implements Drawable
         return this;
     }
 
-    private List<ValuePair<String, Shape>> shapes = new ArrayList<>();
+    private List<ValuePair<String, Drawable>> shapes = new ArrayList<>();
 
     Rect getTextBox()
     {
@@ -184,65 +183,59 @@ public class Console implements Drawable
                maxHeight = windowH == -1 ? (vpRef != null ? vpRef.getLogicalHeight() : 600) : windowH;
         windowW = maxWidth;
         windowH = maxHeight;
-        Rect consoleBox = new Rect(x, y)
-            .withSize(maxWidth, maxHeight)
-        ;
+        Rect consoleBox = new Rect(x, y, maxWidth, maxHeight);
+
         consoleBox.getMod()
-            .withColour(150, 150, 150, 255)
-            .withFill()
+            .colour.with(150, 150, 150, 255)
+            .fill.with()
         ;
 
-        shapes.add(new ValuePair<String, Shape>("consoleBox", consoleBox));
+        shapes.add(new ValuePair<String, Drawable>("consoleBox", consoleBox));
 
 
         // 20 for size, 10 for gap
-        Rect textBox = new Rect(x + 5, y + maxHeight - 27)
-            .withSize(maxWidth - 10, 23)
-        ;
+        Rect textBox = new Rect(x + 5, y + maxHeight - 27, maxWidth - 10, 23);
 
         textBox.getMod()
-            .withColour(255, 255, 255, 150)
-            .withFill()
+            .colour.with(255, 255, 255, 150)
+            .fill.with()
         ;
 
-        shapes.add(new ValuePair<String, Shape>("textBox", textBox));
+        shapes.add(new ValuePair<String, Drawable>("textBox", textBox));
 
-        Rect outputBG = new Rect(x + 5, y + 5)
-            .withSize(maxWidth - 11, maxHeight - 34)
-        ;
+        Rect outputBG = new Rect(x + 5, y + 5, maxWidth - 11, maxHeight - 34);
 
         outputBG.getMod()
-            .withColour(255, 255, 255, 30)
-            .withFill()
+            .colour.with(255, 255, 255, 30)
+            .fill.with()
         ;
 
 
-        Rect outputBox = new Rect(x + 5, y + 5)
-            .withSize(maxWidth - 10, maxHeight - 36)
-        ;
+        Rect outputBox = new Rect(x + 5, y + 5, maxWidth - 10, maxHeight - 36);
 
         outputBox.getMod()
-            .withColour(255, 255, 255, 125)
-            .withFill()
+            .colour.with(255, 255, 255, 125)
+            .fill.with()
         ;
 
 
-        shapes.add(new ValuePair<String, Shape>("outputBG",  outputBG));
-        shapes.add(new ValuePair<String, Shape>("outputBox", outputBox));
+        shapes.add(new ValuePair<String, Drawable>("outputBG",  outputBG));
+        shapes.add(new ValuePair<String, Drawable>("outputBox", outputBox));
 
-        TextField tf = new TextField().withHint("Console");
+        // TextField tf = new TextField().withHint("Console");
 
-        tf
-            .withAlignment(1, 0)
-            .withPos(x + 10, y + maxHeight - 16)
-        ;
+        // tf.withPos(x + 10, y + maxHeight - 16);
+        
+        // tf.getMod()
+        //     .alignment.with(1, 0)
+        // ;
 
-        tf.getInput().getMod()
-            .withColour(0, 0, 0, 255)
-        ;
+        // tf.getInput().getMod()
+        //     .withColour(0, 0, 0, 255)
+        // ;
 
       
-        shapes.add(new ValuePair<String, Shape>("consoleInput", tf));
+        // shapes.add(new ValuePair<String, Drawable>("consoleInput", tf));
 
 
     }
@@ -253,9 +246,9 @@ public class Console implements Drawable
         vpRef = vp;
         if( visible )
         {
-            for( ValuePair<String, Shape> pair : shapes )
+            for( ValuePair<String, Drawable> pair : shapes )
             {
-                Shape sh = pair.getTwoVal();
+                Drawable sh = pair.getTwoVal();
                 sh.drawAt(this.x, this.y, vp);
             }
         }

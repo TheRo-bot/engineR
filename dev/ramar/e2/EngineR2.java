@@ -97,7 +97,7 @@ public class EngineR2
         console.withPos(0, viewport.window.height() * 0.0125)
                .withSize(0, 0)
         ;
-        viewport.draw.stateless.top.add(console);
+        viewport.draw.layered.layers.top.add(console);
 
     }
 

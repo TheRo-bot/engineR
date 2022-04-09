@@ -1,10 +1,8 @@
 package dev.ramar.e2.rendering.awt;
 
-import dev.ramar.e2.rendering.*;
-import dev.ramar.e2.rendering.awt.*;
-import dev.ramar.e2.rendering.awt.drawing.stateless.AWTStatelessDrawer;
-import dev.ramar.e2.rendering.awt.drawing.stateful.AWTStatefulDrawer;
+import dev.ramar.e2.rendering.awt.drawing.AWTLayeredDrawer;
 
+import dev.ramar.e2.rendering.DrawManager;
 
 public class AWTDrawManager extends DrawManager
 {
@@ -12,8 +10,7 @@ public class AWTDrawManager extends DrawManager
 
     public AWTDrawManager()
     {
-        super(new AWTStatelessDrawer(), new AWTStatefulDrawer(), 
-              new AWTImageCache());
+        super(new AWTLayeredDrawer(), new AWTImageCache());
     }
 
     public void withViewPort(AWTViewPort vp)
@@ -21,7 +18,7 @@ public class AWTDrawManager extends DrawManager
         if( this.vp == null )
         {
             this.vp = vp;
-            ((AWTStatelessDrawer)stateless).withViewPort(vp);
+            ((AWTLayeredDrawer)layered).withViewPort(vp);
         }
     }
 

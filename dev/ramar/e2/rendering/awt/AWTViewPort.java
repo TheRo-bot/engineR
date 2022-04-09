@@ -3,8 +3,8 @@ package dev.ramar.e2.rendering.awt;
 import dev.ramar.e2.rendering.*;
 import dev.ramar.e2.rendering.Window.FullscreenState;
 
-import dev.ramar.e2.rendering.awt.drawing.stateless.AWTStatelessDrawer;
-import dev.ramar.e2.rendering.drawing.stateful.*;
+import dev.ramar.e2.rendering.awt.drawing.AWTLayeredDrawer;
+import dev.ramar.e2.rendering.drawing.rect.Rect;
 
 import dev.ramar.e2.structures.WindowSettings;
 import dev.ramar.e2.structures.Vec2;
@@ -31,14 +31,17 @@ public class AWTViewPort extends ViewPort
 
     private Vec2 worldCenter = new Vec2(0, 0);
 
-    public final Rect BACKGROUND = new Rect(0, 0, 2000, 2000)
-        .withColour(0, 0, 0, 255)
-        .withFill()
-    ;
+    public final Rect BACKGROUND = new Rect(0, 0, 2000, 2000);
 
     public AWTViewPort()
     {
         super(new AWTDrawManager(), new AWTWindow());
+
+        this.BACKGROUND.getMod()
+            .colour.with(0, 0, 0, 255)
+            .fill.with()
+        ;
+
         ((AWTDrawManager)draw).withViewPort(this);
         ((AWTWindow)window).withViewPort(this);
     }
@@ -77,8 +80,8 @@ public class AWTViewPort extends ViewPort
 
     public Graphics2D getGraphics()
     {
-        if( draw != null && draw.stateless != null )
-            return ((AWTStatelessDrawer)draw.stateless).getGraphics();
+        if( draw != null && draw.layered != null )
+            return ((AWTLayeredDrawer)draw.layered).getGraphics();
         return null;
     }
 
@@ -179,8 +182,8 @@ public class AWTViewPort extends ViewPort
         setLogicalHeight(screenH);
         window.onResize.add((int w, int h) ->
         {
-            BACKGROUND.setW(w);
-            BACKGROUND.setH(h);
+            BACKGROUND.w = w;
+            BACKGROUND.h = h;
         });
 
         Graphics2D g2d = getAWTWindow().getDrawGraphics();
@@ -210,13 +213,6 @@ public class AWTViewPort extends ViewPort
 
                 long thisTime = System.currentTimeMillis();
                 long diffTime = thisTime - lastTime;
-                timeToSecond += diffTime;
-                if( timeToSecond >= 1000 )
-                {
-                    System.out.println("FPS: " + frameCount);
-                    frameCount = 0;
-                    timeToSecond = 0;
-                }
 
                 lastTime = thisTime;
             }
@@ -252,10 +248,9 @@ public class AWTViewPort extends ViewPort
         super.interrupt();
     }
 
-
-    public AWTStatelessDrawer getAWTLess()
+    public AWTLayeredDrawer getLayered()
     {
-        return (AWTStatelessDrawer)draw.stateless;
+        return (AWTLayeredDrawer)draw.layered;
     }
 
 
@@ -273,7 +268,7 @@ public class AWTViewPort extends ViewPort
 
             if( g2d != null )
             {
-                getAWTLess().setupDrawing(g2d);
+                getLayered().setupDrawing(g2d);
 
                 AffineTransform at = new AffineTransform();
                 synchronized(this)
@@ -296,19 +291,18 @@ public class AWTViewPort extends ViewPort
                        offY = worldCenter.getY() + getLogicalHeight() / 2;
 
                 this.onFrameStart();
+                draw.layered.rect.withMod()
+                    .colour.with(0, 0, 0, 255)
+                    .fill.with()
+                ;
+                draw.layered.rect.poslen(0, 0, getLogicalWidth(), getLogicalHeight());
+
+
                 BACKGROUND.drawAt(0, 0, this);
 
-                draw.stateless.rect.withMod()
-                    .withColour(0, 0, 0, 255)
-                    .withFill()
-                ;
+                draw.layered.drawAt(offX, offY, this);
 
-                draw.stateless.rect.poslen(0, 0, getLogicalWidth(), getLogicalHeight());
-
-                draw.stateless.drawAt(offX, offY, this);
-                draw.stateful.drawAt(offX, offY, this);
-
-                getAWTLess().shutdownDrawing();
+                getLayered().shutdownDrawing();
                 g2d.dispose();
                 bs.show();
                 this.onFrameEnd();

@@ -3,8 +3,6 @@ package dev.ramar.e2.rendering.awt;
 import dev.ramar.e2.rendering.Image;
 import dev.ramar.e2.rendering.ViewPort;
 
-import dev.ramar.e2.rendering.awt.drawing.stateless.AWTStatelessDrawer;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
@@ -14,7 +12,7 @@ import java.awt.image.AffineTransformOp;
 
 import java.awt.geom.AffineTransform;
 
-public class AWTImage extends Image
+public class AWTImage implements Image
 {
     private BufferedImage image;
     private AffineTransformOp op = null;
@@ -44,7 +42,10 @@ public class AWTImage extends Image
     }
 
 
-    @Override
+    /* Image Implementation
+    --===---------------------
+    */
+
     public int getWidth()
     {
         if( image == null )
@@ -53,7 +54,6 @@ public class AWTImage extends Image
 
     }
     
-    @Override
     public int getHeight()
     {
         if( image == null )
@@ -62,7 +62,6 @@ public class AWTImage extends Image
     }
 
 
-    @Override
     public BufferedImage getBufferedImage()
     {
         return image;
@@ -70,7 +69,6 @@ public class AWTImage extends Image
 
 
 
-    @Override
     public void scale(double xAm, double yAm)
     {
         AffineTransform at = new AffineTransform();
@@ -87,7 +85,6 @@ public class AWTImage extends Image
     }
 
 
-    @Override
     public void rotate(double zAm)
     {
         AffineTransform at = new AffineTransform();
@@ -101,21 +98,18 @@ public class AWTImage extends Image
         */
     }
 
-    @Override
     public double getScaleX()
     {
         return xScaleAm;
     }
 
 
-    @Override
     public double getScaleY()
     {
         return yScaleAm;
     }
 
 
-    @Override
     public double getRotZ()
     {
         return rotationAm;

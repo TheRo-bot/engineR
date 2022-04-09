@@ -4,21 +4,17 @@ import dev.ramar.e2.rendering.Drawable;
 import java.awt.image.BufferedImage;
 
 
-public abstract class Image
+public interface Image
 {
-    public abstract int getWidth();
-    public abstract int getHeight();
+    public int getWidth();
+    public int getHeight();
 
-    public abstract BufferedImage getBufferedImage();
+    public BufferedImage getBufferedImage();
 
-    public abstract void scale(double xAm, double yAm);
+    public void scale(double xAm, double yAm);
+    public double getScaleX();
+    public double getScaleY();
 
-    public abstract void rotate(double zAm);
-
-    public abstract double getScaleX();
-
-    public abstract double getScaleY();
-
-    public abstract double getRotZ();
-
+    public void rotate(double zAm);
+    public double getRotZ();
 }
