@@ -12,6 +12,7 @@ import dev.ramar.e2.rendering.awt.AWTWindow;
 import java.util.*;
 
 import dev.ramar.e2.rendering.awt.drawing.polygon.AWTPolygonDrawer;
+import dev.ramar.e2.rendering.awt.drawing.polyline.AWTPolylineDrawer;
 
 
 import java.awt.Graphics2D;
@@ -30,7 +31,8 @@ public class AWTStatelessDrawer extends StatelessDrawer
               new AWTImageDrawer(),
               new AWTTextDrawer() ,
               new AWTLineDrawer() ,
-              new AWTPolygonDrawer());
+              new AWTPolygonDrawer(),
+              new AWTPolylineDrawer());
     }
 
 
@@ -44,6 +46,7 @@ public class AWTStatelessDrawer extends StatelessDrawer
             ((AWTTextDrawer)text).  withViewPort(vp);
             ((AWTLineDrawer)line).  withViewPort(vp);
             ((AWTPolygonDrawer)polygon).withViewPort(vp);
+            ((AWTPolylineDrawer)polyline).withViewPort(vp);
         }
     }
 

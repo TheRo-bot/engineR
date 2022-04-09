@@ -4,12 +4,12 @@ import dev.ramar.e2.rendering.ViewPort;
 import dev.ramar.e2.rendering.Drawable;
 
 
-public class Polyline extends Drawable
+public class Polyline implements Drawable
 {
 
 
     public void drawAt(double x, double y, ViewPort vp)
     {
-        
+
     }
 }

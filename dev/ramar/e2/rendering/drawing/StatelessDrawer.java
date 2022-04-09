@@ -2,8 +2,10 @@ package dev.ramar.e2.rendering.drawing;
 
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.TempDrawable;
+
 import dev.ramar.e2.rendering.drawing.stateless.*;
 import dev.ramar.e2.rendering.drawing.polygon.PolygonDrawer;
+import dev.ramar.e2.rendering.drawing.polyline.PolylineDrawer;
 
 import dev.ramar.e2.rendering.ViewPort;
 import dev.ramar.e2.rendering.DrawManager;
@@ -28,16 +30,20 @@ public abstract class StatelessDrawer
     public final TextDrawer text;
     public final LineDrawer line;
     public final PolygonDrawer polygon;
+    public final PolylineDrawer polyline;
 
     // protected final List<Drawable> drawables = new ArrayList<>();
 
-    protected StatelessDrawer(RectDrawer rd, ImageDrawer id, TextDrawer td, LineDrawer ld, PolygonDrawer pd)
+    protected StatelessDrawer(RectDrawer rd, ImageDrawer id, 
+                              TextDrawer td, LineDrawer ld,
+                              PolygonDrawer pg, PolylineDrawer pl)
     {
         rect = rd;
         image = id;
         text = td;
         line = ld;
-        polygon = pd;
+        polygon = pg;
+        polyline = pl;
     }
 
 

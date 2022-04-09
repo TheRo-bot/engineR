@@ -1,7 +1,10 @@
 package dev.ramar.e2.rendering.drawing.polyline;
 
 
-public class PolylineDrawer
+import dev.ramar.e2.structures.Vec2;
+
+
+public abstract class PolylineDrawer
 {
 
 
@@ -10,14 +13,14 @@ public class PolylineDrawer
 
     }
 
-    private PolylineMods mods = null;
-    public PolylineMods getMods()
-    {   return this.mods;   }
+    private PolylineMods mod = null;
+    public PolylineMods getMod()
+    {   return this.mod;   }
 
     public PolylineMods withMod(PolylineMods pm)
     {
-        this.currMod = pm;
-        return this.currMod;
+        this.mod = pm;
+        return this.mod;
     }
 
     public PolylineMods withMod()
@@ -28,7 +31,14 @@ public class PolylineDrawer
 
     public void clearMod()
     {
-        this.currMod = null;
+        this.mod = null;
     }
+
+
+    public abstract void points(double... points);
+    public abstract void points(Vec2... points);
+
+    public abstract void offsets(double... offsets);
+    public abstract void offsets(Vec2... offsets);
 
 }

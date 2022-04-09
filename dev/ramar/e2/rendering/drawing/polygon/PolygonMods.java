@@ -43,6 +43,11 @@ public class PolygonMods
     {   this.withOffset(x, y, true);   }
 
 
+    public PolygonMods withOnlyOffset(double x, double y)
+    {
+        return this.withOffset(x, y, true);
+    }
+
 
 
     private Colour colour = new Colour(0, 0, 0, 0);

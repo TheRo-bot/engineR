@@ -36,7 +36,7 @@ public class AWTPolygonDrawer extends PolygonDrawer
 
 
 
-    public void drawPoints(Vec2... points)
+    public void points(Vec2... points)
     {
         int[] xs = new int[points.length];
         int[] ys = new int[points.length];
@@ -59,10 +59,10 @@ public class AWTPolygonDrawer extends PolygonDrawer
             ii++;
         }
 
-        this.drawABSPoints(xs, ys);
+        this.absolutePoints(xs, ys);
     }
 
-    public void drawOffsets(Vec2... offsets)
+    public void offsets(Vec2... offsets)
     {
         double offX = 0,
                offY = 0;
@@ -87,11 +87,11 @@ public class AWTPolygonDrawer extends PolygonDrawer
             count++;
         }
 
-        this.drawABSPoints(xs, ys);
+        this.absolutePoints(xs, ys);
     }
 
 
-    public void drawPoints(double... points)
+    public void points(double... points)
     {
         int[] xs = new int[points.length / 2];
         int[] ys = new int[points.length / 2];
@@ -116,10 +116,10 @@ public class AWTPolygonDrawer extends PolygonDrawer
         }
         System.out.println(java.util.Arrays.toString(xs) + " || " + java.util.Arrays.toString(ys));
 
-        this.drawABSPoints(xs, ys);
+        this.absolutePoints(xs, ys);
     }
 
-    public void drawOffsets(double... offsets)
+    public void offsets(double... offsets)
     {
         int[] xs = new int[offsets.length / 2 + 1];
         int[] ys = new int[offsets.length / 2 + 1];
@@ -146,11 +146,11 @@ public class AWTPolygonDrawer extends PolygonDrawer
             count++;
         }
 
-        this.drawABSPoints(xs, ys);
+        this.absolutePoints(xs, ys);
     }
 
 
-    public void drawABSPoints(int xs[], int ys[])
+    public void absolutePoints(int xs[], int ys[])
     {
         PolygonMods mod = this.getMod();
 
