@@ -71,11 +71,78 @@ public class E2Main
 
         e2 = new EngineR2();
         e2.initialise(e2.setup()
-            .withSize(1280, 720)
-            .withFullscreenState(FullscreenState.WINDOWED)
+            .withSize(1920, 1080)
+            .withFullscreenState(FullscreenState.FULLSCREEN)
             .withTitle("EngineR2 Main")
         );  
         instances.add(e2);
+
+
+        e2.viewport.draw.stateless.perm.add(new Drawable()
+        {
+            private List<Vec2> vecs = new LinkedList<>();
+            Vec2[] used = new Vec2[0];
+            private double timer = 0.25;
+            private double delta = timer;
+            private long lastTime = System.currentTimeMillis();
+
+            private Random rd = new Random();
+
+            public double rangeX(ViewPort vp)
+            {
+                int max = 300;
+                return rd.nextInt(max) - max / 2.0  + rd.nextDouble();
+            }
+
+            public double rangeY(ViewPort vp)
+            {
+                int max = 300;
+                return rd.nextInt(max) - max / 2.0 + rd.nextDouble();
+            }
+
+
+            public void drawAt(double x, double y, ViewPort vp)
+            {
+                long currTime = System.currentTimeMillis();
+
+                delta -= currTime - lastTime;
+
+                this.lastTime = currTime;
+
+                if( delta <= 0 )
+                {
+                    delta = timer;
+
+                    if( rd.nextDouble() >= 0.99 )
+                    {
+                        vecs.add(new Vec2(rangeX(vp), rangeY(vp)));
+                        used = new Vec2[vecs.size()];
+                        vecs.toArray(used);
+                    }
+
+                    for( Vec2 v : used )
+                    {
+                        int xFlip = rd.nextBoolean() ? 1 : -1,
+                            yFlip = rd.nextBoolean() ? 1 : -1;
+
+                        v.add((rd.nextInt(1) + rd.nextDouble()) * xFlip, (rd.nextInt(1) + rd.nextDouble()) * yFlip);
+                    }
+                }
+
+                vp.draw.stateless.polygon.withMod()
+                    .withColour(255, 0, 0, 255)
+                    .withThickness(2)
+                    .withFill()
+                    .withOffset(vp.getLogicalWidth() / 2, vp.getLogicalHeight() / 2)
+                    .withJoinStyle(dev.ramar.e2.rendering.drawing.JoinStyle.Round)
+                    .withCapStyle(dev.ramar.e2.rendering.drawing.CapStyle.Round)
+                ;
+
+                vp.draw.stateless.polygon.points(used);
+
+                vp.draw.stateless.polygon.clearMod();
+            }
+        });
 
 
         // this is a test !

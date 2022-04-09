@@ -163,9 +163,9 @@ public class AWTPolylineDrawer extends PolylineDrawer
 
         PolylineMods mods = this.getMod();
 
-        float thickness = 1.0f;
         Colour colour = AWTPolylineDrawer.Defaults.DEFAULT_COLOUR;
 
+        float thickness = 1.0f;
         int capStyle = BasicStroke.CAP_ROUND;
         int joinStyle = BasicStroke.JOIN_BEVEL;
         float miter = 10.0f;
@@ -173,6 +173,7 @@ public class AWTPolylineDrawer extends PolylineDrawer
         if( mods != null )
         {
             colour = mods.getColour();
+            
             thickness = mods.getThickness();
             capStyle = mods.getCapStyle().intify();
             joinStyle = mods.getJoinStyle().intify();

@@ -5,6 +5,10 @@ import dev.ramar.e2.structures.Vec2;
 
 import dev.ramar.e2.structures.Colour;
 
+import dev.ramar.e2.rendering.drawing.JoinStyle;
+import dev.ramar.e2.rendering.drawing.CapStyle;
+
+
 public class PolygonMods
 {
 
@@ -80,7 +84,52 @@ public class PolygonMods
     }
 
 
+    private float thickness = 1.0f;
+    public float getThickness()
+    {   return this.thickness;   }
 
+
+    public PolygonMods withThickness(double thickness)
+    {
+        this.thickness = (float)thickness;
+        return this;
+    }
+
+
+
+    private CapStyle capStyle = CapStyle.Round;
+    public CapStyle getCapStyle()
+    {   return this.capStyle;   }
+
+    public PolygonMods withCapStyle(CapStyle cs)
+    {
+        this.capStyle = cs;
+        return this;
+    }
+
+
+
+    private JoinStyle joinStyle = JoinStyle.Bevel;
+    public JoinStyle getJoinStyle()
+    {   return this.joinStyle;   }
+
+    public PolygonMods withJoinStyle(JoinStyle js)
+    {
+        this.joinStyle = js;
+        return this;
+    }
+
+
+
+    private float miter = 10.0f;
+    public float getMiter()
+    {   return this.miter;   }
+
+    public PolygonMods withMiter(double m)
+    {
+        this.miter = (float)m;
+        return this;
+    }
 
 }
 

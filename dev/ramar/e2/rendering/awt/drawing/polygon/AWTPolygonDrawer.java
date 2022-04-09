@@ -11,6 +11,9 @@ import dev.ramar.e2.rendering.drawing.polygon.*;
 
 
 import java.awt.Graphics2D;
+import java.awt.Stroke;
+import java.awt.BasicStroke;
+
 
 public class AWTPolygonDrawer extends PolygonDrawer
 {
@@ -161,11 +164,25 @@ public class AWTPolygonDrawer extends PolygonDrawer
         boolean fill = false;
         Colour colour = AWTPolygonDrawer.Defaults.DEFAULT_COLOUR;
 
+        float thickness = 1.0f;
+        int capStyle = BasicStroke.CAP_ROUND;
+        int joinStyle = BasicStroke.JOIN_BEVEL;
+        float miter = 10.0f;
+
+
         if( mod != null )
         {
             colour = mod.getColour();   
             fill = mod.getFill();
+
+            thickness = mod.getThickness();
+            capStyle = mod.getCapStyle().intify();
+            joinStyle = mod.getJoinStyle().intify();
+            miter = mod.getMiter();
         }
+
+        Stroke old = g2d.getStroke();
+        g2d.setStroke(new BasicStroke(thickness, capStyle, joinStyle, miter));
 
         colour.fillG2D(g2d);
 
@@ -174,6 +191,9 @@ public class AWTPolygonDrawer extends PolygonDrawer
             g2d.fillPolygon(xs, ys, xs.length);
         else
             g2d.drawPolygon(xs, ys, xs.length);
+
+
+        g2d.setStroke(old);
     }
 
 }
