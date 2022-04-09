@@ -1,8 +1,14 @@
 # engineR
 Java based game engine that's hopefully gonna be dope
 
+<<<<<<< HEAD
 ** Current work is dedicated to the demo_combat branch, i'm making a combat demo babyyyyy
 
+=======
+Welcome to the combat demo babyyyyy >:)
+
+\*\*
+>>>>>>> demo_countdown
 THIS SHIT IS MINE (RAMAR/ROBOT). ASK FOR PERMISSION TO USE IT YOU HETHEN.
 
 !! Eventually this project will be a RamaRepo (https://github.com/TheRo-bot/RamaRepo), but in the meantime you've gotta compile my shit manually

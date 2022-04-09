@@ -107,12 +107,21 @@ public class KeyCombo
         if( dir != null )
         {
             int pointer = dir == Directionality.LEFT ? 0 : 1;
-            flags[pointer] = !flags[pointer];
+            if( flags[pointer] == null )
+                flags[pointer] = true;
+            else
+                flags[pointer] = !flags[pointer];
         }
         else
         {
-            flags[0] = !flags[0];
-            flags[1] = !flags[1];
+            if( flags[0] == null )
+                flags[0] = true;
+            else
+                flags[0] = !flags[0];
+            if( flags[1] == null )
+                flags[1] = true;
+            else
+                flags[1] = !flags[1];
         }
 
         return this;

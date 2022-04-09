@@ -3,6 +3,8 @@ package dev.ramar.e2.rendering;
 
 import dev.ramar.e2.rendering.Window.FullscreenState;
 
+import dev.ramar.utils.HiddenList;
+
 /*
 Class: ViewPort
  - Base template for any specifically implemented viewport to match
@@ -14,6 +16,44 @@ public abstract class ViewPort
     public final DrawManager draw;
     public final Window window;
     public final GUIManager guis;
+
+    public interface ViewPortFrameListener 
+    {
+        public void frameStarted(long ms);
+
+        public void frameEnded(long ms);        
+    }
+
+    public final ListenerList frameListeners = new ListenerList();
+
+    public class ListenerList extends HiddenList<ViewPortFrameListener>
+    {
+        // add, remove, etc.. public methods, but, 
+        // we add private methods here so we can hook ViewPort event
+        // firing methods
+        private void frameStarted(long ms)
+        {
+            for( ViewPortFrameListener vpfl : this.list )
+                vpfl.frameStarted(ms);
+        }
+
+        private void frameEnded(long ms)
+        {
+            for( ViewPortFrameListener vpfl : this.list )
+                vpfl.frameEnded(ms);
+        }
+    }   
+
+    // and the best part is that viewport can't even access the list! :)
+    protected void onFrameStart()
+    {
+        this.frameListeners.frameStarted((long)(System.nanoTime()));
+    }
+
+    protected void onFrameEnd()
+    {
+        this.frameListeners.frameEnded((long)(System.nanoTime()));
+    }
 
     /* 
     Enum: State

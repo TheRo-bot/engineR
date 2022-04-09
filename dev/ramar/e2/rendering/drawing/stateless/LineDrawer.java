@@ -197,11 +197,23 @@ public abstract class LineDrawer
         return exp;
     }
 
+    public LineMods activeMod()
+    {
+        if( tempMod != null )
+            return tempMod;
 
-    public LineDrawer withTempMod(LineMods lm)
+        return currentMod;
+    }
+
+    public LineMods withTempMod()
+    {
+        return withTempMod(new LineMods());
+    }
+
+    public LineMods withTempMod(LineMods lm)
     {
         tempMod = lm;
-        return this;
+        return tempMod;
     }
 
     public void clearTempMod()

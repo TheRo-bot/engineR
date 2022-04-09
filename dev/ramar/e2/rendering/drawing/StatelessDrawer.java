@@ -1,8 +1,11 @@
 package dev.ramar.e2.rendering.drawing;
 
-import dev.ramar.e2.rendering.drawing.stateless.*;
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.TempDrawable;
+
+import dev.ramar.e2.rendering.drawing.stateless.*;
+import dev.ramar.e2.rendering.drawing.polygon.PolygonDrawer;
+import dev.ramar.e2.rendering.drawing.polyline.PolylineDrawer;
 
 import dev.ramar.e2.rendering.ViewPort;
 import dev.ramar.e2.rendering.DrawManager;
@@ -26,15 +29,21 @@ public abstract class StatelessDrawer
     public final ImageDrawer image;
     public final TextDrawer text;
     public final LineDrawer line;
+    public final PolygonDrawer polygon;
+    public final PolylineDrawer polyline;
 
     // protected final List<Drawable> drawables = new ArrayList<>();
 
-    protected StatelessDrawer(RectDrawer rd, ImageDrawer id, TextDrawer td, LineDrawer ld)
+    protected StatelessDrawer(RectDrawer rd, ImageDrawer id, 
+                              TextDrawer td, LineDrawer ld,
+                              PolygonDrawer pg, PolylineDrawer pl)
     {
         rect = rd;
         image = id;
         text = td;
         line = ld;
+        polygon = pg;
+        polyline = pl;
     }
 
 
@@ -53,12 +62,21 @@ public abstract class StatelessDrawer
     public class DrawableList extends HiddenList<Drawable>
     {
         private List<Drawable> toRemove = new ArrayList<>();
+        private List<Drawable> toAdd = new ArrayList<>();
 
         public void queueRemove(Drawable d)
         {
-            synchronized(toRemove)
+            synchronized(this)
             {
                 toRemove.add(d);
+            }
+        }
+
+        public void queueAdd(Drawable d)
+        {
+            synchronized(this)
+            {
+                toAdd.add(d);
             }
         }
 
@@ -71,6 +89,11 @@ public abstract class StatelessDrawer
         {
             return toRemove;
         } 
+
+        private List<Drawable> getAddQueue()
+        {
+            return toAdd;
+        }
     }
 
 
@@ -85,16 +108,27 @@ public abstract class StatelessDrawer
 
     protected void drawPerm(double x, double y, ViewPort vp)
     {
-        synchronized(perm.getList())
+        synchronized(perm)
+        {
+            for( Drawable d : perm.getAddQueue())
+                perm.add(d);
+
+            perm.getAddQueue().clear();
+        }
+
+        synchronized(perm)
         {
             for( int ii = 0; ii < perm.getList().size(); ii++ )
                 perm.getList().get(ii).drawAt(x, y, vp);
         } 
         
-        for( Drawable d : perm.getRemoveQueue() )
-            perm.remove(d);
+        synchronized(perm)
+        {
+            for( Drawable d : perm.getRemoveQueue() )
+                perm.remove(d);
 
-        perm.getRemoveQueue().clear();
+            perm.getRemoveQueue().clear();
+        }
     }
 
     protected void drawTemp(double x, double y, ViewPort vp)

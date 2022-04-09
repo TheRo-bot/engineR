@@ -13,7 +13,6 @@ import java.util.Random;
 import dev.ramar.e2.rendering.console.commands.*;
 import dev.ramar.e2.rendering.console.parsers.*;
 
-
 public class ConsoleParser
 {
 
@@ -24,10 +23,14 @@ public class ConsoleParser
     {
         ConsoleParser cp = new ConsoleParser(c);
 
+        cp.addCommand("stats", new Stats(c.engine));
+
         Debug dbg = new Debug();
         cp.addCommand("debug", dbg);
         dbg.registerCommand("keylog", new Keys(c.engine));
 
+        // cp.addCommand("players", new PlayerCommand());
+        
         cp.addCommand("screen", new Screen());
 
         cp.addCommand("list", new Command()

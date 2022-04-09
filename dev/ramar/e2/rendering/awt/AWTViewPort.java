@@ -295,6 +295,7 @@ public class AWTViewPort extends ViewPort
                 double offX = worldCenter.getX() + getLogicalWidth() / 2,
                        offY = worldCenter.getY() + getLogicalHeight() / 2;
 
+                this.onFrameStart();
                 BACKGROUND.drawAt(0, 0, this);
 
                 draw.stateless.rect.withMod()
@@ -310,6 +311,7 @@ public class AWTViewPort extends ViewPort
                 getAWTLess().shutdownDrawing();
                 g2d.dispose();
                 bs.show();
+                this.onFrameEnd();
             }
         }
     }

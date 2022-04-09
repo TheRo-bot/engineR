@@ -36,9 +36,6 @@ public class TestDemos
     {
         this.instances = instances;
 
-        demos.put("combat", new dev.ramar.e2.demos.combat.CombatDemoBuilder() );
-        demos.put("buffer", new dev.ramar.e2.demos.bufferedimage.BufferedImageDemo() );
-        
         for( EngineR2 instance : instances )
         {
 

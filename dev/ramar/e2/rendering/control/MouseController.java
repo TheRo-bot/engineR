@@ -40,6 +40,11 @@ public abstract class MouseController
     public abstract double getMouseY();
 
 
+    public interface MouseListener extends PressedListeners.PressedListener, ReleasedListeners.ReleasedListener
+    {
+        
+    }
+
     public static class PressedListeners
     {
         private List<PressedListener> listeners = new ArrayList<>();
