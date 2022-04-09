@@ -123,10 +123,14 @@ public class Colour
 		set(c.red, c.green, c.blue, c.alpha);
 	}
 
-
 	public void setRed(int colour)
 	{
 		red = colour;
+	}
+	public Colour withRed(int r)
+	{
+		this.red = r;
+		return this;
 	}
 
 
@@ -134,15 +138,30 @@ public class Colour
 	{
 		green = colour;
 	}
+	public Colour withGreen(int g)
+	{
+		this.green = g;
+		return this;
+	}
 
 	public void setBlue(int colour)
 	{
 		blue = colour;
 	}
+	public Colour withBlue(int g)
+	{
+		this.green = g;
+		return this;
+	}
 
 	public void setAlpha(int colour)
 	{
 		alpha = colour;
+	}
+	public Colour withAlpha(int a)
+	{
+		this.alpha = a;
+		return this;
 	}
 
 
@@ -151,5 +170,10 @@ public class Colour
 		return new java.awt.Color(red, green, blue, alpha);
 	}
 
+
+	public void fillG2D(java.awt.Graphics2D g2d)
+	{
+		g2d.setColor(this.convertToColor());
+	}
 
 }

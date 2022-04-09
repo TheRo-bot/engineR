@@ -1,6 +1,6 @@
 package dev.ramar.e2;
 
-
+import dev.ramar.e2.structures.*;
 
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 import dev.ramar.e2.rendering.awt.AWTWindow;
@@ -71,8 +71,8 @@ public class E2Main
 
         e2 = new EngineR2();
         e2.initialise(e2.setup()
-            .withSize(1920, 1080)
-            .withFullscreenState(FullscreenState.FULLSCREEN)
+            .withSize(1280, 720)
+            .withFullscreenState(FullscreenState.WINDOWED)
             .withTitle("EngineR2 Main")
         );  
         instances.add(e2);
@@ -80,9 +80,6 @@ public class E2Main
 
         // this is a test !
         TestDemos td = new TestDemos(instances);
-        e2.console.parser.parseCommand("demo combat");
-        e2.console.parser.parseCommand("stats show memory");
-        e2.console.parser.parseCommand("players focus 1");
     }
 
     private boolean allDone = false;
@@ -92,15 +89,14 @@ public class E2Main
         {
             e2.viewport.window.onClose.add(() ->
             {
-                try
-                {
-                    dev.ramar.e2.demos.combat.DeltaUpdater.getInstance().close();
-                }
-                catch(InterruptedException e) 
-                {
-                    System.out.println("Couldn't wait for deltaupdater to close!!");
-                }
-
+                // try
+                // {
+                //     dev.ramar.e2.demos.combat.DeltaUpdater.getInstance().close();
+                // }
+                // catch(InterruptedException e) 
+                // {
+                //     System.out.println("Couldn't wait for deltaupdater to close!!");
+                // }
                 allDone = true;
             });
 

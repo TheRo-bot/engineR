@@ -1,34 +1,44 @@
-package dev.ramar.e2.rendering.drawing.stateless.polygon;
+package dev.ramar.e2.rendering.drawing.polygon;
 
-public class PolygonDrawer
+import dev.ramar.e2.structures.Vec2;
+
+public abstract class PolygonDrawer
 {
     public PolygonDrawer() 
     {
 
     }
 
-    public PolygonDrawer withViewPort(ViewPort vp)
+    protected PolygonMods currMod = null;
+
+    public PolygonMods getMod()
     {
-        this.viewPort = vp;
-        return this;
+        return this.currMod;
+    }
+
+    public PolygonMods withMod(PolygonMods pm)
+    {
+        this.currMod = pm;
+        return this.currMod;
+    }
+
+    public PolygonMods withMod()
+    {
+        return this.withMod(new PolygonMods());
     }
 
 
-    public void drawPoints(double... points)
-    {}
-
-
-    public void drawOffsets(double x, double y, double... offsets)
+    public void clearMod()
     {
-        int xs = new int[offsets.length / 2 + 1]
-        int ys = new int[offsets.length / 2 + 1]
-
-        for(int ii = 0; ii < points.length; ii += 2 )
-        {
-            xs[ii - 1] = offsets[ii    ];
-            xs[ii    ] = offsets[ii + 1];
-        }
-
-        System.out.println(Arrays.toString(xs, ys));
+        this.currMod = null;
     }
+
+
+    public abstract void drawOffsets(Vec2... offsets);
+
+    public abstract void drawOffsets(double... offsets);
+
+
+    public abstract void drawPoints(double... points);
+    public abstract void drawPoints(Vec2... points);
 }
