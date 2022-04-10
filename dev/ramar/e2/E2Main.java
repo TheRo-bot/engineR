@@ -123,18 +123,18 @@ public class E2Main
                     // }
                 }
 
-                vp.draw.layered.polygon.withMod()
-                    .colour.with(255, 0, 0, 255)
-                    .thickness.with(2)
-                    .fill.with()
-                    .offset.with(vp.getLogicalWidth() / 2, vp.getLogicalHeight() / 2)
+                vp.draw.layered.polyline.withMod()
+                    .withColour(255, 0, 0, 255)
+                    .withThickness(2)
+                    // .fill.with()
+                    .withOffset(vp.getLogicalWidth() / 2, vp.getLogicalHeight() / 2)
                     // .cap.with(dev.ramar.e2.rendering.drawing.CapStyle.Round)
                     // .join.with(dev.ramar.e2.rendering.drawing.JoinStyle.Round)
                 ;
 
-                vp.draw.layered.polygon.points(used);
+                vp.draw.layered.polyline.points(used);
 
-                vp.draw.layered.polygon.clearMod();
+                vp.draw.layered.polyline.clearMod();
             }
         });
 
