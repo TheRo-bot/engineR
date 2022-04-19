@@ -5,24 +5,27 @@ import dev.ramar.e2.rendering.awt.*;
 import dev.ramar.e2.rendering.awt.drawing.stateless.AWTStatelessDrawer;
 import dev.ramar.e2.rendering.awt.drawing.stateful.AWTStatefulDrawer;
 
-
+import dev.ramar.e2.rendering.awt.drawing.rect.AWTRectDrawer;
 public class AWTDrawManager extends DrawManager
 {
     private AWTViewPort vp;
 
     public AWTDrawManager()
     {
-        super(new AWTStatelessDrawer(), new AWTStatefulDrawer(), 
-              new AWTImageCache());
+        super(DrawManager.init()
+            .withRect(new AWTRectDrawer())
+        );
     }
 
-    public void withViewPort(AWTViewPort vp)
+    public AWTDrawManager withViewPort(AWTViewPort vp)
     {
         if( this.vp == null )
         {
             this.vp = vp;
-            ((AWTStatelessDrawer)stateless).withViewPort(vp);
+            ((AWTRectDrawer)this.rect).withViewPort(vp);
         }
+
+        return this;
     }
 
 

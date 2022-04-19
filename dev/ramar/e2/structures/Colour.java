@@ -152,4 +152,9 @@ public class Colour
 	}
 
 
+	public void fillG2D(java.awt.Graphics2D g2d)
+	{
+		g2d.setColor(new java.awt.Color(this.red, this.green, this.blue, this.alpha));
+	}
+
 }

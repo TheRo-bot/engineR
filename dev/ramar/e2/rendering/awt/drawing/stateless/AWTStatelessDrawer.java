@@ -21,7 +21,7 @@ public class AWTStatelessDrawer extends StatelessDrawer
 
     public AWTStatelessDrawer()
     {
-        super(new AWTRectDrawer() ,
+        super(
               new AWTImageDrawer(),
               new AWTTextDrawer() ,
               new AWTLineDrawer());
@@ -33,7 +33,6 @@ public class AWTStatelessDrawer extends StatelessDrawer
         if( vp == null )
         {
             vp = avp;
-            ((AWTRectDrawer)rect).  withViewPort(vp);
             ((AWTImageDrawer)image).withViewPort(vp);
             ((AWTTextDrawer)text).  withViewPort(vp);
             ((AWTLineDrawer)line).  withViewPort(vp);

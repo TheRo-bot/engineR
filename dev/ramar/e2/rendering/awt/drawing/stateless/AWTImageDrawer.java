@@ -38,7 +38,7 @@ public class AWTImageDrawer extends ImageDrawer
         if( vp == null )
             throw new NullPointerException("Viewport not set. RectDrawer isn't setup to draw right now!");
 
-        return ((AWTStatelessDrawer)vp.draw.stateless).getGraphics();
+        return vp.getGraphics();
     }
 
 

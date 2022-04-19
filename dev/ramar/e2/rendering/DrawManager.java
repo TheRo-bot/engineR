@@ -3,6 +3,8 @@ package dev.ramar.e2.rendering;
 import dev.ramar.e2.rendering.drawing.StatelessDrawer;
 import dev.ramar.e2.rendering.drawing.StatefulDrawer;
 
+import dev.ramar.e2.rendering.drawing.rect.RectDrawer;
+
 /*
 Abstract Class: DrawManager
  - Owned by a ViewPort
@@ -12,28 +14,41 @@ Abstract Class: DrawManager
 */
 public abstract class DrawManager
 {
-    public final StatelessDrawer stateless;
-    public final StatefulDrawer stateful;
 
-    /*
-    Keeps images loaded by a name identifier
-    */
-    public final ImageCache image;
-
-    protected DrawManager(StatelessDrawer sl, StatefulDrawer sf, ImageCache image)
+    public static DrawManagerBuilder init()
     {
-        stateless = sl;
-        stateful = sf;
-        this.image = image;
+        return new DrawManagerBuilder();
+    }
+
+    public final RectDrawer rect;
+
+    protected DrawManager(DrawManagerBuilder dmb)
+    {
+        this.rect = dmb.rect;
     }
 
 
-    protected DrawManager(StatelessDrawer sl, StatefulDrawer sf)
+
+    protected static class DrawManagerBuilder
     {
-        stateless = sl;
-        stateful = sf;
-        image = null;
+        protected DrawManagerBuilder()
+        {
+
+        }
+
+        public RectDrawer rect = null;
+        public DrawManagerBuilder withRect(RectDrawer rd)
+        {
+            this.rect = rd;
+            return this;
+        }
+
+
     }
 
-    
 }
+
+
+
+
+

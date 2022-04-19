@@ -34,8 +34,6 @@ public class TestDemos
     {
         this.instance = instance;
 
-        demos.put("combat", new dev.ramar.e2.demos.combat.CombatDemo() );
-
         // 'demo (combat|explore|cutscene)'
         instance.console.parser.addCommand("demo", new Command()
         {

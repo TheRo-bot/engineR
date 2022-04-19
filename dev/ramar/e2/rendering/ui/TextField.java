@@ -1,6 +1,7 @@
 package dev.ramar.e2.rendering.ui;
 
 import dev.ramar.e2.rendering.drawing.stateful.*;
+import dev.ramar.e2.rendering.drawing.rect.Rect;
 import dev.ramar.e2.rendering.ViewPort;
 
 
@@ -118,11 +119,11 @@ public class TextField extends Shape
 
         Rect r = new Rect(-width/2, -height/2, width, height);
         r.getMod()
-            .withColour(255, 255, 255, 255)
+            .colour.with(255, 255, 255, 255)
         ;
         r.getMod()
-            .withOffset(getAlignmentHori() * (width  / 2),
-                        getAlignmentVert() * (height / 2))
+            .offset.with(getAlignmentHori() * (width  / 2),
+                         getAlignmentVert() * (height / 2))
         ;
 
         return r;

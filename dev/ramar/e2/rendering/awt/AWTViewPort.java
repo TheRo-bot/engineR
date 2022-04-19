@@ -4,7 +4,7 @@ import dev.ramar.e2.rendering.*;
 import dev.ramar.e2.rendering.Window.FullscreenState;
 
 import dev.ramar.e2.rendering.awt.drawing.stateless.AWTStatelessDrawer;
-import dev.ramar.e2.rendering.drawing.stateful.*;
+import dev.ramar.e2.rendering.drawing.rect.Rect;
 
 import dev.ramar.e2.structures.WindowSettings;
 import dev.ramar.e2.structures.Vec2;
@@ -30,14 +30,19 @@ public class AWTViewPort extends ViewPort
 
     private Vec2 worldCenter = new Vec2(0, 0);
 
-    public final Rect BACKGROUND = new Rect(0, 0, 2000, 2000)
-        .withColour(0, 0, 0, 255)
-        .withFill()
-    ;
+    public final Rect BACKGROUND = new Rect(0, 0, 2000, 2000);
+
+
+    public final LayerManager layers = new LayerManager();
 
     public AWTViewPort()
     {
         super(new AWTDrawManager(), new AWTWindow());
+
+        this.BACKGROUND.getMod()
+            .colour.with(0, 0, 0, 255)
+            .fill.with()
+        ;
         ((AWTDrawManager)draw).withViewPort(this);
         ((AWTWindow)window).withViewPort(this);
     }
@@ -67,8 +72,8 @@ public class AWTViewPort extends ViewPort
 
     public Graphics2D getGraphics()
     {
-        if( draw != null && draw.stateless != null )
-            return ((AWTStatelessDrawer)draw.stateless).getGraphics();
+        if( window != null )
+            return ((AWTWindow)this.window).getDrawGraphics();
         return null;
     }
 
@@ -169,8 +174,8 @@ public class AWTViewPort extends ViewPort
         setLogicalHeight(screenH);
         window.onResize.add((int w, int h) ->
         {
-            BACKGROUND.setW(w);
-            BACKGROUND.setH(h);
+            BACKGROUND.withW(w);
+            BACKGROUND.withH(h);
         });
 
         Graphics2D g2d = getAWTWindow().getDrawGraphics();
@@ -243,12 +248,6 @@ public class AWTViewPort extends ViewPort
     }
 
 
-    public AWTStatelessDrawer getAWTLess()
-    {
-        return (AWTStatelessDrawer)draw.stateless;
-    }
-
-
     /* Rendering Methods
     -==--------------------
     */
@@ -262,7 +261,7 @@ public class AWTViewPort extends ViewPort
             Graphics2D g2d = getAWTWindow().getDrawGraphics();
 
 
-            getAWTLess().setupDrawing(g2d);
+            // getAWTLess().setupDrawing(g2d);
 
             AffineTransform at = new AffineTransform();
             synchronized(this)
@@ -286,10 +285,12 @@ public class AWTViewPort extends ViewPort
 
             BACKGROUND.drawAt(0, 0, this);
 
-            draw.stateless.drawAt(offX, offY, this);
-            draw.stateful.drawAt(offX, offY, this);
+            layers.drawAt(offX, offY, this);
 
-            getAWTLess().shutdownDrawing();
+            // draw.stateless.drawAt(offX, offY, this);
+            // draw.stateful.drawAt(offX, offY, this);
+
+            // getAWTLess().shutdownDrawing();
             g2d.dispose();
             bs.show();
         }

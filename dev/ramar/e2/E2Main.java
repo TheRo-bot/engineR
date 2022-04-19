@@ -5,8 +5,6 @@ package dev.ramar.e2;
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 import dev.ramar.e2.rendering.awt.AWTWindow;
 import dev.ramar.e2.rendering.*;
-import dev.ramar.e2.rendering.drawing.stateless.RectDrawer.RectMods;
-import dev.ramar.e2.rendering.drawing.stateful.Rect;
 import dev.ramar.e2.structures.WindowSettings;
 
 import dev.ramar.e2.rendering.Window.FullscreenState;
@@ -69,7 +67,25 @@ public class E2Main
             .withTitle("EngineR2 Main")
         );
 
-        TestDemos td = new TestDemos(e2);
+        final Random rd = new Random();
+        e2.viewport.layers.mid.queueAdd((double x, double y, ViewPort vp) ->
+        {
+            vp.draw.rect.withMod()
+                .colour.with(255, 255, 0, 255)
+                .offset.with(x, y)
+                // .offset.with(rd.nextInt(100) - 50, rd.nextInt(100) - 50)
+                .fill.with()
+            ;
+
+            vp.draw.rect.pospos(10, 10, 20, 20);
+            vp.draw.rect.getMod()
+                .offset.with(0, 40)
+            ;
+            vp.draw.rect.poslen(10, 10, 10, 10);
+
+            vp.draw.rect.clearMod();
+        });
+
     }
 
 

@@ -22,16 +22,14 @@ Abstract Class: StatelessDrawer
 */
 public abstract class StatelessDrawer
 {
-    public final RectDrawer rect;
     public final ImageDrawer image;
     public final TextDrawer text;
     public final LineDrawer line;
 
     // protected final List<Drawable> drawables = new ArrayList<>();
 
-    protected StatelessDrawer(RectDrawer rd, ImageDrawer id, TextDrawer td, LineDrawer ld)
+    protected StatelessDrawer(ImageDrawer id, TextDrawer td, LineDrawer ld)
     {
-        rect = rd;
         image = id;
         text = td;
         line = ld;

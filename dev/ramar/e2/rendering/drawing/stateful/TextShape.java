@@ -84,11 +84,11 @@ public class TextShape extends Shape
 
     public void drawAt(double x, double y, ViewPort vp)
     {
-        vp.draw.stateless.text.withTempMod(mod);
-        if( mod.isOffsetAllowed() )
-            vp.draw.stateless.text.pos_c(x, y, text);
-        else
-            vp.draw.stateless.text.pos_c(0, 0, text);
-        vp.draw.stateless.text.clearTempMod();
+        // vp.draw.stateless.text.withTempMod(mod);
+        // if( mod.isOffsetAllowed() )
+            // vp.draw.stateless.text.pos_c(x, y, text);
+        // else
+            // vp.draw.stateless.text.pos_c(0, 0, text);
+        // vp.draw.stateless.text.clearTempMod();
     }   
 }
