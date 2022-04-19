@@ -17,6 +17,9 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import dev.ramar.e2.rendering.drawing.polyline.Polyline;
+import dev.ramar.e2.rendering.drawing.polygon.Polygon;
+import dev.ramar.e2.rendering.drawing.rect.Rect;
 
 import dev.ramar.e2.rendering.control.KeyCombo;
 import dev.ramar.e2.rendering.control.KeyCombo.Directionality;
@@ -63,104 +66,89 @@ public class E2Main
 
         e2 = new EngineR2();
         e2.initialise(e2.setup()
-            .withSize(1280, 720)
-            .withFullscreenState(FullscreenState.WINDOWED)
+            .withSize(1920, 1080)
+            .withFullscreenState(FullscreenState.FULLSCREEN)
             .withTitle("EngineR2 Main")
         );
 
-        final Random rd = new Random();
-        e2.viewport.layers.mid.queueAdd((double x, double y, ViewPort vp) ->
+        //// setup the polygon!
+        Polygon pg = new Polygon();
+        pg.points
+            .add(0, 0)
+            .makeOffsets(false)
+        ;
+        pg.getMod()
+            .colour.with(255, 0, 0, 125)
+            .fill.with()
+        ;
+        e2.viewport.layers.mid.queueAdd(pg);
+
+
+        //// setup the polyline!
+        Polyline pl = new Polyline();
+        pl.points
+            .add(0, 0)
+            .makeOffsets(false)
+        ;
+
+        pl.getMod()
+            .colour.with(255, 0, 0, 255)
+            .width.with(3)
+        ;
+        e2.viewport.layers.mid.queueAdd(pl);
+
+        // make the thread that'll do what we want!
+        Thread t = new Thread(() ->
         {
-            vp.draw.rect.withMod()
-                .colour.with(255, 255, 0, 255)
-                .offset.with(x, y)
-                // .offset.with(rd.nextInt(100) - 50, rd.nextInt(100) - 50)
-                .fill.with()
-            ;
-
-            vp.draw.rect.pospos(10, 10, 20, 20);
-            vp.draw.rect.getMod()
-                .offset.with(0, 40)
-            ;
-            vp.draw.rect.poslen(10, 10, 10, 10);
-
-            vp.draw.rect.clearMod();
-        });
-
-        final Vec2[] points = new Vec2[]
-        {
-            new Vec2(0, 0),     new Vec2(50, -10), new Vec2(100, 0),
-            new Vec2(100, 100),                    new Vec2(0, 100),
-
-            new Vec2(50, 50)
-        };
-
-        final Vec2[] offsets = new Vec2[]
-        {
-            new Vec2(0, 0),     new Vec2(50, -10), new Vec2(50, 10),
-            new Vec2(0, 100),                    new Vec2(-100, 0),
-
-            new Vec2(50, -50)
-        };
-
-        e2.viewport.layers.mid.queueAdd((double x, double y, ViewPort vp) ->
-        {
-            vp.draw.polygon.withMod()
-                .offset.with(x, y)
-                .colour.with(150, 150, 0, 255)
-                .fill.with()
-            ;
-
-            vp.draw.polygon.points(points);
-
-            vp.draw.polygon.getMod()
-                .offset.with(0, 150)
-            ;
-
-            vp.draw.polygon.offsets(offsets);
-
-            vp.draw.polygon.clearMod();
-        });
-        // e2.viewport.layers.mid.queueAdd(new Drawable()
-        Drawable d = new Drawable()
-        {
-            List<Vec2> vecs = new ArrayList<>();
-            Vec2[] curr = null;
-            private double timer = 0.02;
-            private double countdown = 0.0;
-            private long lastTime = System.currentTimeMillis();
-
-            public void drawAt(double x, double y, ViewPort vp)
+            try
             {
-                long thisTime = System.currentTimeMillis();
-                countdown -= (thisTime - lastTime) / 1000.0;
-                lastTime = thisTime;
-
-
-                if( this.countdown <= 0.0 )
+                long lastTime = System.currentTimeMillis();
+                double countdown = 0.2;
+                while(true)
                 {
-                    this.countdown = this.timer;
-                    if( rd.nextDouble() <= 0.9 )
+                    long currTime = System.currentTimeMillis();
+                    countdown -= (currTime - lastTime) / 1000.0;
+                    lastTime = currTime;
+                    if( countdown <= 0 )
                     {
-                        vecs.add(new Vec2(rd.nextInt((int)(vp.window.width() * 0.4)), rd.nextInt((int)(vp.window.height() * 0.4))));
-                        curr = vecs.toArray(new Vec2[vecs.size()]);
+                        countdown = 0.2;
+                        if( rd.nextDouble() > 0.2 )
+                        {
+                            int w = e2.viewport.window.width();
+                            int h = e2.viewport.window.height();
+
+                            double x = rd.nextInt((int)(w)) - w * 0.5;
+                            double y = rd.nextInt((int)(h)) - h * 0.5;
+
+                            pg.points.add(x, y);
+                            pl.points.add(x, y);
+                        }
                     }
-                }
 
-                if( curr != null )
-                {
-                    vp.draw.polygon.withMod()
-                        .offset.with(x, y)
-                        .colour.with(0, 255, 255, 255)
-                        .fill.with()
-                    ;
+                    for( int ii = 0; ii < pg.points.size(); ii++ )
+                    {
+                        double xOff = (rd.nextDouble() * 0.5) - 0.25;
+                        double yOff = (rd.nextDouble() * 0.5) - 0.25;
 
-                    vp.draw.polygon.points(curr);
+                        pg.points.get(ii).add(xOff, yOff);
+                        pl.points.get(ii).add(xOff, yOff);
 
-                    vp.draw.polygon.clearMod();               
+                    }
+
+                    Thread.sleep(1);
                 }
             }
-        };
+            catch(InterruptedException e) {}
+        });
+
+        t.start();
+
+        e2.viewport.window.onClose.add(() ->
+        {
+            t.interrupt();
+        });
+
+
     }
 
 

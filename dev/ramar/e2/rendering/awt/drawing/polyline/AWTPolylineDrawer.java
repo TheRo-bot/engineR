@@ -1,27 +1,37 @@
-package dev.ramar.e2.rendering.awt.drawing.polygon;
+package dev.ramar.e2.rendering.awt.drawing.polyline;
 
-
-import dev.ramar.e2.rendering.drawing.polygon.PolygonDrawer;
-import dev.ramar.e2.rendering.drawing.polygon.PolygonMods;
+import dev.ramar.e2.rendering.drawing.polyline.PolylineDrawer;
+import dev.ramar.e2.rendering.drawing.polyline.PolylineMods;
 
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 
+import dev.ramar.e2.rendering.drawing.enums.CapStyle;
+import dev.ramar.e2.rendering.drawing.enums.JoinStyle;
 
 import dev.ramar.e2.structures.Colour;
 import dev.ramar.e2.structures.Vec2;
 
 import java.awt.Graphics2D;
+import java.awt.Stroke;
+import java.awt.BasicStroke;
 
-
-public class AWTPolygonDrawer extends PolygonDrawer
+public class AWTPolylineDrawer extends PolylineDrawer
 {
 
     public static class Defaults
     {
         public static final Colour COLOUR = new Colour(255, 255, 255, 255);
+
+        public static class Stroke
+        {
+            public static final float WIDTH = 1.0f;
+            public static final float MITER = 10.0f;
+            public static final CapStyle CAP = CapStyle.Round;
+            public static final JoinStyle JOIN = JoinStyle.Round;
+        }
     }
 
-    public AWTPolygonDrawer() {}
+    public AWTPolylineDrawer() {}
 
 
     // ok. so. realistically. we could change this to draw to a Graphics2D, and have
@@ -29,7 +39,7 @@ public class AWTPolygonDrawer extends PolygonDrawer
     // the ability to render to a VolatileImage or a BufferedImage sounds fkn sick tho.
     private AWTViewPort vp = null;
 
-    public AWTPolygonDrawer withViewPort(AWTViewPort vp)
+    public AWTPolylineDrawer withViewPort(AWTViewPort vp)
     {
         if( this.vp == null )
             this.vp = vp;
@@ -40,7 +50,7 @@ public class AWTPolygonDrawer extends PolygonDrawer
 
     private Vec2 getOffset()
     {
-        PolygonMods mod = this.getMod();
+        PolylineMods mod = this.getMod();
         if( mod != null )
             return mod.offset.get();
 
@@ -156,23 +166,34 @@ public class AWTPolygonDrawer extends PolygonDrawer
     {
         Graphics2D g2d = this.vp.getGraphics();
 
-        boolean fill = false;
-        Colour colour = AWTPolygonDrawer.Defaults.COLOUR;
+        Colour colour = AWTPolylineDrawer.Defaults.COLOUR;
 
-        PolygonMods mod = this.getMod();
+        float width = AWTPolylineDrawer.Defaults.Stroke.WIDTH;
+        float miter = AWTPolylineDrawer.Defaults.Stroke.MITER;
+        CapStyle cap = AWTPolylineDrawer.Defaults.Stroke.CAP;
+        JoinStyle join = AWTPolylineDrawer.Defaults.Stroke.JOIN;
+
+        PolylineMods mod = this.getMod();
         if( mod != null )
         {
-            fill = mod.fill.get();
             colour = mod.colour.get();
+
+            width = mod.width.get();
+            cap = mod.cap.get();
+            join = mod.join.get();
+            miter = mod.miter.get();
         }
 
         colour.fillG2D(g2d);
 
-        if( fill )
-            g2d.fillPolygon(xs, ys, Math.min(xs.length, ys.length));
-        else
-            g2d.drawPolygon(xs, ys, Math.min(xs.length, ys.length));
+        Stroke old = g2d.getStroke();
+
+        g2d.setStroke(new BasicStroke(width, cap.intify(), join.intify(), miter));
+
+        g2d.drawPolyline(xs, ys, Math.min(xs.length, ys.length));
 
 
+        g2d.setStroke(old);
     }
+
 }

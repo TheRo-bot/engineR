@@ -20,9 +20,7 @@ public class PolygonMods implements Mod, ModHelperOwner
 
 
     public final OffsetHelper<PolygonMods> offset = new OffsetHelper<>(this);
-
     public final ColourHelper<PolygonMods> colour = new ColourHelper<>(this);
-
     public final FillHelper<PolygonMods> fill = new FillHelper<>(this);
 
 

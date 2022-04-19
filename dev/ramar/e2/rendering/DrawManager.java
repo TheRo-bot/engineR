@@ -5,6 +5,7 @@ import dev.ramar.e2.rendering.drawing.StatefulDrawer;
 
 import dev.ramar.e2.rendering.drawing.rect.RectDrawer;
 import dev.ramar.e2.rendering.drawing.polygon.PolygonDrawer;
+import dev.ramar.e2.rendering.drawing.polyline.PolylineDrawer;
 
 /*
 Abstract Class: DrawManager
@@ -23,11 +24,13 @@ public abstract class DrawManager
 
     public final RectDrawer rect;
     public final PolygonDrawer polygon;
+    public final PolylineDrawer polyline;
 
     protected DrawManager(DrawManagerBuilder dmb)
     {
         this.rect = dmb.rect;
         this.polygon = dmb.polygon;
+        this.polyline = dmb.polyline;
     }
 
 
@@ -47,13 +50,18 @@ public abstract class DrawManager
         }
 
         public PolygonDrawer polygon = null;
-        public DrawManagerBuilder withPolygon(PolygonDrawer pd)
+        public DrawManagerBuilder withPolygon(PolygonDrawer pgd)
         {
-            this.polygon = pd;
+            this.polygon = pgd;
             return this;
         }        
 
-
+        public PolylineDrawer polyline = null;
+        public DrawManagerBuilder withPolyline(PolylineDrawer pld)
+        {
+            this.polyline = pld;
+            return this;
+        }        
     }
 
 }

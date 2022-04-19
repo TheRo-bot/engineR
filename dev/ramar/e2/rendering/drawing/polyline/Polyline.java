@@ -1,30 +1,26 @@
-package dev.ramar.e2.rendering.drawing.polygon;
+package dev.ramar.e2.rendering.drawing.polyline;
 
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.ViewPort;
 
 import dev.ramar.e2.structures.Vec2;
-
 import dev.ramar.utils.HiddenList;
 
 import java.util.List;
 import java.util.ArrayList;
-/*
-Drawable: Polygon
- - Represents a gosh darn Polygon!
-*/
-public class Polygon implements Drawable
+
+
+
+public class Polyline implements Drawable
 {
 
-    public Polygon()
-    {
+    public Polyline() {}
 
-    }
 
-    public final PolygonPoints points = new PolygonPoints();
-    public static class PolygonPoints
+    public final PolylinePoints points = new PolylinePoints();
+    public static class PolylinePoints
     {
-        private PolygonPoints() {}
+        private PolylinePoints() {}
 
         private List<Vec2> list = new ArrayList<>();
 
@@ -41,14 +37,14 @@ public class Polygon implements Drawable
         {   return this.list.get(ii);    }
 
 
-        public PolygonPoints add(double x, double y)
+        public PolylinePoints add(double x, double y)
         {
             this.add(new Vec2(x, y));
             return this;
         }
 
 
-        public PolygonPoints add(Vec2 v)
+        public PolylinePoints add(Vec2 v)
         {
             synchronized(this)
             {
@@ -60,7 +56,7 @@ public class Polygon implements Drawable
         }
 
         private boolean offsets = false;
-        public PolygonPoints makeOffsets(boolean offsets)
+        public PolylinePoints makeOffsets(boolean offsets)
         {
             this.offsets = offsets;
             return this;
@@ -68,37 +64,34 @@ public class Polygon implements Drawable
 
     }
 
-    private PolygonMods mod = new PolygonMods();
 
-    public PolygonMods getMod()
-    {
-        return this.mod;
-    }
+    private PolylineMods mod = new PolylineMods();
+    public PolylineMods getMod()
+    {   return this.mod;   }
 
 
     public void drawAt(double x, double y, ViewPort vp)
     {
         if( this.points.drawCache != null )
         {
+            vp.draw.polyline.withMod(this.mod);
             this.mod
                 .offset.with(x, y)
-            ;   
-
-            vp.draw.polygon.withMod(this.mod);
+            ;
 
             synchronized(this.points)
             {
                 if( this.points.offsets )
-                    vp.draw.polygon.offsets(points.drawCache);
+                    vp.draw.polyline.offsets(this.points.drawCache);
                 else
-                    vp.draw.polygon.points(points.drawCache);
+                    vp.draw.polyline.points(this.points.drawCache);
             }
-
-            vp.draw.polygon.clearMod();
 
             this.mod
                 .offset.with(-x, -y)
             ;
+
+            vp.draw.polyline.clearMod();
         }
     }
 }

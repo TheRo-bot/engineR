@@ -29,12 +29,17 @@ public class LayerManager implements Drawable
     public final LocalList top = new LocalList();
 
 
-    public class LocalList extends HiddenList<Drawable>
+    public class LocalList
     {
+
+        private List<Drawable> list = new ArrayList<>();
+
         private List<Drawable> getList()
         {   return this.list;   } 
 
         private List<PairedValues<Drawable, Boolean>> toProc = new ArrayList<>();
+
+
 
 
         public void queueAdd(Drawable e)
@@ -72,9 +77,7 @@ public class LayerManager implements Drawable
             synchronized(this.list)
             {
                 for( Drawable d : this.list )
-                {
                     d.drawAt(x, y, vp);
-                }
             }
         }
     }
