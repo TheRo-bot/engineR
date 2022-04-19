@@ -5,7 +5,8 @@ package dev.ramar.e2;
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 import dev.ramar.e2.rendering.awt.AWTWindow;
 import dev.ramar.e2.rendering.*;
-import dev.ramar.e2.structures.WindowSettings;
+
+import dev.ramar.e2.structures.*;
 
 import dev.ramar.e2.rendering.Window.FullscreenState;
 
@@ -86,6 +87,80 @@ public class E2Main
             vp.draw.rect.clearMod();
         });
 
+        final Vec2[] points = new Vec2[]
+        {
+            new Vec2(0, 0),     new Vec2(50, -10), new Vec2(100, 0),
+            new Vec2(100, 100),                    new Vec2(0, 100),
+
+            new Vec2(50, 50)
+        };
+
+        final Vec2[] offsets = new Vec2[]
+        {
+            new Vec2(0, 0),     new Vec2(50, -10), new Vec2(50, 10),
+            new Vec2(0, 100),                    new Vec2(-100, 0),
+
+            new Vec2(50, -50)
+        };
+
+        e2.viewport.layers.mid.queueAdd((double x, double y, ViewPort vp) ->
+        {
+            vp.draw.polygon.withMod()
+                .offset.with(x, y)
+                .colour.with(150, 150, 0, 255)
+                .fill.with()
+            ;
+
+            vp.draw.polygon.points(points);
+
+            vp.draw.polygon.getMod()
+                .offset.with(0, 150)
+            ;
+
+            vp.draw.polygon.offsets(offsets);
+
+            vp.draw.polygon.clearMod();
+        });
+        // e2.viewport.layers.mid.queueAdd(new Drawable()
+        Drawable d = new Drawable()
+        {
+            List<Vec2> vecs = new ArrayList<>();
+            Vec2[] curr = null;
+            private double timer = 0.02;
+            private double countdown = 0.0;
+            private long lastTime = System.currentTimeMillis();
+
+            public void drawAt(double x, double y, ViewPort vp)
+            {
+                long thisTime = System.currentTimeMillis();
+                countdown -= (thisTime - lastTime) / 1000.0;
+                lastTime = thisTime;
+
+
+                if( this.countdown <= 0.0 )
+                {
+                    this.countdown = this.timer;
+                    if( rd.nextDouble() <= 0.9 )
+                    {
+                        vecs.add(new Vec2(rd.nextInt((int)(vp.window.width() * 0.4)), rd.nextInt((int)(vp.window.height() * 0.4))));
+                        curr = vecs.toArray(new Vec2[vecs.size()]);
+                    }
+                }
+
+                if( curr != null )
+                {
+                    vp.draw.polygon.withMod()
+                        .offset.with(x, y)
+                        .colour.with(0, 255, 255, 255)
+                        .fill.with()
+                    ;
+
+                    vp.draw.polygon.points(curr);
+
+                    vp.draw.polygon.clearMod();               
+                }
+            }
+        };
     }
 
 
