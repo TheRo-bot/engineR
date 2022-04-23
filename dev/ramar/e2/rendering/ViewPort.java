@@ -45,6 +45,8 @@ public abstract class ViewPort
     {
         return currState == State.START;
     }
+    
+    public final LayerManager layers = new LayerManager();
 
 
     protected ViewPort(DrawManager dm, Window w)

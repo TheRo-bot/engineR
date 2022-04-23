@@ -18,6 +18,7 @@ import java.net.*;
 import java.util.*;
 
 import dev.ramar.e2.rendering.drawing.polyline.Polyline;
+
 import dev.ramar.e2.rendering.drawing.polygon.Polygon;
 import dev.ramar.e2.rendering.drawing.rect.Rect;
 
@@ -70,84 +71,6 @@ public class E2Main
             .withFullscreenState(FullscreenState.FULLSCREEN)
             .withTitle("EngineR2 Main")
         );
-
-        //// setup the polygon!
-        Polygon pg = new Polygon();
-        pg.points
-            .add(0, 0)
-            .makeOffsets(false)
-        ;
-        pg.getMod()
-            .colour.with(255, 0, 0, 125)
-            .fill.with()
-        ;
-        e2.viewport.layers.mid.queueAdd(pg);
-
-
-        //// setup the polyline!
-        Polyline pl = new Polyline();
-        pl.points
-            .add(0, 0)
-            .makeOffsets(false)
-        ;
-
-        pl.getMod()
-            .colour.with(255, 0, 0, 255)
-            .width.with(3)
-        ;
-        e2.viewport.layers.mid.queueAdd(pl);
-
-        // make the thread that'll do what we want!
-        Thread t = new Thread(() ->
-        {
-            try
-            {
-                long lastTime = System.currentTimeMillis();
-                double countdown = 0.2;
-                while(true)
-                {
-                    long currTime = System.currentTimeMillis();
-                    countdown -= (currTime - lastTime) / 1000.0;
-                    lastTime = currTime;
-                    if( countdown <= 0 )
-                    {
-                        countdown = 0.2;
-                        if( rd.nextDouble() > 0.2 )
-                        {
-                            int w = e2.viewport.window.width();
-                            int h = e2.viewport.window.height();
-
-                            double x = rd.nextInt((int)(w)) - w * 0.5;
-                            double y = rd.nextInt((int)(h)) - h * 0.5;
-
-                            pg.points.add(x, y);
-                            pl.points.add(x, y);
-                        }
-                    }
-
-                    for( int ii = 0; ii < pg.points.size(); ii++ )
-                    {
-                        double xOff = (rd.nextDouble() * 0.5) - 0.25;
-                        double yOff = (rd.nextDouble() * 0.5) - 0.25;
-
-                        pg.points.get(ii).add(xOff, yOff);
-                        pl.points.get(ii).add(xOff, yOff);
-
-                    }
-
-                    Thread.sleep(1);
-                }
-            }
-            catch(InterruptedException e) {}
-        });
-
-        t.start();
-
-        e2.viewport.window.onClose.add(() ->
-        {
-            t.interrupt();
-        });
-
 
     }
 

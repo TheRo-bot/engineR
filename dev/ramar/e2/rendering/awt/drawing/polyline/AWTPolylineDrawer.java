@@ -15,6 +15,8 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.BasicStroke;
 
+import java.awt.geom.AffineTransform;
+
 public class AWTPolylineDrawer extends PolylineDrawer
 {
 
@@ -63,7 +65,7 @@ public class AWTPolylineDrawer extends PolylineDrawer
     */
 
 
-    public void points(double... points)
+    public void points(double originX, double originY, double... points)
     {
         int[] xs = new int[points.length / 2 + 1];
         int[] ys = new int[points.length / 2 + 1];
@@ -83,11 +85,11 @@ public class AWTPolylineDrawer extends PolylineDrawer
             count++;
         }
 
-        this.points(xs, ys);
+        this.points(originX, originY, xs, ys);
     }
 
 
-    public void points(Vec2... points)
+    public void points(double originX, double originY, Vec2... points)
     {
         int[] xs = new int[points.length];
         int[] ys = new int[points.length];
@@ -106,12 +108,12 @@ public class AWTPolylineDrawer extends PolylineDrawer
             ii++;
         }
 
-        this.points(xs, ys);
+        this.points(originX, originY, xs, ys);
     }
 
 
     // offsets as in this offset = last offset + x, y
-    public void offsets(double... offsets)
+    public void offsets(double originX, double originY, double... offsets)
     {
         int[] xs = new int[offsets.length / 2 + 1];
         int[] ys = new int[offsets.length / 2 + 1];
@@ -132,11 +134,11 @@ public class AWTPolylineDrawer extends PolylineDrawer
             count++;
         }
 
-        this.points(xs, ys);
+        this.points(originX, originY, xs, ys);
     }
 
 
-    public void offsets(Vec2... offsets)
+    public void offsets(double originX, double originY, Vec2... offsets)
     {
         int[] xs = new int[offsets.length];
         int[] ys = new int[offsets.length];
@@ -156,13 +158,13 @@ public class AWTPolylineDrawer extends PolylineDrawer
             ii++;
         }
 
-        this.points(xs, ys);
+        this.points(originX, originY, xs, ys);
     }
 
 
 
 
-    public void points(int[] xs, int[] ys)
+    public void points(double xOff, double yOff, int[] xs, int[] ys)
     {
         Graphics2D g2d = this.vp.getGraphics();
 
@@ -176,6 +178,9 @@ public class AWTPolylineDrawer extends PolylineDrawer
         PolylineMods mod = this.getMod();
         if( mod != null )
         {
+            xOff += mod.offset.getX();
+            yOff += mod.offset.getY();
+
             colour = mod.colour.get();
 
             width = mod.width.get();
@@ -190,8 +195,13 @@ public class AWTPolylineDrawer extends PolylineDrawer
 
         g2d.setStroke(new BasicStroke(width, cap.intify(), join.intify(), miter));
 
+        AffineTransform at = g2d.getTransform();
+
+        at.translate(xOff, yOff);
+
         g2d.drawPolyline(xs, ys, Math.min(xs.length, ys.length));
 
+        at.translate(-xOff, -yOff);
 
         g2d.setStroke(old);
     }

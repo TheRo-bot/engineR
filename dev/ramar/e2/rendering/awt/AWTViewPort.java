@@ -33,7 +33,6 @@ public class AWTViewPort extends ViewPort
     public final Rect BACKGROUND = new Rect(0, 0, 2000, 2000);
 
 
-    public final LayerManager layers = new LayerManager();
 
     public AWTViewPort()
     {

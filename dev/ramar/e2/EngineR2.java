@@ -33,7 +33,7 @@ public class EngineR2
             .withPos(100, 40)
         ;
 
-        viewport.layers.mid.queueAdd(console);
+        viewport.layers.mid.add(console);
 
         ((AWTKeyController)viewport.window.keys).doEngineStuff(this);            
 

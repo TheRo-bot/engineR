@@ -2,10 +2,12 @@ package dev.ramar.e2.rendering.drawing.polygon;
 
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.ViewPort;
+import dev.ramar.e2.rendering.drawing.poly_helpers.*;
 
 import dev.ramar.e2.structures.Vec2;
 
 import dev.ramar.utils.HiddenList;
+
 
 import java.util.List;
 import java.util.ArrayList;
@@ -16,89 +18,35 @@ Drawable: Polygon
 public class Polygon implements Drawable
 {
 
-    public Polygon()
+    public Polygon()  
     {
-
+        this.points = new DoublePolyPoints();
     }
 
-    public final PolygonPoints points = new PolygonPoints();
-    public static class PolygonPoints
+    protected Polygon(PolyPoints override)
     {
-        private PolygonPoints() {}
-
-        private List<Vec2> list = new ArrayList<>();
-
-        private Vec2[] drawCache = null;
-
-        private Vec2[] getArray()
-        {   return this.drawCache;   }
-
-
-        public int size()
-        {   return this.list.size();   }
-
-        public Vec2 get(int ii)
-        {   return this.list.get(ii);    }
-
-
-        public PolygonPoints add(double x, double y)
-        {
-            this.add(new Vec2(x, y));
-            return this;
-        }
-
-
-        public PolygonPoints add(Vec2 v)
-        {
-            synchronized(this)
-            {
-                this.list.add(v);
-            }
-
-            this.drawCache = this.list.toArray(new Vec2[this.list.size()]);
-            return this;
-        }
-
-        private boolean offsets = false;
-        public PolygonPoints makeOffsets(boolean offsets)
-        {
-            this.offsets = offsets;
-            return this;
-        }
-
+        if( override == null )
+            this.points = new DoublePolyPoints();
+        else
+            this.points = override;
     }
 
-    private PolygonMods mod = new PolygonMods();
-
+    protected PolygonMods mod = new PolygonMods();
     public PolygonMods getMod()
-    {
-        return this.mod;
-    }
+    {   return this.mod;   }
 
+
+
+    public final PolyPoints points;
 
     public void drawAt(double x, double y, ViewPort vp)
     {
-        if( this.points.drawCache != null )
-        {
-            this.mod
-                .offset.with(x, y)
-            ;   
+        vp.draw.polygon.withMod(this.mod);
 
-            vp.draw.polygon.withMod(this.mod);
+        this.points.drawClosed(x, y, vp);
 
-            synchronized(this.points)
-            {
-                if( this.points.offsets )
-                    vp.draw.polygon.offsets(points.drawCache);
-                else
-                    vp.draw.polygon.points(points.drawCache);
-            }
-
-            vp.draw.polygon.clearMod();
-
-            this.mod
-                .offset.with(-x, -y)
-            ;
-        }
+        vp.draw.polygon.clearMod();
     }
-}
+
+
+}   

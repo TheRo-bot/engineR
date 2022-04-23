@@ -18,12 +18,30 @@ public abstract class PolygonDrawer extends Drawer<PolygonMods>
         return this.withMod(new PolygonMods());
     }
 
+    public void points(double... points)
+    {
+        this.points(0, 0, points);
+    }
+    public void points(Vec2... points)
+    {
+        this.points(0, 0, points);
+    }
 
-    public abstract void points(double... points);
-    public abstract void points(Vec2... points);
+
+    public abstract void points(double originX, double originY, double... points);
+    public abstract void points(double originX, double originY, Vec2... points);
 
 
+    public void offsets(double... offsets)
+    {
+        this.offsets(0, 0, offsets);
+    }
+    public void offsets(Vec2... offsets)
+    {
+        this.offsets(0, 0, offsets);
+    }
+    
     // offsets as in this offset = last offset + x, y
-    public abstract void offsets(double... offsets);
-    public abstract void offsets(Vec2... offsets);
+    public abstract void offsets(double originX, double originY, double... offsets);
+    public abstract void offsets(double originX, double originY, Vec2... offsets);
 }
