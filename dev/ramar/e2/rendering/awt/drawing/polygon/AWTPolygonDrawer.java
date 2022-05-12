@@ -6,6 +6,8 @@ import dev.ramar.e2.rendering.drawing.polygon.PolygonMods;
 
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 
+import dev.ramar.e2.rendering.drawing.enums.CapStyle;
+import dev.ramar.e2.rendering.drawing.enums.JoinStyle;
 
 import dev.ramar.e2.structures.Colour;
 import dev.ramar.e2.structures.Vec2;
@@ -19,6 +21,14 @@ public class AWTPolygonDrawer extends PolygonDrawer
     public static class Defaults
     {
         public static final Colour COLOUR = new Colour(255, 255, 255, 255);
+
+        public static class Stroke
+        {
+            public static final float WIDTH = 1.0f;
+            public static final float MITER = 10.0f;
+            public static final CapStyle CAP = CapStyle.Round;
+            public static final JoinStyle JOIN = JoinStyle.Round;
+        }
     }
 
     public AWTPolygonDrawer() {}
@@ -166,6 +176,43 @@ public class AWTPolygonDrawer extends PolygonDrawer
             g2d.drawPolygon(xs, ys, Math.min(xs.length, ys.length));
 
         // trans.translate(-offX, offY);
+
+
+    }
+
+
+
+    public void points(double offX, double offY, AWTPolygon points)
+    {
+        Graphics2D g2d = this.vp.getGraphics();
+
+        Colour colour = AWTPolygonDrawer.Defaults.COLOUR;
+        boolean fill = false;
+
+        PolygonMods mod = this.getMod();
+        if( mod != null )
+        {
+            offX += mod.offset.getX();
+            offY += mod.offset.getY();
+
+            fill = mod.fill.get();
+            colour = mod.colour.get();
+        }
+
+        colour.fillG2D(g2d);
+
+        AffineTransform oldAT = g2d.getTransform();
+
+        AffineTransform modAT = new AffineTransform(oldAT);
+        modAT.translate(offX, offY);
+        g2d.setTransform(modAT);
+
+        if( fill )
+            g2d.fill(points);
+        else
+            g2d.draw(points);
+
+        g2d.setTransform(oldAT);
 
 
     }

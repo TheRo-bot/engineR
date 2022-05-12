@@ -14,14 +14,10 @@ public class Vec2
 		df.setRoundingMode(RoundingMode.HALF_UP);
 	}
 
-	private double x;
-	private double y;
+	public double x = 0.0,
+				  y = 0.0;
 
-	public Vec2() 
-	{
-		this.x = 0;
-		this.y = 0;
-	}
+	public Vec2()  {}
 
 	public Vec2(double x, double y)
 	{
@@ -37,9 +33,17 @@ public class Vec2
 
 	public Vec2(Vec2 c)
 	{
-		this.x = c.x;
-		this.y = c.y;
+		this.x = c.getX();
+		this.y = c.getY();
 	}
+
+
+
+	/* Object Methods
+	--====--------------
+	*/
+
+
 
 	public int hashCode()
 	{
@@ -78,6 +82,11 @@ public class Vec2
 		return "(" + df.format(x) + ", " + df.format(y) + ")";
 	}
 
+
+	/* Getters / Setters
+	--====-----------------
+	*/
+
 	public double getX()
 	{   return x;   }
 
@@ -88,10 +97,7 @@ public class Vec2
 	public Vec2 set(Vec2 pos)
 	{
 		if( pos != null )
-		{
-			this.x = pos.x;
-			this.y = pos.y;
-		}
+			return this.set(pos.getX(), pos.getY());
 
 		return this;
 	}
@@ -99,18 +105,15 @@ public class Vec2
 
 	public Vec2 set(double x, double y)
 	{
-		this.x = x;
-		this.y = y;
+		this.setX(x);
+		this.setY(y);
 
 		return this;
 	}
 
 	public Vec2 set(double c)
 	{
-		this.x = c;
-		this.y = c;
-
-		return this;
+		return this.set(c, c);
 	}
 	
 
@@ -126,8 +129,8 @@ public class Vec2
 
 	public Vec2 clear()
 	{
-		x = 0.0;
-		y = 0.0;
+		this.setX(0.0);
+		this.setY(0.0);
 
 		return this;
 	}
@@ -136,163 +139,70 @@ public class Vec2
 	public Vec2 add(Vec2 change)
 	{
 		if( change != null )
-		{
-			x += change.x;
-			y += change.y;
-		}
+			return this.add(change.getX(), change.getY());
 
 		return this;
 	}
 
 	public Vec2 add(double x, double y)
 	{
-		this.x += x;
-		this.y += y;
+		this.setX(this.x + x);
+		this.setY(this.y + y);
 
 		return this;
-	}
-
-
-	public Vec2 newAdd(double x, double y)
-	{
-		return new Vec2(this.x + x, this.y + y);
-	}
-
-	public Vec2 newAdd(Vec2 change)
-	{
-		if( change != null )
-			return new Vec2(x + change.x, y + change.y);
-		else
-			return new Vec2(x, y);
-
 	}
 
 
 	public Vec2 take(Vec2 change)
 	{
 		if( change != null )
-		{
-			x -= change.x;
-			y -= change.y;
-		}
+			return this.take(change.getX(), change.getY());
 
 		return this;
-	}
-
-	public Vec2 newTake(Vec2 change)
-	{
-		if( change != null )
-			return new Vec2(x - change.x, y - change.y);
-		else
-			return new Vec2(x, y);
 	}
 
 
 	public Vec2 take(double x, double y)
 	{
-		this.x -= x;
-		this.y -= y;
+		this.setX(this.x - x);
+		this.setY(this.y - y);
 
 		return this;
 	}
 
-
-	public Vec2 newTake(double x, double y)
-	{
-		return new Vec2(this.x - x, this.y - y);
-	}
 
 	public Vec2 multiply(Vec2 change)
 	{
 		if( change != null )
-		{
-			x *= change.x;
-			y *= change.y;
-		}
+			return this.multiply(change.getX(), change.getY());
 
 		return this;
 	}
 
 
-	public Vec2 newMultiply(Vec2 change)
+	public Vec2 multiply(double c)
 	{
-		if( change != null )
-			return new Vec2(x * change.x, y * change.y);
-		else
-			return new Vec2(x, y);
-	}
-
-	public Vec2 multiply(double constant)
-	{
-		x *= constant;
-		y *= constant;
-
-		return this;
+		return this.multiply(c, c);
 	}
 
 
 	public Vec2 multiply(double x, double y)
 	{
-		this.x *= x;
-		this.y *= y;
+		this.setX(this.x * x);
+		this.setY(this.y * y);
 
 		return this;
 	}
-/*
 
-	public Vec2 multiply(int x, int y)
-	{
-		this.x *= x;
-		this.y *= y;
-
-		return this;
-	}*/
-
-
-
-	public Vec2 newMultiply(double constant)
-	{
-		return new Vec2(x * constant, y * constant);
-	}
 
 
 	public Vec2 divide(Vec2 change)
 	{
-		if( change == null )
-			return this;
-
-		if( change.x == 0.000 || change.y == 0.000 )
-			throw new ArithmeticException("Division by 0 (" + x + ", " + y + ") / (" + change.x + ", " + change.y + ")");
-
-		x /= change.x;
-		y /= change.y;
+		if( change != null )
+			return this.divide(change.getX(), change.getY());
 
 		return this;
 	}
-
-
-
-	public Vec2 newDivide(Vec2 change)
-	{
-		if( change == null )
-			return new Vec2(x, y);
-
-		if( change.x == 0.000 || change.y == 0.000 )
-			throw new ArithmeticException("Division by 0 (" + x + ", " + y + ") / (" + change.x + ", " + change.y + ")");
-
-		return new Vec2(x / change.x, y / change.y);
-	}
-
-
-	public Vec2 newDivide(double x, double y)
-	{
-
-		if( x == 0.000 || y == 0.000 )
-			throw new ArithmeticException("Division by 0 (" + this.x + ", " + this.y + ") / (" + x + ", " + y + ")");
-
-		return new Vec2(this.x / x, this.y / y);
-	}
-
 
 
 	public Vec2 divide(double x, double y)
@@ -300,30 +210,15 @@ public class Vec2
 		if( x == 0.000 || y == 0.000 )
 			throw new ArithmeticException("Division by 0 (" + this.x + ", " + this.y + ") / (" + x + ", " + y + ")");
 
-		this.x /= x;
-		this.y /= y;
-
-		return this;
-	}
-
-	public Vec2 divide(double constant)
-	{
-		if( constant == 0.000 )
-			throw new ArithmeticException("Division by 0 (" + x + ", " + y + ") / " + constant);
-
-		x /= constant;
-		y /= constant;
+		this.setX(this.x /= x);
+		this.setY(this.y /= y);
 
 		return this;
 	}
 
 
-	public Vec2 newDivide(double constant)
+	public Vec2 divide(double c)
 	{
-		if( constant == 0.000 )
-			throw new ArithmeticException("Division by 0 (" + x + ", " + y + ") / " + constant);
-
-		return new Vec2(x / constant, y / constant);
+		return this.divide(c, c);
 	}
-
 }

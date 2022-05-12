@@ -12,12 +12,19 @@ import dev.ramar.e2.rendering.Window.FullscreenState;
 
 import dev.ramar.e2.rendering.drawing.stateful.*;
 
+import dev.ramar.e2.rendering.awt.drawing.polygon.AWTPolygon;
+
 import java.io.*;
 
 import java.net.*;
 import java.util.*;
 
+
 import dev.ramar.e2.rendering.drawing.polyline.Polyline;
+import dev.ramar.e2.rendering.awt.drawing.polyline.AWTPolylineDrawer;
+import dev.ramar.e2.rendering.awt.drawing.polyline.AWTPolyline;
+
+import dev.ramar.e2.rendering.awt.drawing.polyline.Shapeline;
 
 import dev.ramar.e2.rendering.drawing.polygon.Polygon;
 import dev.ramar.e2.rendering.drawing.rect.Rect;
@@ -29,6 +36,7 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import dev.ramar.e2.rendering.awt.AWTImage;
 
+import java.awt.geom.Path2D;
 
 public class E2Main
 {
@@ -67,11 +75,67 @@ public class E2Main
 
         e2 = new EngineR2();
         e2.initialise(e2.setup()
-            .withSize(1920, 1080)
-            .withFullscreenState(FullscreenState.FULLSCREEN)
+            .withSize(1280, 720)
+            .withFullscreenState(FullscreenState.WINDOWED)
             .withTitle("EngineR2 Main")
         );
+        AWTPolylineDrawer pline = (AWTPolylineDrawer)e2.viewport.draw.polyline;            
 
+        AWTPolygon pg = new AWTPolygon()
+            .addPoint(-30, -30)
+            .addPoint(-30, 30)
+            .addPoint(-60, 30)
+        ;
+
+        pg.mods
+            .colour.with(0, 255, 0, 255)
+            .fill.with()
+        ;
+
+        Shapeline sl = new Shapeline()
+            .addPoint(3, 3)
+            .addPoint(0, 30)
+        ;
+
+        Thread t = new Thread(() -> 
+        {
+            try
+            {
+                while(true)
+                {
+                    for(int ii = 0; ii < sl.size(); ii++ )
+                    {
+                        sl.modPoint(ii, rd.nextDouble() - 0.5, rd.nextDouble() - 0.5);
+                        pg.modPoint(ii, rd.nextDouble() - 0.5, rd.nextDouble() - 0.5);
+                    }
+
+                    Thread.sleep(10);
+
+                    if( rd.nextDouble() > 0.4 )
+                    {
+                        sl.addPoint(rd.nextInt(300) - 150, rd.nextInt(300) - 150);
+                        pg.addPoint(rd.nextInt(300) - 150, rd.nextInt(300) - 150);
+                    }
+                    else if( sl.size() > 2 )
+                    {
+                        sl.removePoint(rd.nextInt(Math.max(0, sl.size() - 1)));
+                        pg.removePoint(rd.nextInt(Math.max(0, sl.size() - 1)));
+                    }
+                }
+            }
+            catch(InterruptedException e) {}
+        });
+
+        t.start();
+
+        e2.viewport.window.onClose.add(() ->
+        {
+            t.interrupt();
+        });
+
+
+        e2.viewport.layers.mid.add(sl);
+        e2.viewport.layers.mid.add(pg);
     }
 
 

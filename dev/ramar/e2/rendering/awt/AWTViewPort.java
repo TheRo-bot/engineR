@@ -274,6 +274,7 @@ public class AWTViewPort extends ViewPort
 
                 // System.out.println("(" + scaleX + ", " + scaleY + ") scaling (" + window.width() + ", " + window.height() + ") to (" + (window.width() * scaleX) + ", " + (window.height() * scaleY) + ")");
                 at.scale(scaleX, scaleY);    
+                at.rotate(30);
             }
 
 

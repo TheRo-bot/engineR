@@ -15,6 +15,7 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.BasicStroke;
 
+import java.awt.geom.Path2D;
 import java.awt.geom.AffineTransform;
 
 public class AWTPolylineDrawer extends PolylineDrawer
@@ -162,7 +163,10 @@ public class AWTPolylineDrawer extends PolylineDrawer
     }
 
 
-
+    public void points(int[] xs, int[] ys)
+    {
+        this.points(0, 0, xs, ys);
+    }
 
     public void points(double xOff, double yOff, int[] xs, int[] ys)
     {
@@ -198,12 +202,80 @@ public class AWTPolylineDrawer extends PolylineDrawer
         AffineTransform at = g2d.getTransform();
 
         at.translate(xOff, yOff);
-
+        g2d.setTransform(at);
         g2d.drawPolyline(xs, ys, Math.min(xs.length, ys.length));
 
         at.translate(-xOff, -yOff);
+        g2d.setTransform(at);
 
         g2d.setStroke(old);
     }
 
+
+    public Path2D genPath(Vec2... vecs) 
+    {
+        Path2D path = null;
+
+        if( vecs.length > 0 )
+        {
+            path = new Path2D.Double();
+
+            path.moveTo(vecs[0].getX(), vecs[0].getY());
+
+            for(int ii = 1; ii < vecs.length; ii++ )
+            {
+                Vec2 curr = vecs[ii];
+                path.lineTo(curr.getX(), curr.getY());
+            }
+        }
+
+
+        return path;
+    }
+
+    public void points(double offX, double offY, Shapeline points)
+    {
+        Graphics2D g2d = this.vp.getGraphics();
+
+        Colour colour = AWTPolylineDrawer.Defaults.COLOUR;
+
+        float width = AWTPolylineDrawer.Defaults.Stroke.WIDTH;
+        float miter = AWTPolylineDrawer.Defaults.Stroke.MITER;
+        CapStyle cap = AWTPolylineDrawer.Defaults.Stroke.CAP;
+        JoinStyle join = AWTPolylineDrawer.Defaults.Stroke.JOIN;
+
+        PolylineMods mod = this.getMod();
+        if( mod != null )
+        {
+            offX += mod.offset.getX();
+            offY += mod.offset.getY();
+
+            colour = mod.colour.get();
+
+            width = mod.width.get();
+            cap = mod.cap.get();
+            join = mod.join.get();
+            miter = mod.miter.get();
+        }
+
+        colour.fillG2D(g2d);
+
+        Stroke old = g2d.getStroke();
+        g2d.setStroke(new BasicStroke(width, cap.intify(), join.intify(), miter));
+
+
+        AffineTransform oldAT = g2d.getTransform();
+
+        AffineTransform modAT = new AffineTransform(oldAT);
+        modAT.translate(offX, offY);
+        g2d.setTransform(modAT);
+
+        g2d.draw(points);
+
+        g2d.setTransform(oldAT);
+
+        g2d.setStroke(old);
+
+
+    }
 }
