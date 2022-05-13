@@ -20,13 +20,12 @@ import java.net.*;
 import java.util.*;
 
 
-import dev.ramar.e2.rendering.drawing.polyline.Polyline;
+import dev.ramar.e2.rendering.awt.drawing.polygon.AWTPolygonDrawer;
+import dev.ramar.e2.rendering.awt.drawing.polygon.AWTPolygon;
+
 import dev.ramar.e2.rendering.awt.drawing.polyline.AWTPolylineDrawer;
 import dev.ramar.e2.rendering.awt.drawing.polyline.AWTPolyline;
 
-import dev.ramar.e2.rendering.awt.drawing.polyline.Shapeline;
-
-import dev.ramar.e2.rendering.drawing.polygon.Polygon;
 import dev.ramar.e2.rendering.drawing.rect.Rect;
 
 import dev.ramar.e2.rendering.control.KeyCombo;
@@ -81,21 +80,32 @@ public class E2Main
         );
         AWTPolylineDrawer pline = (AWTPolylineDrawer)e2.viewport.draw.polyline;            
 
-        AWTPolygon pg = new AWTPolygon()
-            .addPoint(-30, -30)
-            .addPoint(-30, 30)
-            .addPoint(-60, 30)
-        ;
+        List<AWTPolygon> polygons = new ArrayList<>();
 
-        pg.mods
-            .colour.with(0, 255, 0, 255)
-            .fill.with()
-        ;
+        int  width = 800,
+            height = 300;
 
-        Shapeline sl = new Shapeline()
-            .addPoint(3, 3)
-            .addPoint(0, 30)
-        ;
+        for( int ii = 0; ii < 10; ii++ )
+        {
+            AWTPolygon pg = new AWTPolygon()
+                .addPoint(rd.nextInt(width) - width / 2, rd.nextInt(height) - height / 2)
+            ;
+
+            int am = 3;
+
+            for( int jj = 0; jj < am; jj++ )
+            {
+                pg.addPoint(rd.nextInt(width) - width / 2, rd.nextInt(height) - height / 2);
+            }
+
+            pg.mods
+                .colour.with(255, 0, 0, 180)
+            ;
+
+            polygons.add(pg);
+            e2.viewport.layers.mid.add(pg);
+        }
+
 
         Thread t = new Thread(() -> 
         {
@@ -103,24 +113,11 @@ public class E2Main
             {
                 while(true)
                 {
-                    for(int ii = 0; ii < sl.size(); ii++ )
-                    {
-                        sl.modPoint(ii, rd.nextDouble() - 0.5, rd.nextDouble() - 0.5);
-                        pg.modPoint(ii, rd.nextDouble() - 0.5, rd.nextDouble() - 0.5);
-                    }
+                    for( AWTPolygon pg : polygons )
+                        for( int ii = 0; ii < pg.size(); ii++ )
+                            pg.modPoint(ii, rd.nextDouble() * 3 - 1.5, rd.nextDouble() * 3 - 1.5);
 
-                    Thread.sleep(10);
-
-                    if( rd.nextDouble() > 0.4 )
-                    {
-                        sl.addPoint(rd.nextInt(300) - 150, rd.nextInt(300) - 150);
-                        pg.addPoint(rd.nextInt(300) - 150, rd.nextInt(300) - 150);
-                    }
-                    else if( sl.size() > 2 )
-                    {
-                        sl.removePoint(rd.nextInt(Math.max(0, sl.size() - 1)));
-                        pg.removePoint(rd.nextInt(Math.max(0, sl.size() - 1)));
-                    }
+                    Thread.sleep(1);
                 }
             }
             catch(InterruptedException e) {}
@@ -134,8 +131,7 @@ public class E2Main
         });
 
 
-        e2.viewport.layers.mid.add(sl);
-        e2.viewport.layers.mid.add(pg);
+
     }
 
 

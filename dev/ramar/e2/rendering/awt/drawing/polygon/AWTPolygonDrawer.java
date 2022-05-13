@@ -12,6 +12,9 @@ import dev.ramar.e2.rendering.drawing.enums.JoinStyle;
 import dev.ramar.e2.structures.Colour;
 import dev.ramar.e2.structures.Vec2;
 
+import java.awt.Stroke;
+import java.awt.BasicStroke;
+
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
@@ -189,6 +192,11 @@ public class AWTPolygonDrawer extends PolygonDrawer
         Colour colour = AWTPolygonDrawer.Defaults.COLOUR;
         boolean fill = false;
 
+        float width = AWTPolygonDrawer.Defaults.Stroke.WIDTH;
+        float miter = AWTPolygonDrawer.Defaults.Stroke.MITER;
+        CapStyle cap = AWTPolygonDrawer.Defaults.Stroke.CAP;
+        JoinStyle join = AWTPolygonDrawer.Defaults.Stroke.JOIN;
+
         PolygonMods mod = this.getMod();
         if( mod != null )
         {
@@ -197,6 +205,11 @@ public class AWTPolygonDrawer extends PolygonDrawer
 
             fill = mod.fill.get();
             colour = mod.colour.get();
+
+            width = mod.width.get();
+            cap = mod.cap.get();
+            join = mod.join.get();
+            miter = mod.miter.get();
         }
 
         colour.fillG2D(g2d);
@@ -207,10 +220,18 @@ public class AWTPolygonDrawer extends PolygonDrawer
         modAT.translate(offX, offY);
         g2d.setTransform(modAT);
 
+
+        Stroke old = g2d.getStroke();
+
+        Stroke s = new BasicStroke(width, cap.intify(), join.intify(), miter);
+        g2d.setStroke(s);
+
         if( fill )
             g2d.fill(points);
         else
             g2d.draw(points);
+
+        g2d.setStroke(old);
 
         g2d.setTransform(oldAT);
 

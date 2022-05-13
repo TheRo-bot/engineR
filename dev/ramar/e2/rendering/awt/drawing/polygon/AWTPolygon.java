@@ -261,18 +261,16 @@ public class AWTPolygon implements Shape, Drawable
             if( coords != null ) {
 
                 double xVal = 0.0, yVal = 0.0;
-                if( this.ii > this.pg.xs.length )
+                if( this.ii == this.pg.xs.length )
                 {
-                    xVal = this.modX(this.pg.getX( 0));
-                    yVal = this.modY(this.pg.getY( 0));
+                    xVal = this.modX(this.pg.getX(0));
+                    yVal = this.modY(this.pg.getY(0));
                 }
                 else
                 {
                     xVal = this.modX(this.pg.getX(ii));
                     yVal = this.modY(this.pg.getY(ii));
                 }
-
-
 
                 if( coords.length > 0 )
                     coords[0] = xVal;

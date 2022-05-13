@@ -233,7 +233,7 @@ public class AWTPolylineDrawer extends PolylineDrawer
         return path;
     }
 
-    public void points(double offX, double offY, Shapeline points)
+    public void points(double offX, double offY, AWTPolyline points)
     {
         Graphics2D g2d = this.vp.getGraphics();
 
@@ -262,7 +262,6 @@ public class AWTPolylineDrawer extends PolylineDrawer
 
         Stroke old = g2d.getStroke();
         g2d.setStroke(new BasicStroke(width, cap.intify(), join.intify(), miter));
-
 
         AffineTransform oldAT = g2d.getTransform();
 
