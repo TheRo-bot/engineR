@@ -41,7 +41,7 @@ public class CombatDemo extends BaseDemo
     {
         if( mainstance )
         {
-            // establish keybinds   
+            // establish keybinds
         }
 
         // viewing
