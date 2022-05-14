@@ -59,7 +59,7 @@ public class DemoManager
 
                 ne.connect(instance);
             }
-            
+
             this.currKey = key;
         }
     }
@@ -89,9 +89,7 @@ public class DemoManager
     {
         Map<String, Demo> demos = new HashMap<>();
 
-        CombatDemo cd = new CombatDemo();
-        cd.initialise();
-        demos.put("combat", cd);
+        // put demos here!
 
         return new DemoManager(demos);
     }
