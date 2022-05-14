@@ -14,6 +14,8 @@ import dev.ramar.e2.rendering.drawing.stateful.*;
 
 import dev.ramar.e2.rendering.awt.drawing.polygon.AWTPolygon;
 
+import dev.ramar.e2.demos.DemoManager;
+
 import java.io.*;
 
 import java.net.*;
@@ -50,18 +52,6 @@ public class E2Main
 		Main.Entrypoints.addEntrypoint((String[] args) ->
         {
         	E2Main em = new E2Main();
-            try
-            {
-                em.waitForClose();
-            	System.out.println("E2 close!");
-            }
-            catch(Exception e) 
-            {
-                System.out.println("A fatal exception occurred:");
-                e.printStackTrace();
-                System.out.println("Waiting for window close");
-                em.waitForClose();
-            }
         });
 	}
 
@@ -78,79 +68,12 @@ public class E2Main
             .withFullscreenState(FullscreenState.WINDOWED)
             .withTitle("EngineR2 Main")
         );
-        AWTPolylineDrawer pline = (AWTPolylineDrawer)e2.viewport.draw.polyline;            
-
-        List<AWTPolygon> polygons = new ArrayList<>();
-
-        int  width = 800,
-            height = 300;
-
-        for( int ii = 0; ii < 10; ii++ )
-        {
-            AWTPolygon pg = new AWTPolygon()
-                .addPoint(rd.nextInt(width) - width / 2, rd.nextInt(height) - height / 2)
-            ;
-
-            int am = 3;
-
-            for( int jj = 0; jj < am; jj++ )
-            {
-                pg.addPoint(rd.nextInt(width) - width / 2, rd.nextInt(height) - height / 2);
-            }
-
-            pg.mods
-                .colour.with(255, 0, 0, 180)
-                .width.with(3)
-            ;
-            polygons.add(pg);
-
-        }
-
-        for( AWTPolygon pg : polygons )
-        {
-            e2.viewport.layers.mid.add(pg);
-        }
-
-        Thread t = new Thread(() -> 
-        {
-            try
-            {
-                while(true)
-                {
-                    for( AWTPolygon pg : polygons )
-                        for( int ii = 0; ii < pg.size(); ii++ )
-                            pg.modPoint(ii, rd.nextDouble() * 3 - 1.5, rd.nextDouble() * 3 - 1.5);
-
-                    Thread.sleep(1);
-                }
-            }
-            catch(InterruptedException e) {}
-        });
-
-        t.start();
-
-        e2.viewport.window.onClose.add(() ->
-        {
-            t.interrupt();
-        });
 
 
-
+        DemoManager dm = DemoManager.build();
+        dm.bind(e2);
+        dm.swapToDemo("combat");
     }
 
 
-    public void waitForClose()
-    {
-        try
-        {
-            boolean allDone = false;
-            while(! allDone )
-            {
-                allDone = e2.viewport.isRunning();
-                Thread.sleep(50);
-            }
-        }
-        catch(InterruptedException e) {}
-        System.out.println("!!! closing");
-    }
 }
