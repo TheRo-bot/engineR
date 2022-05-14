@@ -12,7 +12,8 @@ public class CombatDemo extends BaseDemo
 
     public CombatDemo()
     {
-
+        if( DeltaUpdater.getInstance() != null )
+            DeltaUpdater.getInstance().start();
     }
 
 
@@ -22,7 +23,6 @@ public class CombatDemo extends BaseDemo
     public void initialise()
     {
         super.initialise();   
-
         this.init_player();
     }
 
@@ -34,6 +34,7 @@ public class CombatDemo extends BaseDemo
     private void init_player()
     {
         this.player = new Player();
+        this.player.initialise();
     }
 
 
@@ -42,9 +43,11 @@ public class CombatDemo extends BaseDemo
         if( mainstance )
         {
             // establish keybinds
+            this.player.bindControl(er);
         }
 
         // viewing
+        er.viewport.layers.mid.add(this.player);
     }
 
     private void disconnect_player(EngineR2 er, boolean mainstance)
@@ -52,37 +55,40 @@ public class CombatDemo extends BaseDemo
         if( mainstance )
         {
             // revoke keybinds
+            this.player.unbindControl(er);
         }
 
         // viewing
+        er.viewport.layers.mid.remove(this.player);
     }
 
 
     protected void connectMainstance(EngineR2 ms)
     {
         if( this.player != null )
-        {
-
-        }
+            this.connect_player(ms, true);
     }
 
 
     protected void disconnectMainstance(EngineR2 ms)
     {
-
+        if( this.player != null )
+            this.disconnect_player(ms, true);
     }
 
 
 
     protected void connectNormstance(EngineR2 ns)
     {
-
+        if( this.player != null )
+            this.connect_player(ns, false);
     }
 
 
     protected void disconnectNormstance(EngineR2 ns)
     {
-
+        if( this.player != null )
+            this.disconnect_player(ns, false);
     }
 
 

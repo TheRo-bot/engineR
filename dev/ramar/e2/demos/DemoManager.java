@@ -90,6 +90,7 @@ public class DemoManager
         Map<String, Demo> demos = new HashMap<>();
 
         // put demos here!
+        demos.put("combat", new CombatDemo());
 
         return new DemoManager(demos);
     }

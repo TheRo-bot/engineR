@@ -58,18 +58,23 @@ public class KeyController
 
     public void bindRel(KeyCombo kc, KeyReleaseListener krl)
     {
-        System.out.println("bindRel " + kc);
+        System.out.println("bindRel " + kc + ", " + krl);
         if( kc != null )
         {
 
             if( !combos.contains(kc) )
             {
-                releasers.put(kc, new ArrayList<>());
                 combos.add(kc);
             }
+            if( !releasers.containsKey(kc) )
+                releasers.put(kc, new ArrayList<>());
 
             List<KeyReleaseListener> krls = releasers.get(kc);
-            krls.add(krl);
+            
+            if( krls != null )
+                krls.add(krl);
+            else
+                System.out.println("null!!");
 
 
             ////
