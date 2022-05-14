@@ -100,12 +100,16 @@ public class E2Main
 
             pg.mods
                 .colour.with(255, 0, 0, 180)
+                .width.with(3)
             ;
-
             polygons.add(pg);
-            e2.viewport.layers.mid.add(pg);
+
         }
 
+        for( AWTPolygon pg : polygons )
+        {
+            e2.viewport.layers.mid.add(pg);
+        }
 
         Thread t = new Thread(() -> 
         {
