@@ -121,26 +121,6 @@ public class ActionManager
     }
 
 
-
-    public boolean blockedRun(Action a, Object e)
-    {
-        boolean fired = false;
-
-
-        if( a != null )
-        {
-            if( !this.isBlocked(a) )
-            {
-                a.act(this, a.convertObj(e));
-                fired = true;
-            }
-            else
-                a.blockedAct(this, a.convertObj(e));
-        }
-
-        return fired;
-    }
-
     public void clear()
     {
         this.actions.clear();

@@ -48,7 +48,11 @@ public class AWTPolyline implements Shape, Drawable
         return this.xs.length;   
     }
 
-
+    public synchronized void clear() 
+    {
+        this.xs = new double[0];
+        this.ys = new double[0];
+    }
 
     private double[] xs = new double[0],
                      ys = new double[0];
@@ -61,20 +65,31 @@ public class AWTPolyline implements Shape, Drawable
     {   return this.ys[i];   }
 
 
-    public AWTPolyline addPoint(double x, double y)
+    public synchronized AWTPolyline addPoint(double x, double y)
     {   
-        synchronized(this)
-        {
-            this.xs = Arrays.copyOf(this.xs, this.xs.length + 1);
-            this.ys = Arrays.copyOf(this.ys, this.ys.length + 1);
+        this.xs = Arrays.copyOf(this.xs, this.xs.length + 1);
+        this.ys = Arrays.copyOf(this.ys, this.ys.length + 1);
 
-            this.xs[this.xs.length - 1] = x;
-            this.ys[this.ys.length - 1] = y;
-        }
+        this.xs[this.xs.length - 1] = x;
+        this.ys[this.ys.length - 1] = y;
 
         return this;
     }
+    
+    public synchronized AWTPolyline addPoint(Vec2 pos)
+    {
+        return this.addPoint(pos.getX(), pos.getY());
+    }
 
+    public synchronized AWTPolyline addOffset(double x, double y)
+    {
+        return this.addPoint(this.xs[this.xs.length - 1] + x, this.ys[this.ys.length - 1] + y);
+    }
+
+    public synchronized AWTPolyline addOffset(Vec2 off)
+    {
+        return this.addOffset(off.getX(), off.getY());
+    }
 
     public synchronized AWTPolyline removePoint(int i)
     {
@@ -132,7 +147,7 @@ public class AWTPolyline implements Shape, Drawable
             .offset.with(x, y)
         ;
 
-        pline.points(0, 0, this);
+        pline.at(0, 0, this);
 
         this.mods
             .offset.with(-x, -y)
@@ -281,7 +296,6 @@ public class AWTPolyline implements Shape, Drawable
                 if( coords.length > 1 ) 
                     coords[1] = (float)this.modY(this.sl.getY(ii));
             }
-
             return ii == 0 ? PathIterator.SEG_MOVETO : PathIterator.SEG_LINETO;
         }
 

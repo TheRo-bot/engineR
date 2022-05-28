@@ -3,7 +3,7 @@ package dev.ramar.e2.demos.combat.actions;
 
 import dev.ramar.utils.HiddenList;
 
-public abstract class Action<E extends ActionArgs>
+public class Action
 {
     public Action(String name) 
     {
@@ -36,41 +36,44 @@ public abstract class Action<E extends ActionArgs>
         public final void block(ActionManager... mans)
         {
             for( ActionManager man : mans)
+            {
                 for( Action a : this.list )
+                {
                     man.block(Action.this, a);
+                }
+            }
         }
 
         public final void unblock(ActionManager... mans)
         {
             for( ActionManager man : mans )
+            {
                 for( Action a : this.list )
+                {
                     man.unblock(Action.this, a);
+                }
+            }
         }
     }
 
 
 
-
-    /* Implementable Methods
-    --===----------------------
-    */
-
-    public E convertObj(Object o)
+    public boolean isBlocked(ActionManager... ams)
     {
-        try
+        boolean blocked = false;
+
+        for( ActionManager am : ams )
         {
-            return (E)o;
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
+            if( am.isBlocked(this) )
+            {
+                blocked = true;
+                break;
+            }
         }
 
-        return null;
+        return blocked;
     }
 
-    public abstract void act(ActionManager am, E args);
-    public void blockedAct(ActionManager am, E args) {}
 
     /* Events
     --====------

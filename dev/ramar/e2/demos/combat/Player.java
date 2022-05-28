@@ -17,24 +17,39 @@ import dev.ramar.e2.demos.combat.actions.ActionManager;
 import dev.ramar.e2.rendering.control.KeyListener;
 import dev.ramar.e2.rendering.control.KeyCombo;
 
+import dev.ramar.e2.rendering.awt.drawing.polyline.AWTPolyline;
+
 import dev.ramar.e2.demos.combat.actions.*;
 /* Action, ActionManager */
 
 import dev.ramar.e2.demos.combat.actions.movement.*;
 /* MovementAction, MovementArgs */
 
+import dev.ramar.e2.structures.Point;
+
+import dev.ramar.e2.demos.combat.hitboxes.Rectbox;
+
 import dev.ramar.utils.PairedValues;
+import dev.ramar.utils.HiddenList;
 
 import java.util.List;
 import java.util.ArrayList;
 
 
-public class Player implements Drawable, Anchor, Updatable
+public class Player implements Drawable, Point, Updatable
 {
     public Player()
     {
         this.rmods
             .colour.with(255, 255, 255, 255)
+            .fill.with()
+        ;
+        this.setup();
+
+        this.move = new MoveHandler(this);
+        this.box.drawing
+            .fill.with()
+            .colour.with(0, 0, 255, 255)
         ;
     }
 
@@ -42,21 +57,37 @@ public class Player implements Drawable, Anchor, Updatable
                  vel = new Vec2();
 
 
-    public void initialise()
+    private void setup()
     {
         this.actions.add(new MovementAction(this.actions, this));
-        DeltaUpdater.getInstance().toUpdate.add(this);
     }
 
-    /* Anchor Implementation
-    --====---------------------
+    public void startUpdate()
+    {  DeltaUpdater.getInstance().toUpdate.add(this);  }
+
+    public void stopUpdate()
+    {  DeltaUpdater.getInstance().toUpdate.remove(this);  }
+
+
+    /* Point Implementation
+    --====--------------------
     */
 
-    public double getX()
-    {   return this.pos.getX();  }
+    public double getX()  {  return this.pos.getX();  }
+    public double getY()  {  return this.pos.getY();  }
 
-    public double getY()
-    {   return this.pos.getY();  }
+    public double addX(double x)  {  return this.pos.addX(x);  }
+    public double addY(double y)  {  return this.pos.addY(y);  }
+
+    public double minX(double x)  {  return this.pos.minX(x);  }
+    public double minY(double y)  {  return this.pos.minY(y);  }
+
+    public double mulX(double x)  {  return this.pos.mulX(x);  }
+    public double mulY(double y)  {  return this.pos.mulY(y);  }
+
+    public double divX(double x)  {  return this.pos.divX(x);  }
+    public double divY(double y)  {  return this.pos.divY(y);  }
+
 
     /* Control Methods
     --====--------------- 
@@ -101,6 +132,12 @@ public class Player implements Drawable, Anchor, Updatable
 
     public Anchor mouseAnchor = null;
 
+    public final LocalList<Rectbox> hitboxes = new LocalList<>();
+
+    public class LocalList<E> extends HiddenList
+    {
+        private List<E> getList() {  return this.list;  }
+    } 
 
     public boolean update(double delta)
     {   
@@ -137,11 +174,25 @@ public class Player implements Drawable, Anchor, Updatable
             thisXV += _x;
             thisYV += _y;
         }
-
         this.vel.set(thisXV, thisYV);
         this.pos.add(thisXV, thisYV);
 
 
+        boolean collides = false;
+        for( Rectbox hb : hitboxes.getList() )
+            if( hb.collidesWith(this.box) )
+            {
+                collides = true;
+                break;
+            }
+        if( collides )
+            this.box.drawing
+                .colour.with(255, 0, 0, 255)
+            ;   
+        else
+            this.box.drawing
+                .colour.with(0, 0, 255, 255)
+            ;
         // for( EngineR2 instance : Player.this.trackstances )
         // {
         //     instance.viewport.setCenterX(-this.pos.getX());
@@ -168,23 +219,78 @@ public class Player implements Drawable, Anchor, Updatable
     }
 
 
-    private ActionManager actions = new ActionManager();
+    public final ActionManager actions = new ActionManager();
+
+    /* Movement Actions Methods
+    --=====-----------------------
+    */
+
+    public MovementAction getAction_movement()
+    {  return (MovementAction)this.actions.get(MovementAction.NAME);  }
+
 
     private KeyListener moveListener = new KeyListener()
     {
-        public void onPress(KeyCombo kc)
+        public void proc(String name, boolean press)
         {
-            MovementAction act = (MovementAction)actions.get(MovementAction.NAME);
-            if( act != null )
-                actions.blockedRun(act, new MovementArgs(kc.getName(), true));
+            switch(name)
+            {
+                case "up":
+                    Player.this.move.up(press);  break;
+                case "down":
+                    Player.this.move.down(press);  break;
+                case "left":
+                    Player.this.move.left(press);  break;
+                case "right":
+                    Player.this.move.right(press);  break;
+            }
         }
 
+        public void onPress(KeyCombo kc)
+        {  this.proc(kc.getName(), true);  }
+
         public void onRelease(KeyCombo kc)
+        {  this.proc(kc.getName(), false);  }
+    };
+
+    public final MoveHandler move;
+
+    public class MoveHandler
+    {
+        public Player p;
+        public MoveHandler(Player p)
         {
-            MovementAction act = (MovementAction)actions.get(MovementAction.NAME);
-            if( act != null )
-                actions.blockedRun(act, new MovementArgs(kc.getName(), false));
+            this.p = p;
         }
+
+        public void up(boolean doing)
+        {
+            MovementAction ma = this.p.getAction_movement();
+            if( ma != null )
+                ma.blockedUp(doing, this.p.actions);
+        }
+
+        public void down(boolean doing)
+        {
+            MovementAction ma = this.p.getAction_movement();
+            if( ma != null )
+                ma.blockedDown(doing, this.p.actions);
+        }
+
+        public void left(boolean doing)
+        {
+            MovementAction ma = this.p.getAction_movement();
+            if( ma != null )
+                ma.blockedLeft(doing, this.p.actions);
+        }
+
+        public void right(boolean doing)
+        {
+            MovementAction ma = this.p.getAction_movement();
+            if( ma != null )
+                ma.blockedRight(doing, this.p.actions);
+        }
+
     };
 
 
@@ -192,23 +298,29 @@ public class Player implements Drawable, Anchor, Updatable
     --====---------------
     */
 
+    Rectbox box = new Rectbox(this, 15, 15);
+
+    private AWTPolyline pline = new AWTPolyline();
+
     private RectMods rmods = new RectMods();
 
     public void drawAt(double x, double y, ViewPort vp)
     {
-        this.rmods
-            .offset.with(x, y)
-            .offset.with(this.pos.getX() * -0.5, this.pos.getY() * -0.5)
-        ;
+        // this.rmods
+        //     .offset.with( x,  y)
+        // ;
 
-        vp.draw.rect.withMod(this.rmods);
-        vp.draw.rect.poslen(0, 0, 10, 10);
-        vp.draw.rect.clearMod();
+        // int size = 30;
+        // vp.draw.rect.withMod(this.rmods);
+        // vp.draw.rect.poslen(this.getX() - size / 2, this.getY() - size / 2, size, size);
+        // vp.draw.rect.clearMod();
 
-        this.rmods
-            .offset.with(-x, -y)
-            .offset.with(this.pos.getX() * 0.5, this.pos.getY() * 0.5)
+        // this.rmods
+        //     .offset.with(-x, -y)
+        // ;
 
-        ;
+        this.box.drawAt(x, y, vp);
+
+
     }
 }

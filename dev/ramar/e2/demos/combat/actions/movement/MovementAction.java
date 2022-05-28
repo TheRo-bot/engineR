@@ -10,12 +10,13 @@ import dev.ramar.utils.PairedValues;
 import java.util.Set;
 import java.util.HashSet;
 
+import java.util.Arrays;
 
 /*
 Action: MovementAction
  - Makes a player move 
 */
-public class MovementAction extends Action<MovementArgs>
+public class MovementAction extends Action
 {
     public static final String NAME = "ability:player:movement";
 
@@ -27,8 +28,11 @@ public class MovementAction extends Action<MovementArgs>
     private Vec2 vec = null;
     private boolean[] directions = new boolean[4];
 
-    private static final double SPEED = 1.7;
-    private static final double ACCEL = 10;
+    private static final double SPEED = 1.2;
+    private static final double ACCEL = 3;
+
+    public double speed = MovementAction.SPEED;
+    public double accel = MovementAction.ACCEL;
 
     public MovementAction(ActionManager am, Player p)
     {
@@ -38,7 +42,7 @@ public class MovementAction extends Action<MovementArgs>
         this.player = p;
         this.vec = this.player.vecs.create((double val) ->
         {
-            return val * ACCEL;
+            return val * this.accel;
         });
 
         DeltaUpdater.getInstance().toUpdate.add((double delta) -> 
@@ -46,122 +50,139 @@ public class MovementAction extends Action<MovementArgs>
             boolean stop = false;
             double x = 0.0,
                    y = 0.0;
-            if( directions[0] )
-                y -= 1.0;
-            if( directions[1] )
-                y += 1.0;
-            if( directions[2] )
-                x -= 1.0;
-            if( directions[3] )
-                x += 1.0;
-
-            if( !this.am.isBlocked(MovementAction.this) )
+            synchronized(this)
             {
-                double abs = Math.sqrt(x * x + y * y);
-                if( abs > 0 )
-                    this.vec.add(x / abs * SPEED, y / abs * SPEED);
+                if( !this.isBlocked(am) )
+                {
+                    if( directions[0] )
+                        y -= 1.0;
+                    if( directions[1] )
+                        y += 1.0;
+                    if( directions[2] )
+                        x -= 1.0;
+                    if( directions[3] )
+                        x += 1.0;
+                    double abs = Math.sqrt(x * x + y * y);
+                    if( abs > 0 )
+                        this.vec.add(x / abs * this.speed, y / abs * this.speed);
 
-                // TODO: limit speed?
-                // not needed, we have good movement code B)
+                    // TODO: limit speed?
+                    // not needed, we have good movement code B)
+                }
             }
 
             return stop;
         }); 
     }
 
-    public void act(ActionManager am, MovementArgs ma)
+    /* Actually Moving Methods
+    --===------------------------
+    */
+
+    public synchronized void up(boolean doing)
+    {  this.directions[0] = doing;  }
+
+    public synchronized void down(boolean doing)
+    {  this.directions[1] = doing;  }
+
+    public synchronized void left(boolean doing)
+    {  this.directions[2] = doing;  }
+
+    public synchronized void right(boolean doing)
+    {  this.directions[3] = doing;  }
+
+
+    public boolean doingNothing()
     {
-        if( ma != null )
+        boolean doingNothing = true;
+        for( boolean b : this.directions )
         {
-            this.toBlock.block(am);
-
-            this.process(ma.name, ma.proc);
-
-            this.toBlock.unblock(am);
-        }
-    }
-
-    private Set<PairedValues<String, Boolean>> toParse = new HashSet<>();
-
-    public void blockedAct(ActionManager am, MovementArgs ma)
-    {
-        if( ma != null )
-        {
-            String name = ma.name;
-            boolean process = ma.proc;
-
-            boolean didOverride = false;
-            for( PairedValues<String, Boolean> sb : toParse )
-                if( sb.getK().equals(name) )
-                {
-                    sb.setV(process);
-                    didOverride = true;
-                    break;
-                }
-
-            if( !didOverride )
-                toParse.add(new PairedValues<String, Boolean>(name, process));
-        }
-    }
-    
-
-    public void onUnblock(ActionManager am)
-    {
-        for( PairedValues<String, Boolean> vals : toParse )
-        {
-            String name = vals.getK();
-            boolean type = vals.getV();
-            process(name, type);
-        }
-        toParse.clear();
-    }   
-
-
-
-    private boolean process(String name, boolean pressed)
-    {
-        boolean acted = false;
-
-        switch(name)
-        {
-            case "up":
-                this.directions[1] = pressed;
-                acted = true;
+            if( b )
+            {
+                doingNothing = false;
                 break;
-
-            case "down":
-                this.directions[0] = pressed;
-                acted = true;
-                break;
-
-            case "left":
-                this.directions[3] = pressed;
-                acted = true;
-                break;
-
-            case "right":
-                this.directions[2] = pressed;
-                acted = true;
-                break;
+            }
         }
-
-        return acted;
+        return doingNothing;
     }
 
 
-
-    public MovementArgs convertObj(Object o)
+    public int doingIdentity()
     {
-        try
-        {
-            return (MovementArgs)o;
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+        int out = 0;
 
-        return null;
+        if( directions[0] )
+            out += 3;
+        if( directions[1] )
+            out =+ 7;
+        if( directions[2] )
+            out += 11;
+        if( directions[3] )
+            out += 13;
+
+        return out;
     }
+
+
+    public synchronized void blockedUp(boolean doing, ActionManager... ams)
+    {
+        // if we're not doing anything and we know we're about to do something
+        if( doing && this.doingNothing() )
+            this.toBlock.block(ams);
+
+        int identity = this.doingIdentity();
+        this.up(doing);
+
+        // if we're doing something and we know we're about to not do something
+        if( !doing && identity == 3 )
+            this.toBlock.unblock(ams);
+
+    }
+
+
+    public synchronized void blockedDown(boolean doing, ActionManager... ams)
+    {
+        // if we're not doing anything and we know we're about to do something
+        if( doing && this.doingNothing() )
+            this.toBlock.block(ams);
+
+        int identity = this.doingIdentity();
+        this.down(doing);
+        
+        // if we're doing something and we know we're about to not do something
+        if( !doing && identity == 7 )
+            this.toBlock.unblock(ams);
+    }
+
+
+    public synchronized void blockedLeft(boolean doing, ActionManager... ams)
+    {
+        // if we're not doing anything and we know we're about to do something
+        if( doing && this.doingNothing() )
+            this.toBlock.block(ams);
+
+        int identity = this.doingIdentity();
+        this.left(doing);
+        
+        // if we were doing something and we know we're about to not do something
+        if( !doing && identity == 11 )
+            this.toBlock.unblock(ams);
+    }
+
+
+    public synchronized void blockedRight(boolean doing, ActionManager... ams)
+    {
+        // if we're not doing anything and we know we're about to do something
+        if( doing && this.doingNothing() )
+            this.toBlock.block(ams);
+
+        int identity = this.doingIdentity();
+        this.right(doing);
+        
+        // if we were doing something and we know we're about to not do something
+        if( !doing && identity == 13 )
+            this.toBlock.unblock(ams);
+    }
+
 
 }

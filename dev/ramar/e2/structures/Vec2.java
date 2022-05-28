@@ -4,7 +4,7 @@ package dev.ramar.e2.structures;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
-public class Vec2
+public class Vec2 implements Point
 {
 
 	private static DecimalFormat df = new DecimalFormat("0.00");
@@ -86,13 +86,6 @@ public class Vec2
 	/* Getters / Setters
 	--====-----------------
 	*/
-
-	public double getX()
-	{   return x;   }
-
-	public double getY()
-	{   return y;   }
-
 
 	public Vec2 set(Vec2 pos)
 	{
@@ -221,4 +214,19 @@ public class Vec2
 	{
 		return this.divide(c, c);
 	}
+
+    public double getX() {  return this.x;  }
+    public double getY() {  return this.y;  }
+
+    public double addX(double x)  {  this.x += x; return x;  }
+    public double addY(double y)  {  this.y += y; return y;  }
+
+    public double minX(double x)  {  this.x -= x; return x;  }
+    public double minY(double y)  {  this.y -= y; return y;  }
+
+    public double mulX(double x)  {  this.x *= x; return x;  }
+    public double mulY(double y)  {  this.y *= y; return y;  }
+
+    public double divX(double x)  {  this.x /= x; return x;  }
+    public double divY(double y)  {  this.y /= y; return y;  }
 }

@@ -233,7 +233,7 @@ public class AWTPolylineDrawer extends PolylineDrawer
         return path;
     }
 
-    public void points(double offX, double offY, AWTPolyline points)
+    public void at(double offX, double offY, AWTPolyline points)
     {
         Graphics2D g2d = this.vp.getGraphics();
 

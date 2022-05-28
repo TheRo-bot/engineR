@@ -3,8 +3,13 @@ package dev.ramar.e2.demos.combat;
 import dev.ramar.e2.demos.BaseDemo;
 import dev.ramar.e2.demos.DemoManager.Demo;
 
-
 import dev.ramar.e2.EngineR2;
+
+import dev.ramar.e2.demos.combat.hitboxes.Rectbox;
+import dev.ramar.e2.demos.combat.actions.Action;
+
+import java.util.List;
+import java.util.ArrayList;
 
 public class CombatDemo extends BaseDemo
 {
@@ -17,13 +22,26 @@ public class CombatDemo extends BaseDemo
     }
 
 
-    Player player = null;
+    List<Player> players = new ArrayList<>();
+    List<Rectbox> hitboxes = new ArrayList<>();
 
-    @Override
+    Thread testThread;
+
+    @Override   
     public void initialise()
     {
         super.initialise();   
         this.init_player();
+
+        java.util.Random rd = new java.util.Random();
+
+        int dist = 500;
+        for( int ii = 0; ii < 30; ii++ )
+            hitboxes.add(new Rectbox(rd.nextInt(dist) - dist * 0.5, rd.nextInt(dist) - dist * 0.5, 30, 30));
+
+        for( Player p : this.players )
+            for( Rectbox rb : hitboxes )
+                p.hitboxes.add(rb);
     }
 
 
@@ -33,46 +51,69 @@ public class CombatDemo extends BaseDemo
 
     private void init_player()
     {
-        this.player = new Player();
-        this.player.initialise();
+        java.util.Random rd = new java.util.Random();
+
+
+        for( int ii = 0; ii < 10; ii++ )
+        {
+            Player p = new Player();
+            p.getAction_movement().speed += rd.nextDouble();
+            p.getAction_movement().accel += rd.nextDouble();
+            int dist = 100;
+            p.addX(rd.nextInt(dist) - dist * 0.5);
+            p.addY(rd.nextInt(dist) - dist * 0.5);
+            this.players.add(p);
+            p.startUpdate();
+        }
+        System.out.println(this.players.size());
     }
 
 
     private void connect_player(EngineR2 er, boolean mainstance)
     {
+        // viewing
+        for( Rectbox rb : this.hitboxes )
+            er.viewport.layers.mid.add(rb);
         if( mainstance )
         {
             // establish keybinds
-            this.player.bindControl(er);
+            for( Player p : this.players )
+            {
+                p.bindControl(er);
+                er.viewport.layers.mid.add(p);
+            }
+
+            er.viewport.window.onClose.add(() -> { if( testThread != null ) testThread.interrupt(); } );
         }
 
-        // viewing
-        er.viewport.layers.mid.add(this.player);
     }
+
 
     private void disconnect_player(EngineR2 er, boolean mainstance)
     {
         if( mainstance )
         {
-            // revoke keybinds
-            this.player.unbindControl(er);
+            for( Player p : this.players )
+                // revoke keybinds
+                p.unbindControl(er);
         }
 
-        // viewing
-        er.viewport.layers.mid.remove(this.player);
+        for( Player p : this.players )
+            // viewing
+            er.viewport.layers.mid.remove(p);
     }
 
 
     protected void connectMainstance(EngineR2 ms)
     {
-        if( this.player != null )
+        if( this.players.size() > 0 )
             this.connect_player(ms, true);
     }
 
 
     protected void disconnectMainstance(EngineR2 ms)
     {
-        if( this.player != null )
+        if( this.players.size() > 0 )
             this.disconnect_player(ms, true);
     }
 
@@ -80,14 +121,14 @@ public class CombatDemo extends BaseDemo
 
     protected void connectNormstance(EngineR2 ns)
     {
-        if( this.player != null )
+        if( this.players.size() > 0 )
             this.connect_player(ns, false);
     }
 
 
     protected void disconnectNormstance(EngineR2 ns)
     {
-        if( this.player != null )
+        if( this.players.size() > 0 )
             this.disconnect_player(ns, false);
     }
 
