@@ -306,21 +306,6 @@ public class Player implements Drawable, Point, Updatable
 
     public void drawAt(double x, double y, ViewPort vp)
     {
-        // this.rmods
-        //     .offset.with( x,  y)
-        // ;
-
-        // int size = 30;
-        // vp.draw.rect.withMod(this.rmods);
-        // vp.draw.rect.poslen(this.getX() - size / 2, this.getY() - size / 2, size, size);
-        // vp.draw.rect.clearMod();
-
-        // this.rmods
-        //     .offset.with(-x, -y)
-        // ;
-
         this.box.drawAt(x, y, vp);
-
-
     }
 }
