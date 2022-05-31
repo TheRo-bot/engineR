@@ -54,6 +54,7 @@ public class ActionManager
             actions.add(b);
 
         actions.connect(b, a);
+
     }
 
     // b will be blocked by a

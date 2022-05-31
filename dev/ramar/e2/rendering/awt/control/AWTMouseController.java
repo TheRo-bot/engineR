@@ -4,12 +4,14 @@ package dev.ramar.e2.rendering.awt.control;
 import dev.ramar.e2.rendering.control.MouseController;
 import dev.ramar.e2.rendering.awt.AWTViewPort;
 import dev.ramar.e2.rendering.awt.AWTWindow;
+import dev.ramar.e2.structures.Vec2;
 
 import java.awt.PointerInfo;
 import java.awt.MouseInfo;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+
 
 public class AWTMouseController extends MouseController
 {
@@ -63,7 +65,18 @@ public class AWTMouseController extends MouseController
         @Override
         public void mouseMoved(MouseEvent e)
         {
-            System.out.println("mouseMoved");
+            updatingVec.set(
+                convertX(e.getX()),
+                convertY(e.getY())
+            );
+        }
+
+        public void mouseDragged(MouseEvent e)
+        {
+            updatingVec.set(
+                convertX(e.getX()),
+                convertY(e.getY())
+            );
         }
 
         @Override        
@@ -82,6 +95,8 @@ public class AWTMouseController extends MouseController
         }
 
     };
+    public MouseAdapter getMouseAdapter()
+    {   return this.adapter;   }
 
     public AWTMouseController()
     {
@@ -93,9 +108,16 @@ public class AWTMouseController extends MouseController
     {
         this.vp = vp;
         ((AWTWindow)vp.window).getCanvas().addMouseListener(adapter);
+        ((AWTWindow)vp.window).getCanvas().addMouseMotionListener(adapter);
 
         return this;
     }
+
+
+    private Vec2 updatingVec = new Vec2();
+
+    public Vec2 getUpdatingVec()
+    {   return this.updatingVec;   }
 
     public double getMouseX()
     {

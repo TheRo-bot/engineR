@@ -54,7 +54,7 @@ public class CombatDemo extends BaseDemo
         java.util.Random rd = new java.util.Random();
 
 
-        for( int ii = 0; ii < 10; ii++ )
+        for( int ii = 0; ii < 1; ii++ )
         {
             Player p = new Player();
             p.getAction_movement().speed += rd.nextDouble();

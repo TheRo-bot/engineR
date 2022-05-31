@@ -14,6 +14,7 @@ import dev.ramar.e2.demos.combat.DeltaUpdater.Updatable;
 import dev.ramar.e2.demos.combat.actions.Action;
 import dev.ramar.e2.demos.combat.actions.ActionManager;
 
+import dev.ramar.e2.rendering.control.MouseListener;
 import dev.ramar.e2.rendering.control.KeyListener;
 import dev.ramar.e2.rendering.control.KeyCombo;
 
@@ -25,9 +26,16 @@ import dev.ramar.e2.demos.combat.actions.*;
 import dev.ramar.e2.demos.combat.actions.movement.*;
 /* MovementAction, MovementArgs */
 
+import dev.ramar.e2.demos.combat.actions.shooting.ShootingAction;
+import dev.ramar.e2.demos.combat.actions.shooting.ReloadAction;
+
 import dev.ramar.e2.structures.Point;
 
 import dev.ramar.e2.demos.combat.hitboxes.Rectbox;
+
+import dev.ramar.e2.demos.combat.guns.semiauto.SemiAuto;
+
+import dev.ramar.e2.demos.combat.guns.bullets.BaseBulletFactory;
 
 import dev.ramar.utils.PairedValues;
 import dev.ramar.utils.HiddenList;
@@ -51,7 +59,20 @@ public class Player implements Drawable, Point, Updatable
             .fill.with()
             .colour.with(0, 0, 255, 255)
         ;
+
+        // gun.shots.onAdd.add((Bullet b) -> 
+        // {
+        //     System.out.println("i got a bullet");
+        // });
+        this.gun
+            .withBulletFactory(new BaseBulletFactory())
+            .withOrigin(this)
+        ;
+
     }
+
+
+    public SemiAuto gun = new SemiAuto();
 
     private Vec2 pos = new Vec2(), 
                  vel = new Vec2();
@@ -60,6 +81,13 @@ public class Player implements Drawable, Point, Updatable
     private void setup()
     {
         this.actions.add(new MovementAction(this.actions, this));
+
+        ShootingAction sa = new ShootingAction(this);
+        this.actions.add(sa);
+
+        ReloadAction ra = new ReloadAction(this);
+        ra.toBlock.add(sa);
+        this.actions.add(ra);
     }
 
     public void startUpdate()
@@ -104,6 +132,13 @@ public class Player implements Drawable, Point, Updatable
         er.viewport.window.keys.bindRel(Keybinds.Player.down,  this.moveListener);
         er.viewport.window.keys.bindRel(Keybinds.Player.left,  this.moveListener);
         er.viewport.window.keys.bindRel(Keybinds.Player.right, this.moveListener);
+
+        er.viewport.window.keys.bindRel(Keybinds.Player.reload, this.reloadListener);
+
+        this.getAction_shooting().withTarget(er.viewport.window.mouse.getUpdatingVec());
+
+        er.viewport.window.mouse.onPress.add(this.shootListener);
+        er.viewport.window.mouse.onRelease.add(this.shootListener);
     }   
 
     public void unbindControl(EngineR2 er)
@@ -117,6 +152,11 @@ public class Player implements Drawable, Point, Updatable
         er.viewport.window.keys.unbindRel(Keybinds.Player.down,  this.moveListener);
         er.viewport.window.keys.unbindRel(Keybinds.Player.left,  this.moveListener);
         er.viewport.window.keys.unbindRel(Keybinds.Player.right, this.moveListener);
+
+        er.viewport.window.keys.unbindRel(Keybinds.Player.reload, this.reloadListener);
+
+        er.viewport.window.mouse.onPress.remove(this.shootListener);
+        er.viewport.window.mouse.onRelease.remove(this.shootListener);
     }
     
 
@@ -293,6 +333,50 @@ public class Player implements Drawable, Point, Updatable
 
     };
 
+
+    /* Shooting Action Methods
+    --=====----------------------
+    */
+
+    public ShootingAction getAction_shooting()
+    {   return (ShootingAction)this.actions.get(ShootingAction.NAME);   }
+
+    public ReloadAction getAction_reload()
+    {   return (ReloadAction)this.actions.get(ReloadAction.NAME);   }
+
+    private MouseListener shootListener = new MouseListener()
+    {
+        public void mousePressed(int bID, double x, double y)
+        {
+            if( bID == 1 )
+            {
+                ShootingAction sa = Player.this.getAction_shooting();
+                sa.blockedStartShooting(Player.this.actions);
+            }
+        }
+
+        public void mouseReleased(int bID, double x, double y)
+        {
+            if( bID == 1 )
+            {
+                ShootingAction sa = Player.this.getAction_shooting();
+                sa.blockedStopShooting(Player.this.actions);
+            }
+        }
+
+    };
+
+    private KeyListener reloadListener = new KeyListener()
+    {
+        public void onPress(KeyCombo kc)
+        {}
+
+        public void onRelease(KeyCombo kc)
+        {
+            ReloadAction ra = Player.this.getAction_reload();
+            ra.blockedReload(Player.this.actions);
+        }
+    };
 
     /* Drawing Methods
     --====---------------

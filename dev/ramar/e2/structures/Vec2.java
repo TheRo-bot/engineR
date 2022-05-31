@@ -108,6 +108,16 @@ public class Vec2 implements Point
 	{
 		return this.set(c, c);
 	}
+
+	public Vec2 set(Point p)
+	{
+		if( p != null ) 
+		{
+			this.setX(p.getX());
+			this.setY(p.getY());
+		}
+		return this;
+	}
 	
 
 	public void setX(double x)

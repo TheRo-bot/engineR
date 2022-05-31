@@ -1,11 +1,10 @@
 
 package dev.ramar.e2.rendering.control;
-
-
 import dev.ramar.e2.structures.Vec2;
 
 import java.util.List;
-import java.util.ArrayList;
+
+import dev.ramar.utils.HiddenList;
 
 /*
 NOTE:
@@ -14,98 +13,45 @@ NOTE:
 public abstract class MouseController
 {   
 
-    public final PressedListeners onPress;
-    public final ReleasedListeners onRelease;
+    public final LocalList<OnMousePress> onPress = new LocalList<>();
+    public final LocalList<OnMouseRelease> onRelease = new LocalList<>();
 
-    protected MouseController()
+    protected MouseController() {}
+
+    protected final void onPress(int button, double x, double y)
     {
-        onPress = new PressedListeners();
-        onRelease = new ReleasedListeners();
+        List<OnMousePress> li = this.onPress.getList();
+
+        for( OnMousePress omp : li )
+            omp.mousePressed(button, x, y);
     }
 
-    protected void onPress(int button, double x, double y)
+    protected final void onRelease(int button, double x, double y)
     {
-        // System.out.println("onPress " + button + ": " + x + ", " + y );
-        onPress.mousePressed(button, x, y);
+        List<OnMouseRelease> li = this.onRelease.getList();
+
+        for( OnMouseRelease omr : li )
+            omr.mouseReleased(button, x, y);
     }
 
-    protected void onRelease(int button, double x, double y)
-    {
-        // System.out.println("onRelease " + button + ": " + x + ", " + y );
-        onRelease.mouseReleased(button, x, y);
-    }
+
 
     public abstract double getMouseX();
-
     public abstract double getMouseY();
 
+    public abstract Vec2 getUpdatingVec();
 
-    public static class PressedListeners
+    public interface OnMousePress
+    {   public void mousePressed(int bID, double x, double y);   }
+
+    public interface OnMouseRelease
+    {   public void mouseReleased(int bID, double x, double y);   }
+
+
+
+    public class LocalList<E> extends HiddenList<E>
     {
-        private List<PressedListener> listeners = new ArrayList<>();
-
-        public PressedListeners()
-        {
-
-        }
-
-        public interface PressedListener
-        {
-            public void mousePressed(int bID, double x, double y);
-        }
-
-
-        public void add(PressedListener pl)
-        {
-            listeners.add(pl);
-        }
-
-        public void remove(PressedListener pl)
-        {
-            listeners.remove(pl);
-        }
-
-        private void mousePressed(int button, double x, double y)
-        {
-            for( PressedListener pl : listeners )
-                pl.mousePressed(button, x, y);
-        }
-
+        private List<E> getList()
+        {   return this.list;   }
     }
-
-    public static class ReleasedListeners
-    {
-        private List<ReleasedListener> listeners = new ArrayList<>();
-
-        public ReleasedListeners()
-        {
-
-        }
-
-        public interface ReleasedListener
-        {
-            public void mouseReleased(int bID, double x, double y);
-        }
-
-
-        public void add(ReleasedListener rl)
-        {
-            listeners.add(rl);
-        }
-
-
-        public void remove(ReleasedListener rl)
-        {
-            listeners.remove(rl);
-        }
-
-
-        private void mouseReleased(int button, double x, double y)
-        {
-            for( ReleasedListener rl : listeners )
-                rl.mouseReleased(button, x, y);
-        }
-    }
-
-
 }
