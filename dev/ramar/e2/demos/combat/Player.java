@@ -36,6 +36,7 @@ import dev.ramar.e2.demos.combat.hitboxes.Rectbox;
 import dev.ramar.e2.demos.combat.guns.semiauto.SemiAuto;
 
 import dev.ramar.e2.demos.combat.guns.bullets.BaseBulletFactory;
+import dev.ramar.e2.demos.combat.guns.bullets.Bullet;
 
 import dev.ramar.utils.PairedValues;
 import dev.ramar.utils.HiddenList;
@@ -68,7 +69,11 @@ public class Player implements Drawable, Point, Updatable
             .withBulletFactory(new BaseBulletFactory())
             .withOrigin(this)
         ;
-
+        this.gun.onShoot.add((Bullet b) ->
+        {   
+            DeltaUpdater.getInstance().toUpdate.queueAdd(b);
+            Player.this.bullets.add(b);
+        });
     }
 
 
@@ -388,8 +393,15 @@ public class Player implements Drawable, Point, Updatable
 
     private RectMods rmods = new RectMods();
 
+    private List<Bullet> bullets = new ArrayList<>();
     public void drawAt(double x, double y, ViewPort vp)
     {
         this.box.drawAt(x, y, vp);
+
+        for( int ii = 0; ii < this.bullets.size(); ii++ )
+        {
+            Bullet b = this.bullets.get(ii);
+            b.drawAt(x, y, vp);
+        }
     }
 }

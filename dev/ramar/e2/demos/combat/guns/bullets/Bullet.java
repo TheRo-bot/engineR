@@ -42,10 +42,9 @@ public class Bullet implements Drawable, Updatable
         return this;
     }
 
+
     public boolean update(double delta)
     {
-        this.timeToLive -= delta;
-
 
         double deltaMoveX = this.vel.getX() * this.deceleration * delta,
                deltaMoveY = this.vel.getY() * this.deceleration * delta;
@@ -70,7 +69,6 @@ public class Bullet implements Drawable, Updatable
         ;
 
         double size = 3;
-        vp.draw.rect.poslen(-size, -size, size * size, size * 2);
-
+        vp.draw.rect.poslen(-size, -size, size, size);
     }
 }
