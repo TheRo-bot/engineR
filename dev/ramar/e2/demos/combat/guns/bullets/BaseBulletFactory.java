@@ -34,7 +34,7 @@ public class BaseBulletFactory extends BulletFactory
     public Bullet make(double xv, double yv)
     {
         Bullet out = new Bullet(xv, yv);
-
+        out.mods.colour.with(0, 0, 255, 255);
         out.withDeceleration(this.deceleration)
            .withTimeToLive(this.timeToLive)
         ;
