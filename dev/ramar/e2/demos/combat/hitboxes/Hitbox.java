@@ -19,6 +19,17 @@ public abstract class Hitbox implements Drawable
         }
     }
 
+    protected boolean hit = false;
+    public boolean isHit()
+    {   return this.hit;   }
+
+    public void setHit(boolean b)
+    {   this.hit = b;   }
+
+    public final Hitbox withHit(boolean b)
+    {   this.setHit(b);  return this;  }
+
+
     public abstract boolean collidesWith(Rectbox rb);
 
 }

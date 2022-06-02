@@ -34,6 +34,10 @@ public class Rectbox extends Hitbox implements Point
 
 
     private double w = 0, h = 0;
+    public double getW()
+    {   return this.w;   }
+    public double getH()
+    {   return this.h;   }
 
     private Point pos;
     public Rectbox withAnchor(Point anchor)

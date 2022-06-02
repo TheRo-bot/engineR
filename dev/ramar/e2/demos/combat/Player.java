@@ -69,11 +69,25 @@ public class Player implements Drawable, Point, Updatable
             .withBulletFactory(new BaseBulletFactory())
             .withOrigin(this)
         ;
+        this.gun.stats.clipSize = 30;
+        this.gun.reload();
+
         this.gun.onShoot.add((Bullet b) ->
         {   
+            b.onCease.add(() -> 
+            {
+                synchronized(Player.this.bullets)
+                {
+                    Player.this.bullets.remove(b);
+                }
+            });
             DeltaUpdater.getInstance().toUpdate.queueAdd(b);
-            Player.this.bullets.add(b);
+            synchronized(Player.this.bullets)
+            {
+                Player.this.bullets.add(b);
+            }
         });
+
     }
 
 
@@ -223,13 +237,30 @@ public class Player implements Drawable, Point, Updatable
         this.pos.add(thisXV, thisYV);
 
 
+
+        for( Bullet b : this.bullets )
+        {
+            b.box.setHit(false);
+            for( Rectbox hb : hitboxes.getList() )
+            {
+                if( b.box.collidesWith(hb) )
+                {
+                    b.box.setHit(true);
+                    break;
+                }
+            }
+        }
+
         boolean collides = false;
         for( Rectbox hb : hitboxes.getList() )
+        {
             if( hb.collidesWith(this.box) )
             {
                 collides = true;
                 break;
             }
+        }
+
         if( collides )
             this.box.drawing
                 .colour.with(255, 0, 0, 255)
@@ -398,10 +429,13 @@ public class Player implements Drawable, Point, Updatable
     {
         this.box.drawAt(x, y, vp);
 
-        for( int ii = 0; ii < this.bullets.size(); ii++ )
+        synchronized(this.bullets)
         {
-            Bullet b = this.bullets.get(ii);
-            b.drawAt(x, y, vp);
+            for( int ii = 0; ii < this.bullets.size(); ii++ )
+            {
+                Bullet b = this.bullets.get(ii);
+                b.drawAt(x, y, vp);
+            }
         }
     }
 }
