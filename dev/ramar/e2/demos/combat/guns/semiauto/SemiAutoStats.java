@@ -14,7 +14,7 @@ public class SemiAutoStats extends GunStats
 
     public static class Defaults
     {
-        public static final double SHOOT_DELAY = 0.03; 
+        public static final double SHOOT_DELAY = 0.1; 
         public static final int CHAIN_SHOT_AMOUNT = 20;
         public static final double TIME_TO_LIVE = 1.0;
     }

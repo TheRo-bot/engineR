@@ -31,12 +31,15 @@ import dev.ramar.e2.demos.combat.actions.shooting.ReloadAction;
 
 import dev.ramar.e2.structures.Point;
 
+import dev.ramar.e2.demos.combat.hitboxes.Hitter;
 import dev.ramar.e2.demos.combat.hitboxes.Rectbox;
 
 import dev.ramar.e2.demos.combat.guns.semiauto.SemiAuto;
 
 import dev.ramar.e2.demos.combat.guns.bullets.BaseBulletFactory;
 import dev.ramar.e2.demos.combat.guns.bullets.Bullet;
+
+import dev.ramar.e2.demos.combat.CombatDemo;
 
 import dev.ramar.utils.PairedValues;
 import dev.ramar.utils.HiddenList;
@@ -47,6 +50,7 @@ import java.util.ArrayList;
 
 public class Player implements Drawable, Point, Updatable
 {
+
     public Player()
     {
         this.rmods
@@ -56,7 +60,7 @@ public class Player implements Drawable, Point, Updatable
         this.setup();
 
         this.move = new MoveHandler(this);
-        this.box.drawing
+        this.hitter.box.drawing
             .fill.with()
             .colour.with(0, 0, 255, 255)
         ;
@@ -88,6 +92,18 @@ public class Player implements Drawable, Point, Updatable
             }
         });
 
+    }
+
+    public final Hitter<Rectbox> hitter = new Hitter<>()
+        .withHitbox(new Rectbox(10, 10))
+    ;
+
+
+    private CombatDemo demo = null;
+    public Player withDemo(CombatDemo cd)
+    {
+        this.demo = cd;
+        return this;
     }
 
 
@@ -254,7 +270,7 @@ public class Player implements Drawable, Point, Updatable
         boolean collides = false;
         for( Rectbox hb : hitboxes.getList() )
         {
-            if( hb.collidesWith(this.box) )
+            if( hb.collidesWith(this.hitter.box) )
             {
                 collides = true;
                 break;
@@ -262,11 +278,11 @@ public class Player implements Drawable, Point, Updatable
         }
 
         if( collides )
-            this.box.drawing
+            this.hitter.box.drawing
                 .colour.with(255, 0, 0, 255)
             ;   
         else
-            this.box.drawing
+            this.hitter.box.drawing
                 .colour.with(0, 0, 255, 255)
             ;
         // for( EngineR2 instance : Player.this.trackstances )
@@ -418,6 +434,7 @@ public class Player implements Drawable, Point, Updatable
     --====---------------
     */
 
+
     Rectbox box = new Rectbox(this, 15, 15);
 
     private AWTPolyline pline = new AWTPolyline();
@@ -427,7 +444,7 @@ public class Player implements Drawable, Point, Updatable
     private List<Bullet> bullets = new ArrayList<>();
     public void drawAt(double x, double y, ViewPort vp)
     {
-        this.box.drawAt(x, y, vp);
+        this.hitter.box.drawAt(x, y, vp);
 
         synchronized(this.bullets)
         {

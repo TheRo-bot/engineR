@@ -8,13 +8,15 @@ import dev.ramar.e2.EngineR2;
 import dev.ramar.e2.demos.combat.hitboxes.Rectbox;
 import dev.ramar.e2.demos.combat.actions.Action;
 
+import dev.ramar.e2.demos.combat.hitboxes.HitManager;
+
+import dev.ramar.e2.demos.combat.enemies.Enemy;
+
 import java.util.List;
 import java.util.ArrayList;
 
 public class CombatDemo extends BaseDemo
 {
-
-
     public CombatDemo()
     {
         if( DeltaUpdater.getInstance() != null )
@@ -23,6 +25,7 @@ public class CombatDemo extends BaseDemo
 
 
     List<Player> players = new ArrayList<>();
+    List<Enemy>  enemies = new ArrayList<>();
     List<Rectbox> hitboxes = new ArrayList<>();
 
     Thread testThread;
@@ -36,14 +39,19 @@ public class CombatDemo extends BaseDemo
         java.util.Random rd = new java.util.Random();
 
         int dist = 500;
-        for( int ii = 0; ii < 30; ii++ )
-            hitboxes.add(new Rectbox(rd.nextInt(dist) - dist * 0.5, rd.nextInt(dist) - dist * 0.5, 30, 30));
 
-        for( Player p : this.players )
-            for( Rectbox rb : hitboxes )
-                p.hitboxes.add(rb);
+        for( int ii = 0; ii < 10; ii++ )
+        {
+            Enemy enemy = new Enemy(rd.nextInt(dist) - dist * 0.5, rd.nextInt(dist) - dist * -0.5)
+                .withDemo(this)
+            ;
+            this.enemies.add(enemy);
+        }
+
     }
 
+
+    public final HitManager hitman = new HitManager();
 
     /* Player Methods
     --===---------------
@@ -56,7 +64,10 @@ public class CombatDemo extends BaseDemo
 
         for( int ii = 0; ii < 1; ii++ )
         {
-            Player p = new Player();
+            Player p = new Player()
+                .withDemo(this)
+            ;
+
             p.getAction_movement().speed += rd.nextDouble();
             p.getAction_movement().accel += rd.nextDouble();
             int dist = 100;
@@ -68,38 +79,38 @@ public class CombatDemo extends BaseDemo
         System.out.println(this.players.size());
     }
 
+    private void connect_player_mainstance(EngineR2 er)
+    {
+        // establish keybinds
+        for( Player p : this.players )
+        {
+            p.bindControl(er);
+            er.viewport.layers.mid.add(p);
+        }
+
+        er.viewport.window.onClose.add(() -> { if( testThread != null ) testThread.interrupt(); } );
+    }
+
+    private void disconenct_player_mainstance(EngineR2 er)
+    {
+        for( Player p : this.players )
+            // revoke keybinds
+            p.unbindControl(er);
+    }
+
 
     private void connect_player(EngineR2 er, boolean mainstance)
     {
         // viewing
         for( Rectbox rb : this.hitboxes )
             er.viewport.layers.mid.add(rb);
-        if( mainstance )
-        {
-            // establish keybinds
-            for( Player p : this.players )
-            {
-                p.bindControl(er);
-                er.viewport.layers.mid.add(p);
-            }
-
-            er.viewport.window.onClose.add(() -> { if( testThread != null ) testThread.interrupt(); } );
-        }
-
     }
 
 
     private void disconnect_player(EngineR2 er, boolean mainstance)
     {
-        if( mainstance )
-        {
-            for( Player p : this.players )
-                // revoke keybinds
-                p.unbindControl(er);
-        }
-
+        // viewing
         for( Player p : this.players )
-            // viewing
             er.viewport.layers.mid.remove(p);
     }
 
@@ -107,14 +118,21 @@ public class CombatDemo extends BaseDemo
     protected void connectMainstance(EngineR2 ms)
     {
         if( this.players.size() > 0 )
-            this.connect_player(ms, true);
+            this.connect_player_mainstance(ms);
+        this.connectNormstance(ms);
+
+        ms.viewport.window.onClose.add(() ->
+        {
+            DeltaUpdater.getInstance().interrupt();
+        });
     }
 
 
     protected void disconnectMainstance(EngineR2 ms)
     {
         if( this.players.size() > 0 )
-            this.disconnect_player(ms, true);
+            this.disconenct_player_mainstance(ms);
+        this.disconnectNormstance(ms);
     }
 
 
