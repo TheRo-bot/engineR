@@ -52,14 +52,14 @@ public class ReloadAction extends Action implements Updatable
         this.reloading = false;
         this.gun.reload();
         this.toBlock.unblock(toCheck);
-        System.out.println("load!");
+        // System.out.println("load!");
     }
 
 
     public void reload()
     {   
         this.reloading = true;
-        System.out.println("re...");
+        // System.out.println("re...");
         this.waitTime = this.gun.stats.reloadTime;    
         DeltaUpdater.getInstance().toUpdate.queueAdd(this);
     }

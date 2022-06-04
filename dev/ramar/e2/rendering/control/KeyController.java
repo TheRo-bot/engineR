@@ -112,13 +112,17 @@ public class KeyController
     {
         if( kc != null && combos.contains(kc) ) 
         {
-            pressers.get(kc).remove(krl);
+            List<KeyPressListener> li = pressers.get(kc);
 
-            if( pressers.get(kc).isEmpty() && releasers.get(kc).isEmpty() )
+            if( li != null )
             {
-                pressers.remove(kc);
-                combos.remove(kc);
-            }
+                li.remove(krl);
+                if( li.isEmpty() && releasers.get(kc).isEmpty() )
+                {
+                    pressers.remove(kc);
+                    combos.remove(kc);
+                }
+            } 
         }
     }
 

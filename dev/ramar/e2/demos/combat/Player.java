@@ -140,7 +140,10 @@ public class Player implements Drawable, Point, Updatable
         DeltaUpdater.getInstance().toUpdate.queueRemove(this);
 
         for( EngineR2 instance : this.demo.instances )
+        {
             instance.viewport.layers.top.remove(this);
+            this.unbindControl(instance);
+        }
 
         this.demo.hitman.queueRemove("player:bodies", this.hitter);
     }

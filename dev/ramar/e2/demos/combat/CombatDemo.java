@@ -43,7 +43,7 @@ public class CombatDemo extends BaseDemo
 
         java.util.Random rd = new java.util.Random();
 
-        int dist = 500;
+        int dist = 200;
 
         for( int ii = 0; ii < 5; ii++ )
         {
