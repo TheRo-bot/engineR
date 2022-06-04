@@ -24,9 +24,11 @@ public class CombatDemo extends BaseDemo
     }
 
 
-    List<Player> players = new ArrayList<>();
-    List<Enemy>  enemies = new ArrayList<>();
-    List<Rectbox> hitboxes = new ArrayList<>();
+    public final List<Player> players = new ArrayList<>();
+    public final List<Enemy>  enemies = new ArrayList<>();
+
+    public final List<EngineR2> instances = new ArrayList<>();
+    public EngineR2 mainstance = null;
 
     Thread testThread;
 
@@ -40,13 +42,23 @@ public class CombatDemo extends BaseDemo
 
         int dist = 500;
 
-        for( int ii = 0; ii < 10; ii++ )
+        for( int ii = 0; ii < 100; ii++ )
         {
-            Enemy enemy = new Enemy(rd.nextInt(dist) - dist * 0.5, rd.nextInt(dist) - dist * -0.5)
+            double  an = rd.nextInt(360),
+                   pow = rd.nextInt(dist);
+
+            double x = Math.sin(an) * pow,
+                   y = Math.cos(an) * pow;
+
+            Enemy enemy = new Enemy(x, y)
                 .withDemo(this)
             ;
+
+            this.hitman.add("enemy:bodies", enemy.hitter);
+
             this.enemies.add(enemy);
         }
+
 
     }
 
@@ -79,76 +91,56 @@ public class CombatDemo extends BaseDemo
         System.out.println(this.players.size());
     }
 
-    private void connect_player_mainstance(EngineR2 er)
+    /* new shit
+    --===---------
+    */
+
+    protected void connectMainstance(EngineR2 main)
     {
-        // establish keybinds
+        this.mainstance = main;
+
         for( Player p : this.players )
-        {
-            p.bindControl(er);
-            er.viewport.layers.mid.add(p);
-        }
+            p.bindControl(main);
 
-        er.viewport.window.onClose.add(() -> { if( testThread != null ) testThread.interrupt(); } );
-    }
-
-    private void disconenct_player_mainstance(EngineR2 er)
-    {
-        for( Player p : this.players )
-            // revoke keybinds
-            p.unbindControl(er);
-    }
-
-
-    private void connect_player(EngineR2 er, boolean mainstance)
-    {
-        // viewing
-        for( Rectbox rb : this.hitboxes )
-            er.viewport.layers.mid.add(rb);
-    }
-
-
-    private void disconnect_player(EngineR2 er, boolean mainstance)
-    {
-        // viewing
-        for( Player p : this.players )
-            er.viewport.layers.mid.remove(p);
-    }
-
-
-    protected void connectMainstance(EngineR2 ms)
-    {
-        if( this.players.size() > 0 )
-            this.connect_player_mainstance(ms);
-        this.connectNormstance(ms);
-
-        ms.viewport.window.onClose.add(() ->
+        this.connectNormstance(main);
+        main.viewport.window.onClose.add(() ->
         {
             DeltaUpdater.getInstance().interrupt();
-        });
+        });        
     }
 
-
-    protected void disconnectMainstance(EngineR2 ms)
+    protected void disconnectMainstance(EngineR2 main)
     {
-        if( this.players.size() > 0 )
-            this.disconenct_player_mainstance(ms);
-        this.disconnectNormstance(ms);
+        this.mainstance = null;
+
+        for( Player p : this.players )
+            p.unbindControl(main);
+        
+        this.disconnectNormstance(main);
+        main.viewport.window.onClose.add(() -> { if( testThread != null ) testThread.interrupt(); } );
     }
 
 
-
-    protected void connectNormstance(EngineR2 ns)
+    protected void connectNormstance(EngineR2 norm)
     {
-        if( this.players.size() > 0 )
-            this.connect_player(ns, false);
+        for( Player p : this.players )
+            norm.viewport.layers.top.add(p);
+
+        for( Enemy e : this.enemies )
+            norm.viewport.layers.mid.add(e);
+
+        this.instances.add(norm);
     }
 
-
-    protected void disconnectNormstance(EngineR2 ns)
+    protected void disconnectNormstance(EngineR2 norm)
     {
-        if( this.players.size() > 0 )
-            this.disconnect_player(ns, false);
-    }
+        for( Player p : this.players )
+            norm.viewport.layers.top.remove(p);
 
+        for( Enemy e : this.enemies )
+            norm.viewport.layers.mid.remove(e);
+
+        this.instances.remove(norm);
+    }
 
 }

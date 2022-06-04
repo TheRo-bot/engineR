@@ -7,9 +7,12 @@ import dev.ramar.e2.rendering.ViewPort;
 
 import dev.ramar.e2.rendering.drawing.rect.RectMods;
 
+import dev.ramar.e2.demos.combat.CombatDemo;
+
 import dev.ramar.e2.demos.combat.DeltaUpdater;
 import dev.ramar.e2.demos.combat.DeltaUpdater.Updatable;
 
+import dev.ramar.e2.demos.combat.hitboxes.Hitter;
 import dev.ramar.e2.demos.combat.hitboxes.Rectbox;
 
 import dev.ramar.e2.structures.Vec2;
@@ -24,12 +27,12 @@ public class Bullet implements Drawable, Updatable
     public final Vec2 pos = new Vec2();
     public final Vec2 vel = new Vec2();
 
-    public final Rectbox box = new Rectbox(5, 5);
+    public final Hitter<Bullet, Rectbox> hitter = new Hitter(this, new Rectbox(5, 5));
 
     public Bullet(double xv, double yv)
     {
         this.vel.set(xv, yv);
-        this.box.withAnchor(this.pos);
+        this.hitter.box.withAnchor(this.pos);
 
         this.mods
             .colour.with(255, 255, 255, 255)
@@ -41,6 +44,13 @@ public class Bullet implements Drawable, Updatable
     {
         this(xv, yv);
         this.pos.set(x, y);
+    }
+
+
+
+    public void kill(CombatDemo cd)
+    {
+        this.onCease();
     }
 
 
@@ -97,6 +107,18 @@ public class Bullet implements Drawable, Updatable
     public final RectMods mods = new RectMods();
 
 
+    /* Hitter Implementation
+    --===----------------------
+    */
+
+
+
+
+    /* Drawable Implementation
+    --===------------------------
+    */
+
+
     public void drawAt(double x, double y, ViewPort vp)
     {
         vp.draw.rect.withMod(this.mods);
@@ -107,7 +129,7 @@ public class Bullet implements Drawable, Updatable
 
         Colour origColour = new Colour(this.mods.colour.get());
 
-        if( this.box.isHit() )
+        if( this.hitter.isHit() )
             this.mods.colour.with(255, 0, 0, 255);
 
         this.mods
@@ -115,8 +137,8 @@ public class Bullet implements Drawable, Updatable
             .offset.with(px, py)
         ;
 
-        double w = this.box.getW(),
-               h = this.box.getH();
+        double w = this.hitter.box.getW(),
+               h = this.hitter.box.getH();
 
         vp.draw.rect.poslen(w * -0.5, h * -0.5, w, h);
 

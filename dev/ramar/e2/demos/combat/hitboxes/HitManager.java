@@ -1,11 +1,15 @@
 package dev.ramar.e2.demos.combat.hitboxes;
 
+import dev.ramar.utils.PairedValues;
 
 import java.util.Map;
 import java.util.HashMap;
 
 import java.util.List;
 import java.util.LinkedList;
+
+import java.util.Set;
+import java.util.HashSet;
 
 public class HitManager
 {
@@ -17,7 +21,37 @@ public class HitManager
 
     private Map<String, List<Hitter>> hitLayers = new HashMap<>();
 
-    public void add(String channel, Hitter hit)
+    private Set<PairedValues<PairedValues<String, Hitter>, Boolean>> toProc = new HashSet<>();
+
+    public synchronized void queueAdd(String channel, Hitter hit)
+    {
+        if( hit != null && this.hitLayers.get(channel) != null )
+        {
+            toProc.add(new PairedValues<PairedValues<String, Hitter>, Boolean>()
+                .withK(new PairedValues<String, Hitter>()
+                    .withK(channel)
+                    .withV(hit)
+                )
+                .withV(true)
+            );
+        }
+    }
+
+    public synchronized void queueRemove(String channel, Hitter hit)
+    {
+        if( hit != null && this.hitLayers.get(channel) != null )
+        {
+            toProc.add(new PairedValues<PairedValues<String, Hitter>, Boolean>()
+                .withK(new PairedValues<String, Hitter>()
+                    .withK(channel)
+                    .withV(hit)
+                )
+                .withV(false)
+            );
+        }
+    }
+
+    public synchronized void add(String channel, Hitter hit)
     {
         List<Hitter> li = this.hitLayers.get(channel);
         if( li == null ) 
@@ -28,7 +62,7 @@ public class HitManager
         li.add(hit);
     }
 
-    public boolean remove(String channel, Hitter hit)
+    public synchronized boolean remove(String channel, Hitter hit)
     {
         boolean out = false;
 
@@ -54,25 +88,60 @@ public class HitManager
     // }
 
 
-    public void proc(String fr, String to)
+    public synchronized void proc(String fr, String to)
     {
         List<Hitter> li_fr = this.hitLayers.get(fr),
-                     li_to = this.hitLayers.get(fr);
+                     li_to = this.hitLayers.get(to);
 
-        if( li_fr != null && li_to != null )
+        this.proc(li_fr, li_to);
+    }
+
+    public synchronized void proc(List<Hitter> fr, String to)
+    {
+        this.proc(fr, this.hitLayers.get(to));
+    }
+
+    public synchronized void proc(String fr, List<Hitter> to)
+    {
+        this.proc(this.hitLayers.get(fr), to);
+    }
+
+    public synchronized void proc(List<Hitter> fr, List<Hitter> to)
+    {
+
+        for( PairedValues<PairedValues<String, Hitter>, Boolean> proc : this.toProc )
         {
-            for( Hitter hit_to : li_to )
+            if( proc.getV() )
+                this.add(proc.getK().getK(), proc.getK().getV());
+            else
+                this.remove(proc.getK().getK(), proc.getK().getV());
+        }
+        toProc.clear();
+
+        if( fr != null && to != null )
+        {
+            for( Hitter hit_to : to )
             {
-                hit_to.resetHit();
-                for( Hitter hit_fr : li_fr )
+                if( hit_to != null )
                 {
-                    if( hit_fr.collidesWith(hit_to) )
+                    synchronized(hit_to)
                     {
-                        hit_to.onHit();
-                        break;
+                        hit_to.onClear();
+                        for( Hitter hit_fr : fr )
+                        {
+                            if( hit_fr.box != null && hit_to.box != null )
+                            {
+                                if( hit_fr.box.collidesWith(hit_to.box) )
+                                {
+                                    hit_to.onHit(hit_fr);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
+
 }
