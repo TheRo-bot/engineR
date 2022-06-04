@@ -87,15 +87,15 @@ public class Enemy implements Drawable, Point, Updatable
 
 
     public int maxHealth = 5,
-               health = new java.util.Random().nextInt(this.maxHealth);
+               health = this.maxHealth;
 
     public void onShot(Bullet b)
     {
         this.health--;
 
-        this.hitter.box.drawing
-            .colour.withA((this.health + 1) / (double)(this.maxHealth))
-        ;
+        // this.hitter.box.drawing
+        //     .colour.withA((this.health) / (double)(this.maxHealth))
+        // ;
 
         b.kill(this.demo);
 
@@ -126,7 +126,7 @@ public class Enemy implements Drawable, Point, Updatable
 
 
 
-    private CombatDemo demo = null;
+    public CombatDemo demo = null;
     public Enemy withDemo(CombatDemo cd)
     {
         this.demo = cd;
@@ -206,7 +206,7 @@ public class Enemy implements Drawable, Point, Updatable
     }
 
     private double waitTime = 1.5,
-                   delta = 0.0;
+                   delta = 4.0;
 
     public boolean update(double d)
     {

@@ -12,6 +12,9 @@ import dev.ramar.e2.demos.combat.hitboxes.HitManager;
 
 import dev.ramar.e2.demos.combat.enemies.Enemy;
 
+import dev.ramar.e2.demos.combat.DeltaUpdater;
+import dev.ramar.e2.demos.combat.DeltaUpdater.Updatable;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -62,6 +65,27 @@ public class CombatDemo extends BaseDemo
             this.enemies.add(enemy);
         }
 
+        DeltaUpdater.getInstance().toUpdate.add(new Updatable()
+        {
+            private double waitTime = 0.0125;
+            private double delta = 0.0;
+            public boolean update(double d)
+            {
+                this.delta -= d;
+                if( this.delta <= 0.0 )
+                {
+                    this.delta = this.waitTime;
+                    this.collide();
+                }
+                return false;
+            }
+
+            public void collide()
+            {
+                CombatDemo.this.hitman.proc("enemy:bullets", "player:bodies");
+            }
+        });
+
 
     }
 
@@ -77,11 +101,13 @@ public class CombatDemo extends BaseDemo
         java.util.Random rd = new java.util.Random();
 
 
-        for( int ii = 0; ii < 1; ii++ )
+        for( int ii = 0; ii < 4; ii++ )
         {
             Player p = new Player()
                 .withDemo(this)
             ;
+
+            this.hitman.add("player:bodies", p.hitter);
 
             p.getAction_movement().speed += rd.nextDouble();
             p.getAction_movement().accel += rd.nextDouble();

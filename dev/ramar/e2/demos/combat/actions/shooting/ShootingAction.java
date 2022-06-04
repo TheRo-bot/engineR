@@ -105,7 +105,6 @@ public class ShootingAction extends Action implements Drawable, Updatable
 
     public synchronized void blockedStartShooting(ActionManager... ams)
     {
-        System.out.println("blockedStartShooting " + !this.isBlocked(ams));
         if( !this.isBlocked(ams) )
         {
             this.toCheck = ams;

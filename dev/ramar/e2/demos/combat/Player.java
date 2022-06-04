@@ -69,6 +69,13 @@ public class Player implements Drawable, Point, Updatable
             .colour.with(125, 125, 125, 255)
         ;
 
+        this.hitter.onHit.add((Hitter collidee) -> 
+        {
+            Object owner = collidee.getOwner();
+            if( owner instanceof Bullet )
+                this.onShot((Bullet)owner);
+        });
+
         // gun.shots.onAdd.add((Bullet b) -> 
         // {
         //     System.out.println("i got a bullet");
@@ -108,6 +115,34 @@ public class Player implements Drawable, Point, Updatable
                 instance.viewport.layers.top.add(b);
         });
 
+    }
+
+
+    public double maxHealth = 10,
+                  health = (double)new java.util.Random().nextInt((int)maxHealth);
+
+    public void onShot(Bullet b)
+    {
+        health--;
+        this.hitter.box.drawing
+            .colour.withA((this.health + 1) / this.maxHealth)
+        ;
+
+        if( health <= 0 )
+            this.kill();
+    }
+
+
+    public void kill()
+    {
+        this.demo.players.remove(this);
+
+        DeltaUpdater.getInstance().toUpdate.queueRemove(this);
+
+        for( EngineR2 instance : this.demo.instances )
+            instance.viewport.layers.top.remove(this);
+
+        this.demo.hitman.queueRemove("player:bodies", this.hitter);
     }
 
     public final Hitter<Player, Rectbox> hitter;

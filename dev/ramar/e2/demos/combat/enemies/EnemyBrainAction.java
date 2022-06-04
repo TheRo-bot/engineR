@@ -6,6 +6,7 @@ import dev.ramar.e2.demos.combat.actions.Action;
 import dev.ramar.e2.demos.combat.actions.ActionManager;
 import dev.ramar.e2.demos.combat.actions.shooting.ShootingAction;
 
+import dev.ramar.e2.demos.combat.Player;
 
 import java.util.Random;
 
@@ -26,6 +27,16 @@ public class EnemyBrainAction extends Action
 
     public void think(ActionManager... ams)
     {
+        this.enemy.withTarget(null);
+        for( Player p : this.enemy.demo.players )
+        {
+            if( p.health >= 0 )
+            {
+                this.enemy.withTarget(p);
+                break;
+            }
+        }
+
         if( this.enemy.gun.clip == 0 )
         {
             this.enemy.getAction_reload().blockedReload(ams);
@@ -43,7 +54,6 @@ public class EnemyBrainAction extends Action
 
     public void blockedThink(ActionManager... ams)
     {
-        System.out.println("blockedThink!" + !this.isBlocked(ams));
         if( !this.isBlocked(ams) )
         {
             this.toBlock.block(ams);
