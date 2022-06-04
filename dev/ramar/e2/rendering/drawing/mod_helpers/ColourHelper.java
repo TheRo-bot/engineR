@@ -35,6 +35,52 @@ public class ColourHelper<E extends ModHelperOwner>
     {   return this.colour.getAlpha();   }
 
 
+    public E withR(int val)
+    {
+        val = Math.max(0, Math.min(255, val));
+        this.colour.setRed(val);
+        return this.owner;
+    }
+
+    public E withR(double val)
+    {   return this.withR((int)(val * 255));   }
+
+
+    public E withG(int val)
+    {   
+        val = Math.max(0, Math.min(255, val));
+        this.colour.setGreen(val);
+        return this.owner;
+    }
+
+    public E withG(double val)
+    {   return this.withG((int)(val * 255));   }
+
+
+    public E withB(int val)
+    {   
+        val = Math.max(0, Math.min(255, val));
+
+        this.colour.setBlue(val);
+        return this.owner;  }
+
+    public E withB(double val)
+    {   return this.withB((int)(val * 255));   }
+
+
+    public E withA(int val)
+    {   
+        val = Math.max(0, Math.min(255, val));
+        this.colour.setAlpha(val);
+
+        return this.owner;  
+    }
+
+    public E withA(double val)
+    {   return this.withA((int)(val * 255));   }
+
+
+
     public E with(Colour c)
     {
         this.colour = c;

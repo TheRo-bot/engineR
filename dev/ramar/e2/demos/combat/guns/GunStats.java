@@ -6,7 +6,7 @@ public class GunStats
 
     public static class Defaults
     {
-        public static final double VELOCITY = 10.0;
+        public static final double VELOCITY = 30.0;
         public static final int CLIP_SIZE = 10;
 
         public static final double RELOAD_TIME = 0.5;

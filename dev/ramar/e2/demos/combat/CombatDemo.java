@@ -8,13 +8,15 @@ import dev.ramar.e2.EngineR2;
 import dev.ramar.e2.demos.combat.hitboxes.Rectbox;
 import dev.ramar.e2.demos.combat.actions.Action;
 
+import dev.ramar.e2.demos.combat.hitboxes.HitManager;
+
+import dev.ramar.e2.demos.combat.enemies.Enemy;
+
 import java.util.List;
 import java.util.ArrayList;
 
 public class CombatDemo extends BaseDemo
 {
-
-
     public CombatDemo()
     {
         if( DeltaUpdater.getInstance() != null )
@@ -22,8 +24,11 @@ public class CombatDemo extends BaseDemo
     }
 
 
-    List<Player> players = new ArrayList<>();
-    List<Rectbox> hitboxes = new ArrayList<>();
+    public final List<Player> players = new ArrayList<>();
+    public final List<Enemy>  enemies = new ArrayList<>();
+
+    public final List<EngineR2> instances = new ArrayList<>();
+    public EngineR2 mainstance = null;
 
     Thread testThread;
 
@@ -36,14 +41,29 @@ public class CombatDemo extends BaseDemo
         java.util.Random rd = new java.util.Random();
 
         int dist = 500;
-        for( int ii = 0; ii < 30; ii++ )
-            hitboxes.add(new Rectbox(rd.nextInt(dist) - dist * 0.5, rd.nextInt(dist) - dist * 0.5, 30, 30));
 
-        for( Player p : this.players )
-            for( Rectbox rb : hitboxes )
-                p.hitboxes.add(rb);
+        for( int ii = 0; ii < 100; ii++ )
+        {
+            double  an = rd.nextInt(360),
+                   pow = rd.nextInt(dist);
+
+            double x = Math.sin(an) * pow,
+                   y = Math.cos(an) * pow;
+
+            Enemy enemy = new Enemy(x, y)
+                .withDemo(this)
+            ;
+
+            this.hitman.add("enemy:bodies", enemy.hitter);
+
+            this.enemies.add(enemy);
+        }
+
+
     }
 
+
+    public final HitManager hitman = new HitManager();
 
     /* Player Methods
     --===---------------
@@ -56,7 +76,10 @@ public class CombatDemo extends BaseDemo
 
         for( int ii = 0; ii < 1; ii++ )
         {
-            Player p = new Player();
+            Player p = new Player()
+                .withDemo(this)
+            ;
+
             p.getAction_movement().speed += rd.nextDouble();
             p.getAction_movement().accel += rd.nextDouble();
             int dist = 100;
@@ -68,69 +91,56 @@ public class CombatDemo extends BaseDemo
         System.out.println(this.players.size());
     }
 
+    /* new shit
+    --===---------
+    */
 
-    private void connect_player(EngineR2 er, boolean mainstance)
+    protected void connectMainstance(EngineR2 main)
     {
-        // viewing
-        for( Rectbox rb : this.hitboxes )
-            er.viewport.layers.mid.add(rb);
-        if( mainstance )
-        {
-            // establish keybinds
-            for( Player p : this.players )
-            {
-                p.bindControl(er);
-                er.viewport.layers.mid.add(p);
-            }
-
-            er.viewport.window.onClose.add(() -> { if( testThread != null ) testThread.interrupt(); } );
-        }
-
-    }
-
-
-    private void disconnect_player(EngineR2 er, boolean mainstance)
-    {
-        if( mainstance )
-        {
-            for( Player p : this.players )
-                // revoke keybinds
-                p.unbindControl(er);
-        }
+        this.mainstance = main;
 
         for( Player p : this.players )
-            // viewing
-            er.viewport.layers.mid.remove(p);
+            p.bindControl(main);
+
+        this.connectNormstance(main);
+        main.viewport.window.onClose.add(() ->
+        {
+            DeltaUpdater.getInstance().interrupt();
+        });        
     }
 
-
-    protected void connectMainstance(EngineR2 ms)
+    protected void disconnectMainstance(EngineR2 main)
     {
-        if( this.players.size() > 0 )
-            this.connect_player(ms, true);
+        this.mainstance = null;
+
+        for( Player p : this.players )
+            p.unbindControl(main);
+        
+        this.disconnectNormstance(main);
+        main.viewport.window.onClose.add(() -> { if( testThread != null ) testThread.interrupt(); } );
     }
 
 
-    protected void disconnectMainstance(EngineR2 ms)
+    protected void connectNormstance(EngineR2 norm)
     {
-        if( this.players.size() > 0 )
-            this.disconnect_player(ms, true);
+        for( Player p : this.players )
+            norm.viewport.layers.top.add(p);
+
+        for( Enemy e : this.enemies )
+            norm.viewport.layers.mid.add(e);
+
+        this.instances.add(norm);
     }
 
-
-
-    protected void connectNormstance(EngineR2 ns)
+    protected void disconnectNormstance(EngineR2 norm)
     {
-        if( this.players.size() > 0 )
-            this.connect_player(ns, false);
+        for( Player p : this.players )
+            norm.viewport.layers.top.remove(p);
+
+        for( Enemy e : this.enemies )
+            norm.viewport.layers.mid.remove(e);
+
+        this.instances.remove(norm);
     }
-
-
-    protected void disconnectNormstance(EngineR2 ns)
-    {
-        if( this.players.size() > 0 )
-            this.disconnect_player(ns, false);
-    }
-
 
 }

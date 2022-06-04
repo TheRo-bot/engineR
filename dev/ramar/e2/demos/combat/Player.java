@@ -31,11 +31,15 @@ import dev.ramar.e2.demos.combat.actions.shooting.ReloadAction;
 
 import dev.ramar.e2.structures.Point;
 
+import dev.ramar.e2.demos.combat.hitboxes.Hitter;
 import dev.ramar.e2.demos.combat.hitboxes.Rectbox;
 
 import dev.ramar.e2.demos.combat.guns.semiauto.SemiAuto;
 
 import dev.ramar.e2.demos.combat.guns.bullets.BaseBulletFactory;
+import dev.ramar.e2.demos.combat.guns.bullets.Bullet;
+
+import dev.ramar.e2.demos.combat.CombatDemo;
 
 import dev.ramar.utils.PairedValues;
 import dev.ramar.utils.HiddenList;
@@ -46,6 +50,7 @@ import java.util.ArrayList;
 
 public class Player implements Drawable, Point, Updatable
 {
+
     public Player()
     {
         this.rmods
@@ -55,9 +60,13 @@ public class Player implements Drawable, Point, Updatable
         this.setup();
 
         this.move = new MoveHandler(this);
-        this.box.drawing
+        this.hitter = new Hitter<>(this, new Rectbox(10, 10)
+            .withAnchor(this.pos)
+        );
+
+        this.hitter.box.drawing
             .fill.with()
-            .colour.with(0, 0, 255, 255)
+            .colour.with(125, 125, 125, 255)
         ;
 
         // gun.shots.onAdd.add((Bullet b) -> 
@@ -68,7 +77,53 @@ public class Player implements Drawable, Point, Updatable
             .withBulletFactory(new BaseBulletFactory())
             .withOrigin(this)
         ;
+        this.gun.stats.clipSize = 30;
+        this.gun.reload();
 
+        this.gun.onShoot.add((Bullet b) ->
+        {   
+            b.onCease.add(() -> 
+            {
+                synchronized(Player.this.bullets)
+                {
+                    if( b != null )
+                    {
+                        Player.this.bullets.remove(b);
+
+                        Player.this.demo.hitman.remove("player:bullets", b.hitter);
+
+                        for( EngineR2 instance : Player.this.demo.instances )
+                            instance.viewport.layers.top.remove(b);
+
+                        DeltaUpdater.getInstance().toUpdate.queueRemove(b);
+                    }
+
+                }
+            });
+
+            DeltaUpdater.getInstance().toUpdate.queueAdd(b);
+            synchronized(Player.this.bullets)
+            {
+                if( b != null )
+                {
+                    Player.this.bullets.add(b);
+                    Player.this.demo.hitman.add("player:bullets", b.hitter);
+                    for( EngineR2 instance : Player.this.demo.instances )
+                        instance.viewport.layers.top.add(b);
+                }
+            }
+        });
+
+    }
+
+    public final Hitter<Player, Rectbox> hitter;
+
+
+    private CombatDemo demo = null;
+    public Player withDemo(CombatDemo cd)
+    {
+        this.demo = cd;
+        return this;
     }
 
 
@@ -218,21 +273,41 @@ public class Player implements Drawable, Point, Updatable
         this.pos.add(thisXV, thisYV);
 
 
-        boolean collides = false;
-        for( Rectbox hb : hitboxes.getList() )
-            if( hb.collidesWith(this.box) )
-            {
-                collides = true;
-                break;
-            }
-        if( collides )
-            this.box.drawing
-                .colour.with(255, 0, 0, 255)
-            ;   
-        else
-            this.box.drawing
-                .colour.with(0, 0, 255, 255)
-            ;
+
+        this.demo.hitman.proc("player:bullets", "enemy:bodies");
+
+
+        // for( Bullet b : this.bullets )
+        // {
+        //     b.box.setHit(false);
+        //     for( Rectbox hb : hitboxes.getList() )
+        //     {
+        //         if( b.box.collidesWith(hb) )
+        //         {
+        //             b.box.setHit(true);
+        //             break;
+        //         }
+        //     }
+        // }
+
+        // boolean collides = false;
+        // for( Rectbox hb : hitboxes.getList() )
+        // {
+        //     if( hb.collidesWith(this.hitter.box) )
+        //     {
+        //         collides = true;
+        //         break;
+        //     }
+        // }
+
+        // if( collides )
+        //     this.hitter.box.drawing
+        //         .colour.with(255, 0, 0, 255)
+        //     ;   
+        // else
+        //     this.hitter.box.drawing
+        //         .colour.with(0, 0, 255, 255)
+        //     ;
         // for( EngineR2 instance : Player.this.trackstances )
         // {
         //     instance.viewport.setCenterX(-this.pos.getX());
@@ -382,14 +457,17 @@ public class Player implements Drawable, Point, Updatable
     --====---------------
     */
 
+
     Rectbox box = new Rectbox(this, 15, 15);
 
     private AWTPolyline pline = new AWTPolyline();
 
     private RectMods rmods = new RectMods();
 
+    private List<Bullet> bullets = new ArrayList<>();
+
     public void drawAt(double x, double y, ViewPort vp)
     {
-        this.box.drawAt(x, y, vp);
+        this.hitter.box.drawAt(x, y, vp);
     }
 }
