@@ -9,6 +9,8 @@ import dev.ramar.e2.structures.Point;
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.ViewPort;
 
+import dev.ramar.e2.demos.combat.guns.semiauto.SemiAuto;
+
 import dev.ramar.utils.PairedValues;
 
 import java.util.Set;
@@ -28,11 +30,13 @@ public class ShootingAction extends Action implements Drawable, Updatable
     public static final String NAME = "ability:player:shoot";
 
 
-    private Player player;
-    public ShootingAction(Player player)
+    private SemiAuto gun;
+    public ShootingAction(SemiAuto g)
     {
         super(ShootingAction.NAME);
-        this.player = player;
+        if( g == null )
+            new Exception().printStackTrace();
+        this.gun = g;
     }
 
     private Point targetPoint;
@@ -51,19 +55,18 @@ public class ShootingAction extends Action implements Drawable, Updatable
     public boolean update(double delta)
     {
         boolean kill = false;
-
-        if( !this.isBlocked(toCheck) && shotCount < this.player.gun.stats.chainShotAmount )
+        if( !this.isBlocked(toCheck) && shotCount < this.gun.stats.chainShotAmount )
         {
             if( waitTime < 0.0 )
             {
-                if( this.player.gun.canShoot() )
+                if( this.gun.canShoot() )
                 {   
                     synchronized(this)
                     {
                         if( this.targetPoint != null )
                         {
-                            this.player.gun.shootAt(targetPoint.getX(), targetPoint.getY());
-                            this.waitTime = this.player.gun.stats.shootDelay;
+                            this.gun.shootAt(targetPoint.getX(), targetPoint.getY());
+                            this.waitTime = this.gun.stats.shootDelay;
                             shotCount++;
                         }
                     }
@@ -92,16 +95,17 @@ public class ShootingAction extends Action implements Drawable, Updatable
     {   
         shotCount = 0;
         waitTime = 0;
-        DeltaUpdater.getInstance().toUpdate.add(this);
+        DeltaUpdater.getInstance().toUpdate.queueAdd(this);
     }
 
     public void stopShooting()
     {
-        DeltaUpdater.getInstance().toUpdate.remove(this);
+        DeltaUpdater.getInstance().toUpdate.queueRemove(this);
     }
 
     public synchronized void blockedStartShooting(ActionManager... ams)
     {
+        System.out.println("blockedStartShooting " + !this.isBlocked(ams));
         if( !this.isBlocked(ams) )
         {
             this.toCheck = ams;

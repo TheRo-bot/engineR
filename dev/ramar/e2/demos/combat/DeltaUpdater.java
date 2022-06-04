@@ -61,7 +61,9 @@ public class DeltaUpdater
                 this.close();
             }
             catch(InterruptedException e) {}
-        }));
+        }, "[ER2-DU-SHUTDOWN-HOOK]"));
+
+        this.toUpdate.queueAdd(Timer.getInstance());
     }
 
     public boolean isRunning()
@@ -139,6 +141,6 @@ public class DeltaUpdater
             }   
             catch(InterruptedException e)
             {}
-        });
+        }, "[ER2-DU-UPDATER]");
     }
 }

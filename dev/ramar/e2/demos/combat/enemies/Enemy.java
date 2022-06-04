@@ -14,8 +14,15 @@ import dev.ramar.e2.demos.combat.hitboxes.Hitter;
 import dev.ramar.e2.demos.combat.hitboxes.Rectbox;
 
 import dev.ramar.e2.demos.combat.guns.bullets.Bullet;
+import dev.ramar.e2.demos.combat.guns.bullets.BaseBulletFactory;
 
 import dev.ramar.e2.demos.combat.CombatDemo;
+
+import dev.ramar.e2.demos.combat.actions.shooting.ReloadAction;
+import dev.ramar.e2.demos.combat.actions.shooting.ShootingAction;
+import dev.ramar.e2.demos.combat.actions.ActionManager;
+
+import dev.ramar.e2.demos.combat.guns.semiauto.SemiAuto;
 
 import dev.ramar.e2.structures.Point;
 import dev.ramar.e2.structures.Vec2;
@@ -38,9 +45,46 @@ public class Enemy implements Drawable, Point, Updatable
         });
 
         this.hitter.box.drawing
-            .colour.withA(this.health / (double)this.maxHealth)
+            .colour.withA((this.health + 1) / (double)this.maxHealth)
         ;   
+
+        this.actions
+            .withAdd(new ShootingAction(this.gun))
+            .withAdd(new ReloadAction(this.gun))
+            .withAdd(new EnemyBrainAction(this))
+        ;
+
+        this.setupGun();
+        this.setupActions();
     }
+
+
+
+
+    public final ActionManager actions = new ActionManager();
+
+    public ShootingAction getAction_shooting()
+    {   return (ShootingAction)this.actions.get(ShootingAction.NAME);   }
+
+    public ReloadAction getAction_reload()
+    {   return (ReloadAction)this.actions.get(ReloadAction.NAME);   }
+
+    public EnemyBrainAction getAction_brain()
+    {  return (EnemyBrainAction)this.actions.get(EnemyBrainAction.NAME);   }
+
+
+
+    public void setupActions()
+    {
+        EnemyBrainAction brain = this.getAction_brain();
+        ReloadAction reload = this.getAction_reload();
+        ShootingAction shoot = this.getAction_shooting();
+
+        reload.toBlock.add(shoot, brain);
+        shoot.toBlock.add(brain);
+    }
+
+
 
     public int maxHealth = 5,
                health = new java.util.Random().nextInt(this.maxHealth);
@@ -50,7 +94,7 @@ public class Enemy implements Drawable, Point, Updatable
         this.health--;
 
         this.hitter.box.drawing
-            .colour.withA(this.health / (double)(this.maxHealth))
+            .colour.withA((this.health + 1) / (double)(this.maxHealth))
         ;
 
         b.kill(this.demo);
@@ -74,6 +118,14 @@ public class Enemy implements Drawable, Point, Updatable
     }
 
 
+    public Enemy withTarget(Point target)
+    {   
+        this.getAction_shooting().withTarget(target);
+        return this;
+    }
+
+
+
     private CombatDemo demo = null;
     public Enemy withDemo(CombatDemo cd)
     {
@@ -89,19 +141,90 @@ public class Enemy implements Drawable, Point, Updatable
     {
         if( hitter.box != null )
             hitter.box.drawAt(x, y, vp);
+
+        if( this.getAction_reload().isReloading() )
+        {
+            vp.draw.rect.withMod()
+                .colour.with(94, 45, 142, 255)
+                .fill.with()
+                .offset.with(x, y)
+                .offset.with(0, 10)
+                .offset.with(this.getX(), this.getY())
+            ;
+
+            int w = 30,
+                h =  4;
+            vp.draw.rect.poslen(w * -0.5, h * -0.5, w, h);
+            vp.draw.rect.clearMod();
+        }
     }
 
     /* Updatable Implementation
     --===-------------------------
     */
 
-    public boolean update(double delta)
+
+    public SemiAuto gun = new SemiAuto();
+
+    private void setupGun()
+    {
+        this.gun
+            .withBulletFactory(new BaseBulletFactory()
+            {
+                public Bullet make(double xv, double yv)
+                {
+                    Bullet out = super.make(xv, yv);
+                    out.mods
+                        .colour.with(181, 66, 84, 255)
+                    ;
+                    return out;
+                }
+            })
+            .withOrigin(this)
+        ;
+        this.gun.stats.clipSize = 10;
+        this.gun.stats.shootDelay = 0.075;
+        this.gun.stats.chainShotAmount = 3;
+        this.gun.reload();
+        this.gun.onShoot.add((Bullet b) ->
+        {   
+            DeltaUpdater.getInstance().toUpdate.queueAdd(b);
+            Enemy.this.demo.hitman.add("enemy:bullets", b.hitter);
+
+            for( EngineR2 instance : Enemy.this.demo.instances )
+                instance.viewport.layers.top.add(b);
+
+            b.onCease.add(() ->
+            {
+                DeltaUpdater.getInstance().toUpdate.queueRemove(b);
+                Enemy.this.demo.hitman.queueRemove("enemy:bullets", b.hitter);
+
+                for( EngineR2 instance : Enemy.this.demo.instances )
+                    instance.viewport.layers.top.remove(b);
+            });
+        });
+    }
+
+    private double waitTime = 1.5,
+                   delta = 0.0;
+
+    public boolean update(double d)
     {
         boolean kill = false;
+
+        this.delta -= d;
+
+        if( this.delta <= 0.0 )
+        {
+            this.delta = this.waitTime;
+
+            this.getAction_brain().blockedThink(this.actions);
+        }
 
 
         return kill;
     }
+
 
 
     /* Point Implementation

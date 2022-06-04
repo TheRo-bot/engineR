@@ -100,7 +100,7 @@ public class SemiAuto extends Gun<SemiAutoStats> implements Drawable
             b.pos.set(from);
             this.onShoot(b);
             this.clip--;
-            System.out.println(this.clip + " / " + this.stats.clipSize);
+            // System.out.println(this.clip + " / " + this.stats.clipSize);
         }
     }
 

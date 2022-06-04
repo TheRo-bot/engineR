@@ -11,7 +11,7 @@ public abstract class Gun<E extends GunStats>
     }
 
     public final E stats;
-    protected int clip = 0;
+    public int clip = 0;
 
     public void reload()
     {

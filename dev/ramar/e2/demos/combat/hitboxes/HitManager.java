@@ -108,7 +108,6 @@ public class HitManager
 
     public synchronized void proc(List<Hitter> fr, List<Hitter> to)
     {
-
         for( PairedValues<PairedValues<String, Hitter>, Boolean> proc : this.toProc )
         {
             if( proc.getV() )
@@ -131,7 +130,8 @@ public class HitManager
                         {
                             if( hit_fr.box != null && hit_to.box != null )
                             {
-                                if( hit_fr.box.collidesWith(hit_to.box) )
+                                boolean collidesWith = hit_fr.box.collidesWith(hit_to.box);
+                                if( collidesWith )
                                 {
                                     hit_to.onHit(hit_fr);
                                     break;

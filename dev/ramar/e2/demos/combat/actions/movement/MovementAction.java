@@ -18,12 +18,10 @@ Action: MovementAction
 */
 public class MovementAction extends Action
 {
+
     public static final String NAME = "ability:player:movement";
 
     Player player = null;
-    private ActionManager am = null;
-
-
 
     private Vec2 vec = null;
     private boolean[] directions = new boolean[4];
@@ -34,25 +32,24 @@ public class MovementAction extends Action
     public double speed = MovementAction.SPEED;
     public double accel = MovementAction.ACCEL;
 
-    public MovementAction(ActionManager am, Player p)
+    public MovementAction(Player p)
     {
         super(MovementAction.NAME);
 
-        this.am = am;
         this.player = p;
         this.vec = this.player.vecs.create((double val) ->
         {
             return val * this.accel;
         });
 
-        DeltaUpdater.getInstance().toUpdate.add((double delta) -> 
+        DeltaUpdater.getInstance().toUpdate.queueAdd((double delta) -> 
         {
             boolean stop = false;
             double x = 0.0,
                    y = 0.0;
             synchronized(this)
             {
-                if( !this.isBlocked(am) )
+                if( MovementAction.this.ams == null || !this.isBlocked(MovementAction.this.ams) )
                 {
                     if( directions[0] )
                         y -= 1.0;
@@ -123,12 +120,16 @@ public class MovementAction extends Action
         return out;
     }
 
+    private ActionManager[] ams;
 
     public synchronized void blockedUp(boolean doing, ActionManager... ams)
     {
         // if we're not doing anything and we know we're about to do something
         if( doing && this.doingNothing() )
+        {
             this.toBlock.block(ams);
+            this.ams = ams;
+        }
 
         int identity = this.doingIdentity();
         this.up(doing);
@@ -144,7 +145,10 @@ public class MovementAction extends Action
     {
         // if we're not doing anything and we know we're about to do something
         if( doing && this.doingNothing() )
+        {
             this.toBlock.block(ams);
+            this.ams = ams;
+        }
 
         int identity = this.doingIdentity();
         this.down(doing);
@@ -159,7 +163,10 @@ public class MovementAction extends Action
     {
         // if we're not doing anything and we know we're about to do something
         if( doing && this.doingNothing() )
+        {
             this.toBlock.block(ams);
+            this.ams = ams;
+        }
 
         int identity = this.doingIdentity();
         this.left(doing);
@@ -174,7 +181,10 @@ public class MovementAction extends Action
     {
         // if we're not doing anything and we know we're about to do something
         if( doing && this.doingNothing() )
+        {
             this.toBlock.block(ams);
+            this.ams = ams; 
+        }
 
         int identity = this.doingIdentity();
         this.right(doing);

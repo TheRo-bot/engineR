@@ -42,7 +42,7 @@ public class CombatDemo extends BaseDemo
 
         int dist = 500;
 
-        for( int ii = 0; ii < 100; ii++ )
+        for( int ii = 0; ii < 5; ii++ )
         {
             double  an = rd.nextInt(360),
                    pow = rd.nextInt(dist);
@@ -53,6 +53,9 @@ public class CombatDemo extends BaseDemo
             Enemy enemy = new Enemy(x, y)
                 .withDemo(this)
             ;
+
+            DeltaUpdater.getInstance().toUpdate.queueAdd(enemy);
+            enemy.withTarget(this.players.get(0));
 
             this.hitman.add("enemy:bodies", enemy.hitter);
 

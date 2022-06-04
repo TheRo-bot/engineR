@@ -90,7 +90,7 @@ public class Player implements Drawable, Point, Updatable
                     {
                         Player.this.bullets.remove(b);
 
-                        Player.this.demo.hitman.remove("player:bullets", b.hitter);
+                        Player.this.demo.hitman.queueRemove("player:bullets", b.hitter);
 
                         for( EngineR2 instance : Player.this.demo.instances )
                             instance.viewport.layers.top.remove(b);
@@ -102,16 +102,10 @@ public class Player implements Drawable, Point, Updatable
             });
 
             DeltaUpdater.getInstance().toUpdate.queueAdd(b);
-            synchronized(Player.this.bullets)
-            {
-                if( b != null )
-                {
-                    Player.this.bullets.add(b);
-                    Player.this.demo.hitman.add("player:bullets", b.hitter);
-                    for( EngineR2 instance : Player.this.demo.instances )
-                        instance.viewport.layers.top.add(b);
-                }
-            }
+            Player.this.bullets.add(b);
+            Player.this.demo.hitman.add("player:bullets", b.hitter);
+            for( EngineR2 instance : Player.this.demo.instances )
+                instance.viewport.layers.top.add(b);
         });
 
     }
@@ -135,21 +129,21 @@ public class Player implements Drawable, Point, Updatable
 
     private void setup()
     {
-        this.actions.add(new MovementAction(this.actions, this));
+        this.actions.add(new MovementAction(this));
 
-        ShootingAction sa = new ShootingAction(this);
+        ShootingAction sa = new ShootingAction(this.gun);
         this.actions.add(sa);
 
-        ReloadAction ra = new ReloadAction(this);
+        ReloadAction ra = new ReloadAction(this.gun);
         ra.toBlock.add(sa);
         this.actions.add(ra);
     }
 
     public void startUpdate()
-    {  DeltaUpdater.getInstance().toUpdate.add(this);  }
+    {  DeltaUpdater.getInstance().toUpdate.queueAdd(this);  }
 
     public void stopUpdate()
-    {  DeltaUpdater.getInstance().toUpdate.remove(this);  }
+    {  DeltaUpdater.getInstance().toUpdate.queueRemove(this);  }
 
 
     /* Point Implementation
@@ -469,5 +463,21 @@ public class Player implements Drawable, Point, Updatable
     public void drawAt(double x, double y, ViewPort vp)
     {
         this.hitter.box.drawAt(x, y, vp);
+
+        if( this.getAction_reload().isReloading() )
+        {
+            vp.draw.rect.withMod()
+                .colour.with(94, 45, 142, 255)
+                .fill.with()
+                .offset.with(x, y)
+                .offset.with(0, 10)
+                .offset.with(this.getX(), this.getY())
+            ;
+
+            int w = 30,
+                h =  4;
+            vp.draw.rect.poslen(w * -0.5, h * -0.5, w, h);
+            vp.draw.rect.clearMod();
+        }
     }
 }

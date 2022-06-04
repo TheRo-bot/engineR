@@ -3,6 +3,7 @@ package dev.ramar.e2.demos.combat.actions.shooting;
 import dev.ramar.e2.demos.combat.*;
 import dev.ramar.e2.demos.combat.actions.*;
 
+import dev.ramar.e2.demos.combat.guns.Gun;
 
 import dev.ramar.e2.demos.combat.DeltaUpdater;
 import dev.ramar.e2.demos.combat.DeltaUpdater.Updatable;
@@ -13,11 +14,12 @@ public class ReloadAction extends Action implements Updatable
 {
     public static final String NAME = "ability:player:reload";
 
+    private Gun gun;
 
-    public ReloadAction(Player player)
+    public ReloadAction(Gun g)
     {
         super(ReloadAction.NAME);
-        this.player = player;
+        this.gun = g;
     }
 
 
@@ -39,11 +41,16 @@ public class ReloadAction extends Action implements Updatable
         return out; 
     }
 
+    private boolean reloading = false;
+    public boolean isReloading()
+    {   return this.reloading;   }
+
     private ActionManager[] toCheck = null;
 
     public void onReloadTimer()
     {
-        this.player.gun.reload();
+        this.reloading = false;
+        this.gun.reload();
         this.toBlock.unblock(toCheck);
         System.out.println("load!");
     }
@@ -51,9 +58,10 @@ public class ReloadAction extends Action implements Updatable
 
     public void reload()
     {   
+        this.reloading = true;
         System.out.println("re...");
-        this.waitTime = this.player.gun.stats.reloadTime;    
-        DeltaUpdater.getInstance().toUpdate.add(this);
+        this.waitTime = this.gun.stats.reloadTime;    
+        DeltaUpdater.getInstance().toUpdate.queueAdd(this);
     }
 
 
