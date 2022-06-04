@@ -48,7 +48,7 @@ public class Bullet implements Drawable, Updatable
 
 
 
-    public void kill(CombatDemo cd)
+    public void kill()
     {
         this.onCease();
     }

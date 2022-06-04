@@ -128,6 +128,8 @@ public class Player implements Drawable, Point, Updatable
             .colour.withA((this.health + 1) / this.maxHealth)
         ;
 
+        b.kill();
+
         if( health <= 0 )
             this.kill();
     }

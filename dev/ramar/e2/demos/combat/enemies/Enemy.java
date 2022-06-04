@@ -86,18 +86,19 @@ public class Enemy implements Drawable, Point, Updatable
 
 
 
-    public int maxHealth = 5,
-               health = this.maxHealth;
+    public double maxHealth = 5,
+                  health = this.maxHealth;
 
     public void onShot(Bullet b)
     {
         this.health--;
 
-        // this.hitter.box.drawing
-        //     .colour.withA((this.health) / (double)(this.maxHealth))
-        // ;
 
-        b.kill(this.demo);
+        this.hitter.box.drawing
+            .colour.withA(this.health / this.maxHealth)
+        ;
+
+        b.kill();
 
         if( this.health <= 0 )
             this.kill();
