@@ -1,11 +1,6 @@
 # engineR
-Java based game engine that's hopefully gonna be dope
+*combat demo baby!!!*
 
-To compile this nicely (and exactly how i've done it) you can follow the instructions in the JavaRunner repository :) 
+This branch is dedicated to the combat demo of AIRSQUAD, so basically the core mechanics of shooting, dodging, blocking, cover, and enemy shoot shoot through some predefined levels
 
-JavaRunner: https://github.com/TheRo-bot/JavaRunner
-** CURRENTLY BETA. TO COMPILE:
- - download RUtils https://github.com/TheRo-bot/RUtils
- - compile RUtils entirely (optionally jar it if you know what you're doing)
- - compile engineR with your compiled RUtils code in the PATH (javac -cp <path>) 
- - run the Main class: java dev.ramar.e2.Main
+You wanna compile? check the main for instructions. just use this branch instead of main and it should work fine
