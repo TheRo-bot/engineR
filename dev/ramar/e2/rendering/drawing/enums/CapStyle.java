@@ -17,4 +17,14 @@ public enum CapStyle
     public int intify()
     {   return this.id;   }
 
+
+    public static CapStyle fromInt(int id)
+    {
+        for( CapStyle cs : CapStyle.values() )
+            if( cs.id == id )
+                return cs;
+
+        return null;
+    }
+
 }

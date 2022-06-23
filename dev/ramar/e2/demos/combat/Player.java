@@ -76,15 +76,15 @@ public class Player implements Drawable, Point, Updatable
                 this.onShot((Bullet)owner);
         });
 
-        // gun.shots.onAdd.add((Bullet b) -> 
-        // {
-        //     System.out.println("i got a bullet");
-        // });
+
         this.gun
             .withBulletFactory(new BaseBulletFactory())
             .withOrigin(this)
         ;
         this.gun.stats.clipSize = 30;
+        this.gun.stats.chainShotAmount = 10;
+        this.gun.stats.chainShotEndLag = 0.25;
+        this.gun.stats.shootDelay = 0.05;
         this.gun.reload();
 
         this.gun.onShoot.add((Bullet b) ->

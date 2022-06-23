@@ -5,6 +5,7 @@ import dev.ramar.e2.rendering.drawing.mod_helpers.ModHelperOwner;
 import dev.ramar.e2.rendering.drawing.mod_helpers.OffsetHelper;
 import dev.ramar.e2.rendering.drawing.mod_helpers.ColourHelper;
 import dev.ramar.e2.rendering.drawing.mod_helpers.FillHelper;
+import dev.ramar.e2.rendering.drawing.mod_helpers.StrokeHelper;
 
 
 /*
@@ -23,5 +24,7 @@ public class RectMods implements Mod, ModHelperOwner
     public final ColourHelper<RectMods> colour = new ColourHelper<>(this);
     
     public final FillHelper<RectMods> fill = new FillHelper<>(this);
+
+    public final StrokeHelper<RectMods> stroke = new StrokeHelper<>(this);
 
 }

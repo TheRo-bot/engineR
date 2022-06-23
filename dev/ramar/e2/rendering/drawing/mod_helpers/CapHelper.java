@@ -8,7 +8,7 @@ ModHelper: Cap
 */
 public class CapHelper<E extends ModHelperOwner>
 {
-    private final E owner;
+    protected final E owner;
 
     public CapHelper(E mho)
     {

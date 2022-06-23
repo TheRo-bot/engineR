@@ -10,7 +10,7 @@ ModHelper: Offset
 */
 public class OffsetHelper<E extends ModHelperOwner>
 {
-    private E owner = null;
+    protected final E owner;
 
     public OffsetHelper(E mho)
     {

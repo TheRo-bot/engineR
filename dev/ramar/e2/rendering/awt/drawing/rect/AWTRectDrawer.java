@@ -9,6 +9,8 @@ import dev.ramar.e2.rendering.awt.AWTViewPort;
 
 import java.awt.Graphics2D;
 
+import java.awt.Stroke;
+import java.awt.BasicStroke;
 
 /*
 RectDrawer: AWTRectDrawer
@@ -63,6 +65,7 @@ public class AWTRectDrawer extends RectDrawer
 
             Colour colour = AWTRectDrawer.Defaults.COLOUR;
             boolean fill = false;
+            Stroke stroke = g2d.getStroke();
 
             //// try to modify the default values
             RectMods rm = this.getMod();
@@ -73,7 +76,7 @@ public class AWTRectDrawer extends RectDrawer
 
                 colour = rm.colour.get();
                 fill = rm.fill.get();
-
+                stroke = rm.stroke.get();
             }
 
             //// draw what we have!
@@ -81,11 +84,16 @@ public class AWTRectDrawer extends RectDrawer
             // g2d.setColor(...)
             colour.fillG2D(g2d);
 
+            Stroke oldStroke = g2d.getStroke();
+            if( oldStroke != stroke )
+                g2d.setStroke(stroke);
 
+            g2d.drawRect((int)originX, (int)originY, (int)w, (int)h);
             if( fill )
                 g2d.fillRect((int)originX, (int)originY, (int)w, (int)h);
-            else
-                g2d.drawRect((int)originX, (int)originY, (int)w, (int)h);
+
+            if( oldStroke != stroke )
+                g2d.setStroke(oldStroke);
         }
     }   
 }

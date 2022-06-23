@@ -50,6 +50,13 @@ public class DeltaUpdater
     }
 
 
+    private double timeModifier = 1;
+
+    public long nowTime()
+    {
+        return (long)(System.currentTimeMillis() * timeModifier);
+    }
+
     private Thread t;
 
     public DeltaUpdater()
@@ -100,10 +107,10 @@ public class DeltaUpdater
         {
             try
             {
-                long lastTime = System.currentTimeMillis();
+                long lastTime = this.nowTime();
                 while(true)
                 {
-                    long nowTime = System.currentTimeMillis();
+                    long nowTime = this.nowTime();
                     double delta = (nowTime - lastTime) / 1000.0;   
                     // START UPDATING
 
