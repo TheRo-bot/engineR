@@ -17,7 +17,7 @@ import java.awt.Graphics2D;
 
 import dev.ramar.e2.rendering.Window.FullscreenState;
 
-import dev.ramar.e2.rendering.console.Console;
+import dev.ramar.e2.console.Console;
 
 public class EngineR2
 {
@@ -29,21 +29,17 @@ public class EngineR2
     public EngineR2()
     {
         viewport = new AWTViewPort();
-        console = new Console()
-            .withPos(100, 40)
-        ;
-
-        viewport.layers.mid.add(console);
-
+        console = new Console();
+ 
         ((AWTKeyController)viewport.window.keys).doEngineStuff(this);            
 
 
-        viewport.window.keys.bindRel(new KeyCombo("console_toggle")
-                                         .withChar('`'),
-        (KeyCombo kc) ->
-        {
-            console.animation_SwapVisibility();
-        });
+        // viewport.window.keys.bindRel(new KeyCombo("console_toggle")
+        //                                  .withChar('`'),
+        // (KeyCombo kc) ->
+        // {
+        //     console.animation_SwapVisibility();
+        // });
     }
 
     /* Window Initialisation
@@ -94,8 +90,10 @@ public class EngineR2
 
     public void initialise(WindowInitialiser wi)
     {
-        wi.build(viewport);
-        viewport.start();
+        wi.build(this.viewport);
+        this.console.attach(this.viewport);
+
+        this.viewport.start();
     }
 
 

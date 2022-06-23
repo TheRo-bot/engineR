@@ -10,7 +10,7 @@ ModHelper: Colour
 */
 public class ColourHelper<E extends ModHelperOwner>
 {
-    private final E owner;
+    protected final E owner;
 
     public ColourHelper(E mho)
     {

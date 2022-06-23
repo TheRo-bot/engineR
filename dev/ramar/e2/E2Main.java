@@ -39,6 +39,9 @@ import dev.ramar.e2.rendering.awt.AWTImage;
 
 import java.awt.geom.Path2D;
 
+import dev.ramar.e2.console.ConsoleOutput;
+import dev.ramar.e2.console.ConsoleInput;
+
 public class E2Main
 {
 
@@ -61,7 +64,6 @@ public class E2Main
 
 	public E2Main()
 	{
-
         e2 = new EngineR2();
         e2.initialise(e2.setup()
             .withSize(1280, 720)

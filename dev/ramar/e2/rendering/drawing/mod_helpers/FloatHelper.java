@@ -6,7 +6,7 @@ ModHelper: Float
 */
 public class FloatHelper<E extends ModHelperOwner>
 {
-    private final E owner;
+    protected final E owner;
 
     public FloatHelper(E mho)
     {

@@ -8,7 +8,7 @@ ModHelper: Join
 */
 public class JoinHelper<E extends ModHelperOwner>
 {
-    private final E owner;
+    protected final E owner;
 
     public JoinHelper(E mho)
     {

@@ -19,19 +19,11 @@ public enum FontStyle
 
     public static FontStyle fromInt(int id)
     {
-        switch(id)
-        {
-            case Font.PLAIN:
-                return FontStyle.Normal;
+        for( FontStyle fs : FontStyle.values() )
+            if( fs.id == id )
+                return fs;
 
-            case Font.BOLD:
-                return FontStyle.Bold;
-
-            case Font.ITALIC:
-                return FontStyle.Italic;
-
-            default:
-                return null;
-        }
+        return null;
     }
+
 }

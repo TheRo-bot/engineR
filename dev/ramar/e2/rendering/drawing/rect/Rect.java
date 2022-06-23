@@ -34,7 +34,7 @@ public class Rect implements Drawable
 
 
 
-    private Vec2 pos = new Vec2();
+    public Vec2 pos = new Vec2();
 
     public Vec2 getPos()
     {   return this.pos;    }
@@ -69,7 +69,7 @@ public class Rect implements Drawable
      - Vec2 of the length of this object, pos + len should be
        bottom-right of the rect assuming len's x and y > 0
     */
-    private Vec2 len = new Vec2();
+    public Vec2 len = new Vec2();
 
     public Vec2 getLen()
     {   return this.len;   }
@@ -106,7 +106,7 @@ public class Rect implements Drawable
      - the RectMods that describes information about drawing this rect
      - same stuff as vp.draw.rect.withMod() !
     */
-    private RectMods mod = new RectMods();
+    public RectMods mod = new RectMods();
 
     public RectMods getMod()
     {    return this.mod;   }

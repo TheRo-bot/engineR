@@ -45,7 +45,7 @@ public class CombatDemo extends BaseDemo
 
         int dist = 200;
 
-        for( int ii = 0; ii < 5; ii++ )
+        for( int ii = 0; ii < 0; ii++ )
         {
             double  an = rd.nextInt(360),
                    pow = rd.nextInt(dist);

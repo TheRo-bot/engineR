@@ -49,6 +49,7 @@ public class ShootingAction extends Action implements Drawable, Updatable
     private double waitTime = 0.0;
     private int shotCount = 0;
 
+    private long endTime = -1;
 
     private ActionManager[] toCheck = null;
 
@@ -57,17 +58,22 @@ public class ShootingAction extends Action implements Drawable, Updatable
         boolean kill = false;
         if( !this.isBlocked(toCheck) && shotCount < this.gun.stats.chainShotAmount )
         {
+            // if we've lagged enough to actually shoot (time blocked doesn't count)
             if( waitTime < 0.0 )
             {
-                if( this.gun.canShoot() )
-                {   
-                    synchronized(this)
-                    {
-                        if( this.targetPoint != null )
+                // if we've lagged enough for the chainshot's end lag
+                if( endTime == -1 || endTime + (this.gun.stats.chainShotEndLag * 1000) <= DeltaUpdater.getInstance().nowTime() )
+                {
+                    if( this.gun.canShoot() )
+                    {   
+                        synchronized(this)
                         {
-                            this.gun.shootAt(targetPoint.getX(), targetPoint.getY());
-                            this.waitTime = this.gun.stats.shootDelay;
-                            shotCount++;
+                            if( this.targetPoint != null )
+                            {
+                                this.gun.shootAt(targetPoint.getX(), targetPoint.getY());
+                                this.waitTime = this.gun.stats.shootDelay;
+                                shotCount++;
+                            }
                         }
                     }
                 }
@@ -101,6 +107,7 @@ public class ShootingAction extends Action implements Drawable, Updatable
     public void stopShooting()
     {
         DeltaUpdater.getInstance().toUpdate.queueRemove(this);
+        this.endTime = DeltaUpdater.getInstance().nowTime();
     }
 
     public synchronized void blockedStartShooting(ActionManager... ams)

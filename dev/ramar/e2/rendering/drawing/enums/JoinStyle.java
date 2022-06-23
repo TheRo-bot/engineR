@@ -17,4 +17,14 @@ public enum JoinStyle
     public int intify()
     {   return this.id;   }
 
+
+    public static JoinStyle fromInt(int id)
+    {
+        for( JoinStyle js : JoinStyle.values() )
+            if( js.id == id )
+                return js;
+
+        return null;
+    }
+
 }

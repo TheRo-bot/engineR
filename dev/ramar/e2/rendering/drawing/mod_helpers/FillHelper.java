@@ -7,7 +7,7 @@ ModHelper: Fill
 */
 public class FillHelper<E extends ModHelperOwner>
 {
-    private final E owner;
+    protected final E owner;
 
     public FillHelper(E mho)
     {
