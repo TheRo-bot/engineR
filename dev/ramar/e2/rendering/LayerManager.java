@@ -27,7 +27,7 @@ public class LayerManager implements Drawable
     public final LocalList bot = new LocalList();
     public final LocalList mid = new LocalList();
     public final LocalList top = new LocalList();
-
+    public final LocalList console = new LocalList();
 
     public class LocalList
     {
@@ -88,5 +88,6 @@ public class LayerManager implements Drawable
         bot.drawAt(x, y, vp);
         mid.drawAt(x, y, vp);
         top.drawAt(x, y, vp);
+        console.drawAt(0, 0, vp);
     }
 }

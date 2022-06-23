@@ -55,7 +55,7 @@ public class ConsoleOutput extends PrintStream
             for( int ii = this.lines.length - 1; ii >= 0; ii-- )
                 out += this.lines[ii] + '\n';
 
-            out += buffer;
+            out += "<" + buffer + ">";
 
             return out;
         }
@@ -121,8 +121,6 @@ public class ConsoleOutput extends PrintStream
             else
                 buffer += c;
 
-            if( buffer.length() > this.length ) 
-                this.flush();
         }
     }
 

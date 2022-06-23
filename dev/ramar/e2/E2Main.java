@@ -71,7 +71,27 @@ public class E2Main
             .withTitle("EngineR2 Main")
         );
 
+        PrintStream normOut = System.out;
+        System.setOut(e2.console.out);
 
+        Thread t = new Thread(() ->
+        {
+            try
+            {
+                while(true)
+                {
+                    normOut.println(e2.console.out);
+                    Thread.sleep(1000);
+                }
+            }
+            catch(InterruptedException e) {}
+        });
+
+        t.start();
+        e2.viewport.window.onClose.add(() ->
+        {
+            t.interrupt();
+        });
         DemoManager dm = DemoManager.build();
         dm.bind(e2);
         dm.swapToDemo("combat");

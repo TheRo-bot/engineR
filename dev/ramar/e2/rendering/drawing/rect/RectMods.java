@@ -6,6 +6,7 @@ import dev.ramar.e2.rendering.drawing.mod_helpers.OffsetHelper;
 import dev.ramar.e2.rendering.drawing.mod_helpers.ColourHelper;
 import dev.ramar.e2.rendering.drawing.mod_helpers.FillHelper;
 import dev.ramar.e2.rendering.drawing.mod_helpers.StrokeHelper;
+import dev.ramar.e2.rendering.drawing.mod_helpers.BooleanHelper;
 
 
 /*
@@ -15,16 +16,34 @@ Mod: RectMods
 */
 public class RectMods implements Mod, ModHelperOwner
 {
-    public RectMods() {}
+    public RectMods() 
+    {
+        offset = new OffsetHelper<>(this);
+        colour = new ColourHelper<>(this);
+        fill   = new FillHelper<>(this);
+        stroke = new StrokeHelper<>(this);
+        visible = new BooleanHelper<>(this, true);
+    }
+
+
+    public RectMods(RectMods rm)
+    {
+        this.offset = new OffsetHelper<>(this, rm.offset);
+        this.colour = new ColourHelper<>(this, rm.colour);
+        this.fill   = new FillHelper<>(this, rm.fill);
+        this.stroke = new StrokeHelper<>(this, rm.stroke);
+        this.visible = new BooleanHelper<>(this, rm.visible);
+    }
 
     // these classes are pretty hard to understand... try to follow along :sunglasses:
 
-    public final OffsetHelper<RectMods> offset = new OffsetHelper<>(this);
+    public final OffsetHelper<RectMods> offset;
 
-    public final ColourHelper<RectMods> colour = new ColourHelper<>(this);
+    public final ColourHelper<RectMods> colour;
     
-    public final FillHelper<RectMods> fill = new FillHelper<>(this);
+    public final FillHelper<RectMods> fill;
 
-    public final StrokeHelper<RectMods> stroke = new StrokeHelper<>(this);
+    public final StrokeHelper<RectMods> stroke;
 
+    public final BooleanHelper<RectMods> visible;
 }

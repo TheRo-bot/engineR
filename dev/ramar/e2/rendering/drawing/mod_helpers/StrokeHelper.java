@@ -22,6 +22,19 @@ public class StrokeHelper<E extends ModHelperOwner> implements ModHelperOwner
         this.owner = mho;
     }
 
+    public StrokeHelper(E mho, StrokeHelper sh)
+    {
+        this(mho);
+        if( sh != null )
+        {
+            this.stroke = new BasicStroke(sh.stroke.getLineWidth(),
+                                          sh.stroke.getEndCap(),
+                                          sh.stroke.getLineJoin(),
+                                          sh.stroke.getMiterLimit()
+            );
+        }
+    }
+
     private BasicStroke stroke = new BasicStroke();
 
     public Stroke get()

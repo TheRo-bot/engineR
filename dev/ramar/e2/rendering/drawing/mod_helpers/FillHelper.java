@@ -14,6 +14,15 @@ public class FillHelper<E extends ModHelperOwner>
         this.owner = mho;
     }
 
+    public FillHelper(E mho, FillHelper fh)
+    {
+        this(mho);
+        if( fh != null )
+        {
+            this.fill = fh.fill;
+        }
+    }
+
     private boolean fill = false;
 
     public boolean get()

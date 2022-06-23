@@ -30,7 +30,11 @@ public class Rect implements Drawable
         this.len.set(w, h);
     }
 
-
+    public Rect(Rect r)
+    {
+        this(r.getX(), r.getY(), r.getW(), r.getH());
+        this.mod = new RectMods(r.mod);
+    }
 
 
 

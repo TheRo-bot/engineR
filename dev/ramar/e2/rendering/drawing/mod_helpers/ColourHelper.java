@@ -17,6 +17,16 @@ public class ColourHelper<E extends ModHelperOwner>
         this.owner = mho;
     }
 
+    public ColourHelper(E mho, ColourHelper ch)
+    {
+        this(mho);
+        if( ch != null )
+        {
+            this.colour = new Colour(ch.colour);
+        }
+    }
+
+
     private Colour colour = new Colour(255, 255, 255, 255);
 
     public Colour get()

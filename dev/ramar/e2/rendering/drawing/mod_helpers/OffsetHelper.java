@@ -17,6 +17,16 @@ public class OffsetHelper<E extends ModHelperOwner>
         this.owner = mho;
     }
 
+    public OffsetHelper(E mho, OffsetHelper oh)
+    {
+        this.owner = mho;
+        if( oh != null )
+        {
+            this.off.set(oh.off);
+        }
+    }
+
+
     private Vec2 off = new Vec2();
     public Vec2 get()
     {   return this.off;   }

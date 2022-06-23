@@ -67,6 +67,7 @@ public class AWTRectDrawer extends RectDrawer
             boolean fill = false;
             Stroke stroke = g2d.getStroke();
 
+            boolean visible = true;
             //// try to modify the default values
             RectMods rm = this.getMod();
             if( rm != null )
@@ -77,23 +78,27 @@ public class AWTRectDrawer extends RectDrawer
                 colour = rm.colour.get();
                 fill = rm.fill.get();
                 stroke = rm.stroke.get();
+                visible = rm.visible.get();
             }
 
             //// draw what we have!
 
-            // g2d.setColor(...)
-            colour.fillG2D(g2d);
+            if( visible )
+            {
+                // g2d.setColor(...)
+                colour.fillG2D(g2d);
 
-            Stroke oldStroke = g2d.getStroke();
-            if( oldStroke != stroke )
-                g2d.setStroke(stroke);
+                Stroke oldStroke = g2d.getStroke();
+                if( oldStroke != stroke )
+                    g2d.setStroke(stroke);
 
-            g2d.drawRect((int)originX, (int)originY, (int)w, (int)h);
-            if( fill )
-                g2d.fillRect((int)originX, (int)originY, (int)w, (int)h);
+                g2d.drawRect((int)originX, (int)originY, (int)w, (int)h);
+                if( fill )
+                    g2d.fillRect((int)originX, (int)originY, (int)w, (int)h);
 
-            if( oldStroke != stroke )
-                g2d.setStroke(oldStroke);
+                if( oldStroke != stroke )
+                    g2d.setStroke(oldStroke);
+            }
         }
     }   
 }
