@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsDevice;
+import java.awt.Toolkit;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -74,6 +75,14 @@ public class AWTWindow extends Window
     public JFrame getFrame()
     {
         return frame;
+    }
+
+
+
+    public double getPixelsPerMM()
+    {
+        double inch = Toolkit.getDefaultToolkit().getScreenResolution();
+        return inch * 25.4;
     }
 
 

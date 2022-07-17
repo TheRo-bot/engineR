@@ -9,6 +9,7 @@ import dev.ramar.e2.rendering.control.KeyCombo;
 import dev.ramar.e2.rendering.control.KeyCombo.Directionality;
 
 import dev.ramar.e2.structures.WindowSettings;
+import dev.ramar.e2.structures.Vec2;
 
 
 import java.awt.Color;
@@ -46,24 +47,32 @@ public class EngineR2
         });
     }
 
+
+
     /* Window Initialisation
     -===-----------------------
     */
 
     public static class WindowInitialiser
     {
-        
+        public Vec2 screenRes = new Vec2(1920, 1080);
+        public Vec2 screenSize = new Vec2(1920, 1080);
+        public double ppmm = 96;
 
-        public int screenW, screenH;
         public String title = "EngineR2";
         public FullscreenState fs = FullscreenState.WINDOWED;
 
         public WindowInitialiser() {}
 
+        public WindowInitialiser withRes(double w, double h)
+        {
+            this.screenRes.set(w, h);
+            return this;
+        }
+
         public WindowInitialiser withSize(int w, int h)
         {
-            screenW = w;
-            screenH = h;
+            screenSize.set(w, h);
             return this;
         }
 
@@ -82,7 +91,7 @@ public class EngineR2
 
         public void build(ViewPort vp)
         {
-            vp.init(screenW, screenH, title, fs);
+            vp.init((int)this.screenSize.getX(), (int)this.screenSize.getY(), title, fs);
         }
     } 
 

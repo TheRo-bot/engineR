@@ -22,9 +22,9 @@ import java.net.*;
 import java.util.*;
 
 
+import dev.ramar.e2.rendering.awt.AWTWindow_NEW;
 import dev.ramar.e2.rendering.awt.drawing.polygon.AWTPolygonDrawer;
 import dev.ramar.e2.rendering.awt.drawing.polygon.AWTPolygon;
-
 import dev.ramar.e2.rendering.awt.drawing.polyline.AWTPolylineDrawer;
 import dev.ramar.e2.rendering.awt.drawing.polyline.AWTPolyline;
 
@@ -62,17 +62,33 @@ public class E2Main
 	public E2Main()
 	{
 
-        e2 = new EngineR2();
-        e2.initialise(e2.setup()
-            .withSize(1280, 720)
-            .withFullscreenState(FullscreenState.WINDOWED)
-            .withTitle("EngineR2 Main")
-        );
+        AWTWindow_NEW w1 = new AWTWindow_NEW();
+
+        w1.withScreenSize(0.5, 0.5);
+        w1.createScreen();
+
+        AWTWindow_NEW w2 = new AWTWindow_NEW();
+
+        w2.withScreenSize(1.0, 1.0);
+        w2.createScreen();
+        // WindowBuilder<AWTWindow_NEW> builder = new WindowBuilder<>(AWTWindow_NEW.class);
+        // builder.res.set(1920, 1080);
+        // builder.size.set(1920, 1080);
+        // AWTWindow_NEW newWindow = builder.build();
+
+        // AWTWindow_NEW newWindow = new AWTWindow_NEW();
+
+        // e2 = new EngineR2();
+        // e2.initialise(e2.setup()
+        //     .withSize(1280, 720)
+        //     .withFullscreenState(FullscreenState.WINDOWED)
+        //     .withTitle("EngineR2 Main")
+        // );
 
 
-        DemoManager dm = DemoManager.build();
-        dm.bind(e2);
-        dm.swapToDemo("combat");
+        // DemoManager dm = DemoManager.build();
+        // dm.bind(e2);
+        // dm.swapToDemo("combat");
     }
 
 

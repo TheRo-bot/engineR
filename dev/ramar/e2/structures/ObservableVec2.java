@@ -44,13 +44,14 @@ public class ObservableVec2 extends Vec2
         public void onYChange(double y);
     }
 
-    private void onX(double x) 
+
+    protected void onX(double x) 
     {
         for( XListeners xl : this.listeners.onX.getList() )
             xl.onXChange(x);
     }
 
-    private void onY(double y)
+    protected void onY(double y)
     {
         for( YListeners yl : this.listeners.onY.getList() )
             yl.onYChange(y);
