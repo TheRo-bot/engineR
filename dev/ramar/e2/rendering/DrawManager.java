@@ -12,27 +12,5 @@ Abstract Class: DrawManager
 */
 public abstract class DrawManager
 {
-    public final LayeredDrawer layered;
-
-    /*
-    Keeps images loaded by a name identifier
-    */
-    public final ImageCache image;
-
-    protected DrawManager(LayeredDrawer l, ImageCache image)
-    {
-        this.layered = l;
-        // stateful = sf;
-        this.image = image;
-    }
-
-
-    protected DrawManager(LayeredDrawer l)
-    {
-        this.layered = l;
-        // stateful = sf;
-        image = null;
-    }
-
-    
+        
 }
