@@ -24,13 +24,31 @@ public class AWTWindow extends Window
 
     private class EngineRCanvas extends Canvas
     {
+        public EngineRCanvas()
+        {
+        }
+
+        @Override
         public void paint(Graphics g)
         {
+            System.out.println("paint");
+            if( this.getBufferStrategy() == null )
+                this.createBufferStrategy(2);
+
+            Graphics g1 = this.getBufferStrategy().getDrawGraphics();
+            System.out.println("AHHH: " + g == g1 + " ?? " + g + " || " + g1);
+
             AWTWindow.this.redraw((Graphics2D)g);
         }
 
+        @Override
         public void update(Graphics g)
         {
+            System.out.println("update");
+            if( this.getBufferStrategy() == null )
+                this.createBufferStrategy(2);
+            Graphics g1 = this.getBufferStrategy().getDrawGraphics();
+            System.out.println("AHHH: " + g == g1 + " ?? " + g + " || " + g1);
             AWTWindow.this.redraw((Graphics2D)g);
         }
     }
