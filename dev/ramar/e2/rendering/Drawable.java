@@ -1,5 +1,8 @@
 package dev.ramar.e2.rendering;
 
+package dev.ramar.e2.rendering;
+
+import java.util.Comparator;
 
 /*
 Interface: Drawable
@@ -9,5 +12,16 @@ Interface: Drawable
 */
 public interface Drawable
 {
+    public static class DrawableComparator implements Comparator<Drawable>
+    {
+        public int compare(Drawable a, Drawable b)
+        {  return a.getZIndex() - b.getZIndex();  }
+    }
+
+
     public void drawAt(double xOff, double yOff, ViewPort vp);
+
+
+    public default int getZIndex()
+    {  return 0;  }
 }
