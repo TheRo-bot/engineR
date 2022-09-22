@@ -3,6 +3,8 @@ package dev.ramar.e2.rendering.awt;
 import dev.ramar.e2.rendering.Window;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import java.awt.Canvas;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -22,33 +24,15 @@ public class AWTWindow extends Window
     protected AWTViewport viewport;
 
 
-    private class EngineRCanvas extends Canvas
+    private class EngineRCanvas extends JPanel
     {
         public EngineRCanvas()
         {
         }
 
         @Override
-        public void paint(Graphics g)
+        public void paintComponent(Graphics g)
         {
-            System.out.println("paint");
-            if( this.getBufferStrategy() == null )
-                this.createBufferStrategy(2);
-
-            Graphics g1 = this.getBufferStrategy().getDrawGraphics();
-            System.out.println("AHHH: " + g == g1 + " ?? " + g + " || " + g1);
-
-            AWTWindow.this.redraw((Graphics2D)g);
-        }
-
-        @Override
-        public void update(Graphics g)
-        {
-            System.out.println("update");
-            if( this.getBufferStrategy() == null )
-                this.createBufferStrategy(2);
-            Graphics g1 = this.getBufferStrategy().getDrawGraphics();
-            System.out.println("AHHH: " + g == g1 + " ?? " + g + " || " + g1);
             AWTWindow.this.redraw((Graphics2D)g);
         }
     }
@@ -78,8 +62,6 @@ public class AWTWindow extends Window
             this.initialise();
 
         this.frame.setVisible(true);
-        if( this.canvas.getBufferStrategy() == null )
-            this.canvas.createBufferStrategy(3);
 
         this.frame.requestFocus();
     }
@@ -101,10 +83,6 @@ public class AWTWindow extends Window
         if( g2d != null )
         {
             this.viewport.drawTo(g2d);
-            // BufferStrategy bs = this.canvas.getBufferStrategy();
-            // if( bs != null )
-            //     bs.show();
         }
-        System.out.println("took: " + (System.currentTimeMillis() - start) + "ms" + new java.util.Random().nextInt());
     }
 }
