@@ -1,8 +1,5 @@
 package dev.ramar.e2.rendering;
 
-import dev.ramar.e2.rendering.drawing.LayeredDrawer;
-// import dev.ramar.e2.rendering.drawing.StatefulDrawer;
-
 /*
 Abstract Class: DrawManager
  - Owned by a ViewPort
@@ -10,9 +7,6 @@ Abstract Class: DrawManager
    (so instead of going myViewport.stateless... you go myViewport.draw.stateless)
    which essentially allows further methods to be less word-y 
 */
-
-import dev.ramar.e2.rendering.drawing.StatelessDrawer;
-import dev.ramar.e2.rendering.drawing.StatefulDrawer;
 
 import dev.ramar.e2.rendering.drawing.rect.RectDrawer;
 import dev.ramar.e2.rendering.drawing.polygon.PolygonDrawer;
@@ -35,13 +29,13 @@ public abstract class DrawManager<E extends RectDrawer, K extends PolygonDrawer,
     }
 
 
-    public final E rect = null;
+    public final E rect;
     public abstract E createRectDrawer();
 
-    public final K polygon = null;
+    public final K polygon;
     public abstract K createPolygonDrawer();
 
-    public final V polyline = null;
+    public final V polyline;
     public abstract V createPolylineDrawer();
 
 

@@ -7,212 +7,59 @@ import java.util.*;
 
 public abstract class Window
 {
-    public enum FullscreenState
+    public class Device
     {
-        WINDOWED
-        {
-            public String getName()
-            {   return "Windowed";   }
-        },
-        FULLSCREEN
-        {
-            public String getName()
-            {   return "Fullscreen";   }
-        },
-        WINDOWED_BORDERLESS
-        {
-            public String getName()
-            {   return "Borderless";   }
-        };
+        public static double ppmm = java.awt.Toolkit.getDefaultToolkit().getScreenResolution() / 25.4;
 
-        public abstract String getName();
+        public static double convertToMM(double pixels)
+        {
+            return pixels / ppmm;
+        }
+
+
+        public static double getDisplayWidth()
+        {  
+            double out = java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+            return out;  
+        }
+
+        public static double getDisplayHeight()
+        {
+            double out = java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+            return out;
+        }
+    }
+
+    private double res_x = 1920.0,
+                   res_y = 1080.0;
+
+    public double getResolutionW()
+    {  return this.res_x;  }
+
+    public double getResolutionH()
+    {  return this.res_y;  }
+
+
+    public synchronized void setResolution(double x, double y)
+    {
+        this.res_x = x;
+        this.res_y = y;
+    }
+
+
+    private double size_x = 0.5,
+                   size_y = 0.5;
+
+    public synchronized void setSize(double x, double y)
+    {
+        this.size_x = Math.max(0, Math.min(1.0, x));
+        this.size_y = Math.max(0, Math.min(1.0, y));
     } 
 
 
-    public final KeyController keys;
-    public final MouseController mouse;
+    public synchronized double getPixelWidth()
+    {  return this.size_x * Device.getDisplayWidth();  }
 
-    public final CloseListeners  onClose = new CloseListeners();
-    public final ResizeListeners onResize = new ResizeListeners();
-
-    protected FullscreenState fullscreenState = FullscreenState.WINDOWED;
-
-    public abstract int width();
-
-    public abstract int height();
-
-    protected Window()
-    {
-        keys = null;
-        mouse = null;
-        System.out.println("WARNING: Window running control-less!");
-    }
-
-    protected Window(KeyController keys, MouseController mouse)
-    {
-        this.keys = keys;
-        this.mouse = mouse;
-    }
-
-    public FullscreenState getFullScreenState()
-    {   return fullscreenState;   }
-
-    public abstract void init();
-
-    public abstract boolean isRenderable();
-
-
-    /* Listener Callbacks
-    -==---------------------
-    */  
-
-    /* CloseListener
-    -===----------------
-     Listener for when the window closes.
-     This is a one-off event, the provided
-     method hasHappened() lets you check if
-     a close has already been initiated 
-    */
-
-    public static class CloseListeners
-    {
-        private final List<CloseListener> listeners = new ArrayList<>();
-        private boolean happened = false;
-
-        public CloseListeners() 
-        {
-            add(() ->
-            {
-                happened = true;
-            });
-        }
-
-        public interface CloseListener
-        {
-            public void onClose();
-        }
-
-        public boolean hasHappened()
-        {
-            return happened;
-        }
-
-
-
-        public void add(CloseListener cl)
-        {
-            if( happened )
-                cl.onClose();
-            else
-            {
-                synchronized(listeners)
-                {
-                    listeners.add(cl);
-                }
-            }
-        }
-
-        public void remove(CloseListener cl)
-        {
-            synchronized(listeners)
-            {
-                listeners.remove(cl);
-            }
-        }
-
-        private void clear()
-        {
-            synchronized( listeners )
-            {
-                listeners.clear();
-            }
-        }
-
-        private void onClose()
-        {
-            synchronized(listeners)
-            {
-                // for( CloseListener cl : listeners )
-                for( int ii = 0; ii < listeners.size(); ii++ )
-                {
-                    CloseListener cl = listeners.get(ii);
-                    cl.onClose();
-                }
-            }
-        }
-    }
-
-
-    protected void onClose()
-    {
-        onClose.onClose();
-        //// revoked for more freedom on calling listeners and performing actions
-        // close();
-    }
-
-
-    protected void clearListeners()
-    {
-        onClose.clear();
-        onResize.clear();
-    }
-
-    // make sure to call onResize(w, h) once you've resized!
-    public abstract void resize(int w, int h);
-
-    public abstract void setTitle(String s);
-
-    public abstract void setFullscreenState(FullscreenState fss);
-
-    /* ResizeListener
-    -===----------------
-     Listener for when the window changes size.
-    */
-
-    public static class ResizeListeners
-    {
-        private final List<ResizeListener> listeners = new ArrayList<>();
-
-        public ResizeListeners() {}
-
-
-        public interface ResizeListener
-        {
-            public void onResize(int w, int h);
-        }
-
-        public void add(ResizeListener cl)
-        {
-            listeners.add(cl);
-        }
-
-        public void remove(ResizeListener cl)
-        {
-            listeners.remove(cl);
-        }
-
-
-        private void onResize(int w, int h)
-        {
-            for( ResizeListener cl : listeners )
-                cl.onResize(w, h);
-        }
-
-        private void clear()
-        {
-            synchronized( listeners )
-            {
-                listeners.clear();
-            }
-        }
-    }
-
-    protected void onResize(int w, int h)
-    {
-        onResize.onResize(w, h);
-    }
-
-    public abstract void close();
-
-
+    public synchronized double getPixelHeight()
+    {  return this.size_y * Device.getDisplayHeight();  }
 }

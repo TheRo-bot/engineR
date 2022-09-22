@@ -2,10 +2,12 @@ package dev.ramar.e2.rendering;
 
 
 import dev.ramar.e2.structures.Vec2;
+import dev.ramar.e2.structures.Colour;
 
 
 public abstract class Viewport<K extends LayerManager, V extends DrawManager>
 {
+    public final Colour background = new Colour(0, 0, 0, 255);
 
     protected Viewport()
     {

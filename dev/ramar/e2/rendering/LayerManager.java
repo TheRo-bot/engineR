@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class LayerManager<E extends Layer>
+public abstract class LayerManager<E extends LayerManager.Layer>
 {
 
     protected Map<Integer, E> layers = new TreeMap<>();
@@ -70,10 +70,7 @@ public class LayerManager<E extends Layer>
         }
     }
 
-    protected E createLayer()
-    {
-        return new Layer();
-    }
+    protected abstract E createLayer();
 
 
     public static class Layer
@@ -82,9 +79,9 @@ public class LayerManager<E extends Layer>
 
         public void add(Drawable draw)
         {
-            if( d != null )
+            if( draw != null )
             {
-                int zIndex = d.getZIndex();
+                int zIndex = draw.getZIndex();
                 synchronized(this.drawables)
                 {
                     int index = 0;

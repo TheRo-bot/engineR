@@ -1,6 +1,6 @@
 package dev.ramar.e2.rendering.awt.drawing.polyline;
 
-import dev.ramar.e2.rendering.awt.AWTViewPort;
+import dev.ramar.e2.rendering.awt.AWTViewport;
 
 import dev.ramar.e2.rendering.drawing.polyline.*;
 
@@ -21,12 +21,11 @@ public class AWTPolylineDrawer extends PolylineDrawer
     public AWTPolylineDrawer() {}
 
 
-    private AWTViewPort vp = null;
+    private Graphics2D graphics = null;
 
-    public AWTPolylineDrawer withViewPort(AWTViewPort vp)
+    public void setGraphics(Graphics2D graphics)
     {
-        this.vp = vp;
-        return this;
+        this.graphics = graphics;
     }
 
 
@@ -159,7 +158,7 @@ public class AWTPolylineDrawer extends PolylineDrawer
 
     public void absolutePoints(int[] xs, int[] ys)
     {
-        Graphics2D g2d = this.vp.getGraphics();
+        Graphics2D g2d = this.graphics;
 
         PolylineMods mods = this.getMod();
 

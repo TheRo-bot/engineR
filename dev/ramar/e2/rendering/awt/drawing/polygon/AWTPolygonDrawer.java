@@ -1,6 +1,6 @@
 package dev.ramar.e2.rendering.awt.drawing.polygon;
 
-import dev.ramar.e2.rendering.awt.AWTViewPort;
+import dev.ramar.e2.rendering.awt.AWTViewport;
 
 import dev.ramar.e2.rendering.drawing.polygon.PolygonDrawer;
 
@@ -28,13 +28,11 @@ public class AWTPolygonDrawer extends PolygonDrawer
 
     }
 
-    private AWTViewPort vp = null;
+    private Graphics2D graphics = null;
 
-
-    public AWTPolygonDrawer withViewPort(AWTViewPort vp)
+    public void setGraphics(Graphics2D graphics)
     {
-        this.vp = vp;
-        return this;
+        this.graphics = graphics;
     }
 
 
@@ -157,7 +155,7 @@ public class AWTPolygonDrawer extends PolygonDrawer
     {
         PolygonMods mod = this.getMod();
 
-        Graphics2D g2d = this.vp.getGraphics();
+        Graphics2D g2d = this.graphics;
 
         // offset should be handled by prior methods
 

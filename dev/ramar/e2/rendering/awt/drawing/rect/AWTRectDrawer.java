@@ -2,7 +2,7 @@ package dev.ramar.e2.rendering.awt.drawing.rect;
 
 import dev.ramar.e2.rendering.drawing.rect.*;
 
-import dev.ramar.e2.rendering.awt.AWTViewPort;
+import dev.ramar.e2.rendering.awt.AWTViewport;
 
 
 import dev.ramar.e2.structures.Vec2;
@@ -29,12 +29,12 @@ public class AWTRectDrawer extends RectDrawer
 
     }
 
-    private AWTViewPort vp = null;
 
-    public AWTRectDrawer withViewPort(AWTViewPort vp)
+    private Graphics2D graphics = null;
+
+    public void setGraphics(Graphics2D graphics)
     {
-        this.vp = vp;
-        return this;
+        this.graphics = graphics;
     }
 
 
@@ -46,7 +46,10 @@ public class AWTRectDrawer extends RectDrawer
 
     public void poslen(double x, double y, double w, double h)
     {
-        Graphics2D g2d = this.vp.getGraphics();
+        Graphics2D g2d = this.graphics;
+        if( g2d == null )
+            return;
+
         RectMods mod = this.getMod();
 
         boolean fill = false;
@@ -60,6 +63,7 @@ public class AWTRectDrawer extends RectDrawer
             y = mod.offset.getY();
 
             colour = mod.colour.get();
+            fill = mod.fill.get();
         }   
 
         colour.fillG2D(g2d);
