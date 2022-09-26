@@ -59,8 +59,8 @@ public class AWTRectDrawer extends RectDrawer
 
         if( mod != null )
         {
-            x = mod.offset.getX();
-            y = mod.offset.getY();
+            x += mod.offset.getX();
+            y += mod.offset.getY();
 
             colour = mod.colour.get();
             fill = mod.fill.get();

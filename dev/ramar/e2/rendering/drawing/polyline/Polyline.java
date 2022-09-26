@@ -7,9 +7,13 @@ import dev.ramar.e2.rendering.Drawable;
 public class Polyline implements Drawable
 {
 
-
-    public void drawAt(double x, double y, ViewPort vp)
+    public Polyline()
     {
 
+    }
+
+    public void drawAt(double x, double y, ViewPort vp)
+    {   
+        
     }
 }

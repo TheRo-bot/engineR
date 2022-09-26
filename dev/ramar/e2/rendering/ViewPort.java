@@ -46,10 +46,10 @@ public abstract class Viewport<K extends LayerManager, V extends DrawManager>
 
 
 
-    protected K layers = null;
+    public final K layers;
     protected abstract K createLayerManager();
 
-    protected V draw = null;
+    public final V draw;
     protected abstract V createDrawManager();
 
 }

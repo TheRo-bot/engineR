@@ -5,7 +5,7 @@ import dev.ramar.e2.rendering.Viewport;
 import dev.ramar.e2.rendering.DrawManager;
 import dev.ramar.e2.rendering.LayerManager;
 
-
+import java.awt.geom.AffineTransform;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
@@ -26,8 +26,9 @@ public class AWTViewport extends Viewport<AWTLayerManager, AWTDrawManager>
 		{
             this.draw.setGraphics(g2d);
 
-            double x = this.getCenterX(),
-                   y = this.getCenterY();
+            double x = 0,
+                   y = 0;
+
 
             this.draw.setGraphics(g2d);
 
@@ -40,6 +41,14 @@ public class AWTViewport extends Viewport<AWTLayerManager, AWTDrawManager>
                 this.window.getResolutionW(),
                 this.window.getResolutionH()
             );
+
+            AffineTransform vpTransform = new AffineTransform();
+            vpTransform.translate(this.window.getResolutionW() * 0.5, this.window.getResolutionH() * 0.5);
+            vpTransform.translate(this.getCenterX(), this.getCenterY());
+            
+            AffineTransform vp = g2d.getTransform();
+            vp.concatenate(vpTransform);
+            g2d.setTransform(vp);
 
             this.layers.drawAt(x, y, this);
             this.draw.setGraphics(null);
