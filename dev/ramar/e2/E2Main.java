@@ -45,36 +45,28 @@ public class E2Main
             vp.draw.rect.clearMod();
         });
 
-        window.mouse.move.add((double x, double y) ->
+        MouseManager.MouseListener mouse = new MouseManager.MouseListener()
         {
-            System.out.println("bruh(" + x + ", " + y + ")");
-        });
+            public void onMove(double x, double y)
+            {
+                System.out.println("bruh(" + x + ", " + y + ")");
+            }
+            public void onPress(int btn, double x, double y)
+            {
+                System.out.println("press(" + btn + ", " + x + ", " + y + ")");
+            }
+            public void onRelease(int btn, double x, double y)
+            {
+                System.out.println("release(" + btn + ", " + x + ", " + y + ")");
+            }
+        };
+
+        window.mouse.move.add(mouse);
+        window.mouse.press.add(mouse, 1, 2, 3, 4, 5);
+        window.mouse.release.add(mouse, 1, 2, 3, 4, 5);
 
         window.waitForClose();
     }
 
-    private class MouseTest implements Drawable, MouseManager.MoveListener
-    {
-        
-        public void onMove(double x, double y)
-        {
-            synchronized(this)
-            {
-                
-            }
-        }
 
-        public void drawAt(double x, double y, Viewport vp)
-        {
-            synchronized(this)
-            {
-                vp.draw.polyline.withMod()
-                    .colour.with(255, 0, 0, 255)
-                    .offset.with(x, y)
-                ;
-
-                vp.draw.polyline.offsets()
-            }
-        }
-    }
 }

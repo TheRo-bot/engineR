@@ -35,11 +35,11 @@ public abstract class MouseManager
 			y = this.mousePosition.getY();
 		}
 
-		System.out.println("onPress(" + x + ", " + y + ")");
 		synchronized(this.pressers)
 		{
 			if( this.pressers.containsKey(buttonDex) )
 			{
+
 				LocalList<PressListener> toInvoke = pressers.get(buttonDex);
 				for( PressListener pl : toInvoke.getList() )
 					pl.onPress(buttonDex, x, y);
@@ -56,7 +56,6 @@ public abstract class MouseManager
 			y = this.mousePosition.getY();
 		}
 
-		System.out.println("onRelease(" + x + ", " + y + ")");
 		synchronized(this.releasers)
 		{
 			if( this.releasers.containsKey(buttonDex) )
@@ -98,7 +97,12 @@ public abstract class MouseManager
 	public interface ReleaseListener
 	{  public void onRelease(int button, double x, double y);  }
 
-
+	public interface MouseListener extends MoveListener, PressListener, ReleaseListener
+	{
+		// public void onMove(double x, double y);
+		// public void onPress(int button, double x, double y);
+		// public void onRelease(int button, double x, double y);
+	}
 
 	public class LocalList<E> extends HiddenList
 	{
@@ -118,6 +122,8 @@ public abstract class MouseManager
 	protected ReleaseController createReleaseController()
 	{  return new ReleaseController();  }
 	public final ReleaseController release;
+
+
 
 	public class MoveController
 	{
@@ -154,7 +160,17 @@ public abstract class MouseManager
 				}
 			}
 		}
+		public void add(PressListener pl, int... btns)
+		{
+			for( int btn : btns )
+				this.add(btn, pl);
+		}
 
+		public void remove(PressListener pl, int... btns)
+		{
+			for( int btn : btns )
+				this.remove(btn, pl);
+		}
 		public void remove(int btn, PressListener pl)
 		{
 			synchronized(MouseManager.this.pressers)
@@ -174,6 +190,12 @@ public abstract class MouseManager
 
 	public class ReleaseController
 	{
+		public void add(ReleaseListener rl, int... btns)
+		{
+			for( int btn : btns )
+				this.add(btn, rl);
+		}
+
 		public void add(int btn, ReleaseListener rl)
 		{
 			synchronized(MouseManager.this.releasers)
@@ -188,6 +210,13 @@ public abstract class MouseManager
 				}
 			}
 		}
+
+		public void remove(ReleaseListener rl, int... btns)
+		{
+			for( int btn : btns )
+				this.remove(btn, rl);
+		}
+
 
 		public void remove(int btn, ReleaseListener rl)
 		{
