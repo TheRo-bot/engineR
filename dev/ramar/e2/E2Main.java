@@ -49,41 +49,6 @@ public class E2Main
             vp.draw.rect.clearMod();
         });
 
-
-        // Test t = new Test();
-        // window.mouse.wheel.add(t);
-        // window.viewport.layers.add(t);
-
-        Test t2 = new Test()
-        {
-            private boolean pressing = false;
-            public void onMove(double x, double y)
-            {
-                System.out.println("move! " + x + ", " + y);    
-                if( pressing )
-                    window.viewport.setCenter(x, y);
-                else
-                    this.pos.set(x, y);
-            }
-            public void onPress(int btn, double x, double y)
-            {
-                if( btn == 1 )
-                    this.pressing = true;
-            }
-            public void onRelease(int btn, double x, double y)
-            {
-                if( btn == 1 )
-                    this.pressing = false;
-            }
-        };
-
-        window.mouse.move.add(t2);
-        window.mouse.press.add(t2, 1);
-        window.mouse.release.add(t2, 1);
-        window.mouse.wheel.add(t2);
-
-        window.viewport.layers.add(t2);
-
         window.waitForClose();
     }
 

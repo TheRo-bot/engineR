@@ -34,7 +34,7 @@ public class AWTMouseManager extends MouseManager
 	        	{
 	        		ex = (ex + 1) / wdow.canvas.getWidth() * wdow.getResolutionW();
 	        		ex -= wdow.getResolutionW() * 0.5;
-	        		ex += wdow.viewport.getCenterX();
+	        		ex -= wdow.viewport.getCenterX();
 	        	}
 
 	        	return ex;
@@ -47,7 +47,7 @@ public class AWTMouseManager extends MouseManager
 	        	{
 	        		ey = (ey + 1) / wdow.canvas.getHeight() * wdow.getResolutionH();
 	        		ey -= wdow.getResolutionH() * 0.5;
-	        		ey += wdow.viewport.getCenterY();
+	        		ey -= wdow.viewport.getCenterY();
 	        	}
 	        	
 	        	return ey;

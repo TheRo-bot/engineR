@@ -26,8 +26,8 @@ public class AWTViewport extends Viewport<AWTLayerManager, AWTDrawManager>
 		{
             this.draw.setGraphics(g2d);
 
-            double x = 0,
-                   y = 0;
+            double x = this.getCenterX(),
+                   y = this.getCenterY();
 
 
             this.draw.setGraphics(g2d);
@@ -45,8 +45,6 @@ public class AWTViewport extends Viewport<AWTLayerManager, AWTDrawManager>
             AffineTransform vpTransform = new AffineTransform();
             vpTransform.translate(this.window.getResolutionW() * 0.5, this.window.getResolutionH() * 0.5);
             
-            vpTransform.translate(this.getCenterX(), this.getCenterY());
-
             AffineTransform vp = g2d.getTransform();
             vp.concatenate(vpTransform);
             g2d.setTransform(vp);
