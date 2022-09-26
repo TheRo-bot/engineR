@@ -26,7 +26,6 @@ public class AWTMouseManager extends MouseManager
 	{
 		return new MouseAdapter()
 	    {
-
 	        // ex = eventX || MouseEvent.getX()
 	        private double convertX(double ex)
 	        {
@@ -88,7 +87,7 @@ public class AWTMouseManager extends MouseManager
 	        @Override        
 	        public void mouseWheelMoved(MouseWheelEvent e)
 	        {
-	            System.out.println("mouseWheelMoved " + e);
+	        	AWTMouseManager.this.onWheel(e.getPreciseWheelRotation());
 	        }
 
 	    };

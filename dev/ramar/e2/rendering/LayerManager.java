@@ -30,6 +30,8 @@ public abstract class LayerManager<E extends LayerManager.Layer>
 
             this.layers.put(zIndex, layer);
         }
+        else
+            layer = this.layers.get(zIndex);
 
         // if layer is ever null, then who the fuck implemented createLayer to be null
         if( layer != null )

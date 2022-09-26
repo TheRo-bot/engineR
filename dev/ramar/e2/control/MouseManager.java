@@ -12,94 +12,129 @@ public abstract class MouseManager
 {
 
 	protected LocalList<MoveListener> movers = new LocalList<>();
+	protected LocalList<WheelListener> wheelers = new LocalList<>();
 	protected Map<Integer, LocalList<PressListener>> pressers = new HashMap<>();
 	protected Map<Integer, LocalList<ReleaseListener>> releasers = new HashMap<>();
 
 	public MouseManager()
 	{
 		this.move = this.createMoveController();
+		this.wheel = this.createWheelController();
+
 		this.press = this.createPressController();
 		this.release = this.createReleaseController();
 	}
 
 	// synchronise on getting / setting data!
-	public final Vec2 mousePosition = new Vec2(0);
+	public final Vec2 position = new Vec2(0);
 
-
-	protected void onPress(int buttonDex)
+	protected void onPress(int btn, double x, double y)
 	{
-		double x = 0.0, y = 0.0;
-		synchronized(this.mousePosition)
-		{
-			x = this.mousePosition.getX();
-			y = this.mousePosition.getY();
-		}
-
 		synchronized(this.pressers)
 		{
-			if( this.pressers.containsKey(buttonDex) )
+			if( this.pressers.containsKey(btn) )
 			{
 
-				LocalList<PressListener> toInvoke = pressers.get(buttonDex);
+				LocalList<PressListener> toInvoke = pressers.get(btn);
 				for( PressListener pl : toInvoke.getList() )
-					pl.onPress(buttonDex, x, y);
+					pl.onPress(btn, x, y);
 			}
 		}
 	}
 
-	protected void onRelease(int buttonDex)
+	protected void onPress(int btn)
 	{
 		double x = 0.0, y = 0.0;
-		synchronized(this.mousePosition)
+		synchronized(this.position)
 		{
-			x = this.mousePosition.getX();
-			y = this.mousePosition.getY();
+			x = this.position.getX();
+			y = this.position.getY();
 		}
 
+		this.onPress(btn, x, y);
+	}
+
+	protected void onRelease(int btn, double x, double y)
+	{
 		synchronized(this.releasers)
 		{
-			if( this.releasers.containsKey(buttonDex) )
+			if( this.releasers.containsKey(btn) )
 			{
-				LocalList<ReleaseListener> toInvoke = releasers.get(buttonDex);
+				LocalList<ReleaseListener> toInvoke = releasers.get(btn);
 				for( ReleaseListener rl : toInvoke.getList() )
-					rl.onRelease(buttonDex, x, y);
+					rl.onRelease(btn, x, y);
 			}
 		}
+	}
+
+	protected void onRelease(int btn)
+	{
+		double x = 0.0, y = 0.0;
+		synchronized(this.position)
+		{
+			x = this.position.getX();
+			y = this.position.getY();
+		}
+
+		this.onRelease(btn, x, y);
 	}
 
 
 	// new position, not movement vector
 	protected void onMove(double x, double y)
 	{
-		synchronized(this.mousePosition)
+		synchronized(this.position)
 		{
-			this.mousePosition.setX(x);
-			this.mousePosition.setY(y);
+			this.position.setX(x);
+			this.position.setY(y);
 		}
 
 		synchronized(this.movers)
 		{
 			for( MoveListener ml : this.movers.getList() )
-			{
 				ml.onMove(x, y);
-			}
 		}
+	}
+
+	protected void onWheel(double x, double y, double power)
+	{
+		synchronized(this.wheelers)
+		{
+			for( WheelListener wl : this.wheelers.getList() )
+				wl.onWheel(x, y, power);
+		}
+	}
+
+	protected void onWheel(double power)
+	{
+		double x = 0.0, y = 0.0;
+		synchronized(this.position)
+		{
+			x = this.position.getX();
+			y = this.position.getY();
+		}
+
+		this.onWheel(x, y, power);
 	}
 
 
 
 	public interface MoveListener
-	{  public void onMove(double x, double y);  }
+	{  public default void onMove(double x, double y) { }  }
+
+	public interface WheelListener
+	{  public default void onWheel(double x, double y, double power) { }  }
 
 	public interface PressListener
-	{  public void onPress(int button, double x, double y);  }
+	{  public default void onPress(int button, double x, double y) { }  }
 
 	public interface ReleaseListener
-	{  public void onRelease(int button, double x, double y);  }
+	{  public default void onRelease(int button, double x, double y) { }  }
 
-	public interface MouseListener extends MoveListener, PressListener, ReleaseListener
+	public interface MouseListener extends MoveListener, WheelListener, PressListener, ReleaseListener
 	{
 		// public void onMove(double x, double y);
+		// public void onWheel(double x, double y, double power);
 		// public void onPress(int button, double x, double y);
 		// public void onRelease(int button, double x, double y);
 	}
@@ -114,6 +149,10 @@ public abstract class MouseManager
 	protected MoveController createMoveController()
 	{  return new MoveController();  }
 	public final MoveController move;
+
+	protected WheelController createWheelController()
+	{  return new WheelController();  }
+	public final WheelController wheel;
 
 	protected PressController createPressController()
 	{  return new PressController();  }
@@ -140,6 +179,26 @@ public abstract class MouseManager
 			synchronized(MouseManager.this.movers)
 			{
 				MouseManager.this.movers.remove(ml);
+			}
+		}
+	}
+
+
+	public class WheelController
+	{
+		public void add(WheelListener wl)
+		{
+			synchronized(MouseManager.this.wheelers)
+			{
+				MouseManager.this.wheelers.add(wl);
+			}
+		}
+
+		public void remove(WheelListener wl)
+		{
+			synchronized(MouseManager.this.wheelers)
+			{
+				MouseManager.this.wheelers.remove(wl);
 			}
 		}
 	}
