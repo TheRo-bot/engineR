@@ -22,6 +22,9 @@ public class AWTMouseManager extends MouseManager
 	// the adapter of the canvas
     public final MouseAdapter adapter;
 
+	public double toRawX(double x) { return x; }
+	public double toRawY(double y) { return y; }
+
 	protected MouseAdapter createMouseAdapter()
 	{
 		return new MouseAdapter()

@@ -25,6 +25,9 @@ public abstract class MouseManager
 		this.release = this.createReleaseController();
 	}
 
+	public abstract double toRawX(double x);
+	public abstract double toRawY(double y);
+
 	// synchronise on getting / setting data!
 	public final Vec2 position = new Vec2(0);
 

@@ -16,6 +16,32 @@ public class SystemMouseManager extends MouseManager
 
 	private Window window = null;
 
+    public double toRawX(double x)
+    {
+		Window wdow = this.window;
+		if( wdow != null )
+		{
+			x += wdow.viewport.getCenterX();
+			x += wdow.getResolutionW() * 0.5;
+			x = x / wdow.getResolutionW() * wdow.getPixelWidth();
+		}
+		return x;
+    }
+
+    public double toRawY(double y)
+    {
+		Window wdow = this.window;
+		if( wdow != null )
+		{
+			y += wdow.viewport.getCenterY();
+			y += wdow.getResolutionH() * 0.5;
+			y = y / wdow.getResolutionH() * wdow.getPixelHeight();
+		}
+		return y;
+    }
+
+
+
 	public SystemMouseManager(Window window)
 	{
 		this.window = window;
@@ -70,14 +96,43 @@ public class SystemMouseManager extends MouseManager
 	        	return 0;
 	        }
 
+	        private boolean receivedDown = false;
+
+	        private boolean isValidMouseAction(double x, double y)
+	        {
+	        	Window wdow = SystemMouseManager.this.window;
+
+	        	return wdow != null
+		        	&& wdow.isFocused()
+		        	&& 0 <= x && x <= wdow.getPixelWidth()
+		        	&& 0 <= y && y <= wdow.getPixelHeight()
+	        	;
+	        }
+
 			@Override 
-			public void mousePressed(GlobalMouseEvent event)  {
-				SystemMouseManager.this.onPress(this.convertButton(event.getButton()));
+			public void mousePressed(GlobalMouseEvent event)
+			{
+				Window wdow = SystemMouseManager.this.window;
+				if( wdow != null )
+				{
+					double x = event.getX() - wdow.getDeviceX();
+					double y = event.getY() - wdow.getDeviceY();
+
+					if( this.isValidMouseAction(x, y) )
+					{
+						this.receivedDown = true;
+						SystemMouseManager.this.onPress(this.convertButton(event.getButton()));
+					}
+				}
 			}
 			
 			@Override 
 			public void mouseReleased(GlobalMouseEvent event)  {
-				SystemMouseManager.this.onRelease(this.convertButton(event.getButton()));
+				if( this.receivedDown )
+				{
+					this.receivedDown = false;			
+					SystemMouseManager.this.onRelease(this.convertButton(event.getButton()));
+				}
 			}
 			
 
@@ -91,7 +146,17 @@ public class SystemMouseManager extends MouseManager
 
 			@Override 
 			public void mouseWheel(GlobalMouseEvent event) {
-				SystemMouseManager.this.onWheel(event.getDelta() / -120.0);
+				Window wdow = SystemMouseManager.this.window;
+				if( wdow != null )
+				{
+					double x = event.getX() - wdow.getDeviceX();
+					double y = event.getY() - wdow.getDeviceY();
+
+					if( this.isValidMouseAction(x, y) )
+					{
+						SystemMouseManager.this.onWheel(event.getDelta() / -120.0);
+					}
+				}
 			}
 		});
 	}

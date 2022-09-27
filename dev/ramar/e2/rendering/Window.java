@@ -77,6 +77,7 @@ public abstract class Window<E extends Viewport, K extends MouseManager, V exten
     }
 
 
+    protected boolean hasFocus = false;
     /* Listener: UnfocusListener
      - When the window has lost focus
     */
@@ -86,6 +87,7 @@ public abstract class Window<E extends Viewport, K extends MouseManager, V exten
     public final LocalList<UnfocusListener> onUnfocus = new LocalList<>();
     protected void onUnfocus()
     {
+        this.hasFocus = false;
         for( UnfocusListener ul : this.onUnfocus.getList() )
             ul.onUnfocus(this);
     }
@@ -99,6 +101,8 @@ public abstract class Window<E extends Viewport, K extends MouseManager, V exten
     public final LocalList<FocusListener> onFocus = new LocalList<>();
     protected void onFocus()
     {
+        this.hasFocus = true;
+
         for( FocusListener fl : this.onFocus.getList() )
             fl.onFocus(this);
     }
@@ -188,5 +192,10 @@ public abstract class Window<E extends Viewport, K extends MouseManager, V exten
     }
 
     public abstract int getDeviceX();
-    public abstract int getDeviceY();    
+    public abstract int getDeviceY(); 
+
+    public boolean isFocused()
+    {
+        return this.hasFocus;
+    }
 }

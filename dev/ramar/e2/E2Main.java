@@ -38,20 +38,6 @@ public class E2Main
         window.setResolution(1920, 1080);
         window.show();
 
-        window.viewport.layers.add((double x, double y, Viewport vp) ->
-        {
-            vp.draw.rect.withMod()
-                .colour.with(125, 125, 125, 255)
-                .fill.with()
-                .offset.with(x, y)
-            ;
-            double w = 30;
-            vp.draw.rect.poslen(w * -0.5, w * -0.5, w, w);
-
-            vp.draw.rect.clearMod();
-        });
-
-
         Test t = new Test()
         {
             public void onMove(double x, double y)
@@ -66,6 +52,65 @@ public class E2Main
         window.mouse.release.add(t, 1, 3);
         window.viewport.layers.add(t);
 
+
+
+        Test t1 = new Test()
+        {
+            public void onMove(double x, double y)
+            {
+                this.pos.set(x, y);
+            }
+        };
+
+        window.mouse.press.add(t1, 1, 3);
+        window.mouse.wheel.add(t1);
+        window.mouse.release.add(t1, 1, 3);
+        window.viewport.layers.add(t1);
+
+        Test t2 = new Test()
+        {
+            private Vec2 start = null, origin = null;
+            public synchronized void onMove(double x, double y)
+            {
+                if( start != null )
+                {
+                    x = window.mouse.toRawX(x);
+                    y = window.mouse.toRawY(y);
+                    double xdist = (x - origin.getX()),
+                           ydist = (y - origin.getY());
+
+                    double cx = start.getX() + xdist,
+                           cy = start.getY() + ydist;
+
+                    window.viewport.setCenter(cx, cy);
+                }
+            }
+
+            public synchronized void onPress(int btn, double x, double y)
+            {
+                if( btn == 1 )
+                {
+                    this.start = new Vec2(window.viewport.getCenterX(), window.viewport.getCenterY());
+                    this.origin = new Vec2(window.mouse.toRawX(x), window.mouse.toRawY(y));
+                }
+            }
+
+            public synchronized void onRelease(int btn, double x, double y)
+            {
+                if( btn == 1 )
+                {
+                    this.start = null;
+                    this.origin = null;
+                }
+            }
+        };
+
+
+        window.mouse.press.add(t2, 1);
+        window.mouse.release.add(t2, 1);
+        window.mouse.move.add(t2);
+
+
         window.waitForClose();
     }
 
@@ -79,7 +124,6 @@ public class E2Main
         {
             synchronized(this)
             {
-                pos.set(x, y);
                 off.add(0, power * 10);
             }
         }
