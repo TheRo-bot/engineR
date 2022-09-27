@@ -13,6 +13,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Cursor;
 
+import java.awt.event.WindowListener;
+import java.awt.event.WindowEvent;
+
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 
@@ -54,65 +57,94 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
         this.mspf = 1000.0 / (Device.getRefreshRate() + 1 );
 
         this.frame = f;
+
+        this.frame.addWindowListener(new WindowListener()
+        {
+            public void windowClosed(WindowEvent we)
+            {}
+            public void windowDeactivated(WindowEvent we) 
+            {
+                AWTWindow.this.onUnfocus();
+            }
+            public void windowActivated(WindowEvent we) 
+            {
+                AWTWindow.this.onFocus();
+            }
+            public void windowClosing(WindowEvent we) 
+            {
+                AWTWindow.this.onClose();
+            }
+            public void windowDeiconified(WindowEvent we) 
+            {
+                AWTWindow.this.onMinimised();
+            }
+            public void windowIconified(WindowEvent we) 
+            {
+                AWTWindow.this.onMaximised();
+            }
+            public void windowOpened(WindowEvent we) 
+            { }
+        });
+
         this.canvas.addMouseListener(this.mouse.adapter);
         this.canvas.addMouseMotionListener(this.mouse.adapter);
         this.canvas.addMouseWheelListener(this.mouse.adapter);
 
         this.inner = new Thread(() ->
         {
-            try
+            BufferStrategy bs = this.canvas.getBufferStrategy();
+            if( bs == null ) 
             {
-                BufferStrategy bs = this.canvas.getBufferStrategy();
-                if( bs == null ) 
-                {
-                    this.canvas.createBufferStrategy(3);
-                    bs = this.canvas.getBufferStrategy();
-                }
-
-                double d = 1.0;
-                int fps = 1;
-                long lastTime = System.currentTimeMillis();
-                while(true)
-                {
-                    long nowTime = System.currentTimeMillis();
-                    double delta = (nowTime - lastTime) / 1000.0;
-                    d -= delta;
-                    lastTime = nowTime;
-                    if( d <= 0 )
-                    {
-                        d = 1.0;
-                        System.out.println("FPS: " + fps);
-                        fps = 1;
-                    }
-                    
-                    // render!
-                    Graphics2D g2d = (Graphics2D)bs.getDrawGraphics();
-                    long startTime = System.nanoTime();
-                    if( g2d != null )
-                    {
-                        this.pollSize();
-                        this.redraw(g2d);
-                        bs.show();
-                        g2d.dispose();
-                        fps += 1;
-                    }
-
-                    double time = (System.nanoTime() - startTime) / 1000000.0;
-
-                    double sleepTime = Math.max(0, this.mspf - time);
-
-                    Thread.sleep((int)sleepTime - 1);
-                    sleepTime -= (int)sleepTime - 1;
-                    double endTime = System.currentTimeMillis() + sleepTime;
-                    while(System.currentTimeMillis() < endTime)
-                    {}
-                }
+                this.canvas.createBufferStrategy(3);
+                bs = this.canvas.getBufferStrategy();
             }
-            catch(InterruptedException e) {}
 
+            double d = 1.0;
+            int fps = 1;
+            long lastTime = System.currentTimeMillis();
+            while(!this.inner.isInterrupted())
+            {
+                long nowTime = System.currentTimeMillis();
+                double delta = (nowTime - lastTime) / 1000.0;
+                d -= delta;
+                lastTime = nowTime;
+                if( d <= 0 )
+                {
+                    d = 1.0;
+                    System.out.println("FPS: " + fps);
+                    fps = 1;
+                }
+
+                // render!
+                Graphics2D g2d = (Graphics2D)bs.getDrawGraphics();
+                long startTime = System.nanoTime();
+                if( g2d != null )
+                {
+                    this.pollSize();
+                    this.redraw(g2d);
+                    bs.show();
+                    g2d.dispose();
+                    fps += 1;
+                }
+
+                double time = (System.nanoTime() - startTime) / 1000000.0;
+
+                double sleepTime = Math.max(0, this.mspf - time);
+
+                double endTime = System.currentTimeMillis() + sleepTime;
+                while(System.currentTimeMillis() < endTime)
+                {}
+            }
         });
     }
 
+    @Override
+    protected void onClose()
+    {
+        this.interrupt();
+        this.frame.dispose();
+        super.onClose();
+    }
 
     private AffineTransform screenTransform = new AffineTransform();
 

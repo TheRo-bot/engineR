@@ -1,6 +1,7 @@
 package dev.ramar.e2;
 
 import dev.ramar.e2.rendering.awt.AWTWindow;
+import dev.ramar.e2.rendering.Window;
 
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.Viewport;
@@ -61,6 +62,7 @@ public class E2Main
         window.mouse.move.add(t);
         window.mouse.wheel.add(t);
         window.viewport.layers.add(t);
+
         window.waitForClose();
     }
 
