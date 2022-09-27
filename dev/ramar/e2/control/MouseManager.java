@@ -28,13 +28,20 @@ public abstract class MouseManager
 	// synchronise on getting / setting data!
 	public final Vec2 position = new Vec2(0);
 
+	// button id mapping:
+	/*
+	 1: left
+	 2: right
+	 3: middle
+	 4: mouse4
+	 5: mouse5
+	*/
 	protected void onPress(int btn, double x, double y)
 	{
 		synchronized(this.pressers)
 		{
 			if( this.pressers.containsKey(btn) )
 			{
-
 				LocalList<PressListener> toInvoke = pressers.get(btn);
 				for( PressListener pl : toInvoke.getList() )
 					pl.onPress(btn, x, y);
@@ -221,12 +228,18 @@ public abstract class MouseManager
 		}
 		public void add(PressListener pl, int... btns)
 		{
+			if( btns.length == 0 )
+				this.add(1, pl);
+
 			for( int btn : btns )
 				this.add(btn, pl);
 		}
 
 		public void remove(PressListener pl, int... btns)
 		{
+			if( btns.length == 0 )
+				this.remove(1, pl);
+			
 			for( int btn : btns )
 				this.remove(btn, pl);
 		}
@@ -251,6 +264,9 @@ public abstract class MouseManager
 	{
 		public void add(ReleaseListener rl, int... btns)
 		{
+			if( btns.length == 0 )
+				this.add(1, rl);
+			
 			for( int btn : btns )
 				this.add(btn, rl);
 		}
@@ -272,6 +288,9 @@ public abstract class MouseManager
 
 		public void remove(ReleaseListener rl, int... btns)
 		{
+			if( btns.length == 0 )
+				this.remove(1, rl);
+			
 			for( int btn : btns )
 				this.remove(btn, rl);
 		}

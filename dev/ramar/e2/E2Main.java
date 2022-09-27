@@ -7,6 +7,7 @@ import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.Viewport;
 
 import dev.ramar.e2.structures.Vec2;
+import dev.ramar.e2.structures.Colour;
 
 import dev.ramar.e2.control.MouseManager;
 
@@ -61,6 +62,8 @@ public class E2Main
 
         window.mouse.move.add(t);
         window.mouse.wheel.add(t);
+        window.mouse.press.add(t, 1, 3);
+        window.mouse.release.add(t, 1, 3);
         window.viewport.layers.add(t);
 
         window.waitForClose();
@@ -70,6 +73,7 @@ public class E2Main
     {
         protected Vec2 pos = new Vec2(0);
         protected Vec2 off = new Vec2(0);
+        protected Colour colour = new Colour(255, 255, 255, 255);
 
         public void onWheel(double x, double y, double power)
         {
@@ -79,13 +83,25 @@ public class E2Main
                 off.add(0, power * 10);
             }
         }
+        public void onPress(int btn, double x, double y)
+        {   
+            if( btn == 1 )
+                this.colour.set(255, 0, 0, 255);
+            else if( btn == 3 )
+                this.colour.set(0, 255, 0, 255);
+        }
+
+        public void onRelease(int btn, double x, double y)
+        {
+            this.colour.set(255, 255, 255, 255);
+        }
 
         public void drawAt(double x, double y, Viewport vp)
         {
             synchronized(this)
             {
                 vp.draw.rect.withMod()
-                    .colour.with(255, 255, 255, 255)
+                    .colour.with(this.colour)
                     .fill.with()
                     .offset.with(x, y)
                     .offset.with(pos.getX(), pos.getY())

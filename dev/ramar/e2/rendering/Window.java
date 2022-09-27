@@ -186,4 +186,7 @@ public abstract class Window<E extends Viewport, K extends MouseManager, V exten
         this.setPixelWidth(w);
         this.setPixelHeight(h);
     }
+
+    public abstract int getDeviceX();
+    public abstract int getDeviceY();    
 }

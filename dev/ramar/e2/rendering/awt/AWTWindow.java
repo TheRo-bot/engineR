@@ -2,7 +2,7 @@ package dev.ramar.e2.rendering.awt;
 
 import dev.ramar.e2.rendering.Window;
 
-import dev.ramar.e2.control.awt.AWTMouseManager;
+import dev.ramar.e2.control.system.SystemMouseManager;
 import dev.ramar.e2.control.awt.AWTKeyboardManager;
 
 import javax.swing.JFrame;
@@ -19,7 +19,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 
-public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardManager>
+public class AWTWindow extends Window<AWTViewport, SystemMouseManager, AWTKeyboardManager>
 {
     public AWTWindow()
     {}
@@ -27,8 +27,8 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
     protected AWTViewport createViewport()
     {  return new AWTViewport(this);  }
 
-    protected AWTMouseManager createMouseManager()
-    {  return new AWTMouseManager(this);  }
+    protected SystemMouseManager createMouseManager()
+    {  return new SystemMouseManager(this);  }
 
     protected AWTKeyboardManager createKeyManager()
     {  return new AWTKeyboardManager();  }
@@ -38,9 +38,24 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
     public final Canvas canvas = new Canvas();
 
 
+    public int getDeviceX()
+    {
+        if( this.frame != null )
+            return this.frame.getX() + 8;
+
+        return 0;
+    }
+    public int getDeviceY()
+    {
+        if( this.frame != null )
+            return this.frame.getY() + 31;
+
+        return 0;
+    }
     private Thread inner = null;
 
     private double mspf = 0.0;
+
 
     public void initialise()
     {
@@ -86,9 +101,9 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
             { }
         });
 
-        this.canvas.addMouseListener(this.mouse.adapter);
-        this.canvas.addMouseMotionListener(this.mouse.adapter);
-        this.canvas.addMouseWheelListener(this.mouse.adapter);
+        // this.canvas.addMouseListener(this.mouse.adapter);
+        // this.canvas.addMouseMotionListener(this.mouse.adapter);
+        // this.canvas.addMouseWheelListener(this.mouse.adapter);
 
         this.inner = new Thread(() ->
         {
