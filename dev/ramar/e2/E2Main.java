@@ -57,8 +57,9 @@ public class E2Main
                 this.pos.set(x, y);
             }
         };
-        
+
         window.mouse.move.add(t);
+        window.mouse.wheel.add(t);
         window.viewport.layers.add(t);
         window.waitForClose();
     }
