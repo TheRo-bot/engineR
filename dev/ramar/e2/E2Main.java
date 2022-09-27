@@ -49,6 +49,17 @@ public class E2Main
             vp.draw.rect.clearMod();
         });
 
+
+        Test t = new Test()
+        {
+            public void onMove(double x, double y)
+            {
+                this.pos.set(x, y);
+            }
+        };
+        
+        window.mouse.move.add(t);
+        window.viewport.layers.add(t);
         window.waitForClose();
     }
 

@@ -35,9 +35,9 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
     public final Canvas canvas = new Canvas();
 
 
-
     private Thread inner = null;
 
+    private double mspf = 0.0;
 
     public void initialise()
     {
@@ -51,6 +51,10 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
         );
         f.add(this.canvas);
 
+        // this.fpms = Device.getRefreshRate() / 1000.0;
+
+        this.mspf = 1000.0 / Device.getRefreshRate();
+
         this.frame = f;
         this.canvas.addMouseListener(this.mouse.adapter);
         this.canvas.addMouseMotionListener(this.mouse.adapter);
@@ -60,8 +64,6 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
         {
             try
             {
-                double d = 1.0;
-
                 BufferStrategy bs = this.canvas.getBufferStrategy();
                 if( bs == null ) 
                 {
@@ -69,27 +71,40 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
                     bs = this.canvas.getBufferStrategy();
                 }
 
+                double d = 1.0;
+                int fps = 0;
                 long lastTime = System.currentTimeMillis();
                 while(true)
                 {
                     long nowTime = System.currentTimeMillis();
                     double delta = (nowTime - lastTime) / 1000.0;
-                    lastTime = nowTime;
                     d -= delta;
+                    lastTime = nowTime;
                     if( d <= 0 )
                     {
                         d = 1.0;
-                        System.out.println("yuh");
+                        System.out.println("FPS: " + fps);
+                        fps = 0;
                     }
                     Graphics2D g2d = (Graphics2D)bs.getDrawGraphics();
+                    long startTime = System.nanoTime();
                     if( g2d != null )
                     {
                         this.pollSize();
                         this.redraw(g2d);
                         bs.show();
                         g2d.dispose();
+                        fps += 1;
                     }
-                    Thread.sleep(1);
+
+                    double time = (System.nanoTime() - startTime) / 1000000.0;
+
+                    int sleepTime = (int)Math.max(0, this.mspf - time);
+                    //                      v time in ms -------------------------- v
+                    // int timeToSleep = (int)Math.max(this.mspf - (System.nanoTime() - startTime) / 1000000.0, 0);
+                    // int timeToSleep = (int)this.mspf;
+
+                    Thread.sleep(sleepTime);
                 }
             }
             catch(InterruptedException e) {}

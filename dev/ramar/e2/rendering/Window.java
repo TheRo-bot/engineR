@@ -4,6 +4,8 @@ import dev.ramar.e2.control.MouseManager;
 import dev.ramar.e2.control.KeyboardManager;
 import dev.ramar.e2.rendering.control.*;
 
+import java.awt.GraphicsEnvironment;
+
 import java.util.*;
 
 public abstract class Window<E extends Viewport, K extends MouseManager, V extends KeyboardManager>
@@ -28,6 +30,13 @@ public abstract class Window<E extends Viewport, K extends MouseManager, V exten
         {
             double out = java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight();
             return out;
+        }
+
+        public static int getRefreshRate()
+        {
+            GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
+            return ge.getDefaultScreenDevice().getDisplayMode().getRefreshRate();
+
         }
     }
 
