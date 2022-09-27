@@ -51,9 +51,7 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
         );
         f.add(this.canvas);
 
-        // this.fpms = Device.getRefreshRate() / 1000.0;
-
-        this.mspf = 1000.0 / Device.getRefreshRate();
+        this.mspf = 1000.0 / (Device.getRefreshRate() + 1 );
 
         this.frame = f;
         this.canvas.addMouseListener(this.mouse.adapter);
@@ -72,7 +70,7 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
                 }
 
                 double d = 1.0;
-                int fps = 0;
+                int fps = 1;
                 long lastTime = System.currentTimeMillis();
                 while(true)
                 {
@@ -84,8 +82,10 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
                     {
                         d = 1.0;
                         System.out.println("FPS: " + fps);
-                        fps = 0;
+                        fps = 1;
                     }
+                    
+                    // render!
                     Graphics2D g2d = (Graphics2D)bs.getDrawGraphics();
                     long startTime = System.nanoTime();
                     if( g2d != null )
@@ -99,12 +99,13 @@ public class AWTWindow extends Window<AWTViewport, AWTMouseManager, AWTKeyboardM
 
                     double time = (System.nanoTime() - startTime) / 1000000.0;
 
-                    int sleepTime = (int)Math.max(0, this.mspf - time);
-                    //                      v time in ms -------------------------- v
-                    // int timeToSleep = (int)Math.max(this.mspf - (System.nanoTime() - startTime) / 1000000.0, 0);
-                    // int timeToSleep = (int)this.mspf;
+                    double sleepTime = Math.max(0, this.mspf - time);
 
-                    Thread.sleep(sleepTime);
+                    Thread.sleep((int)sleepTime - 1);
+                    sleepTime -= (int)sleepTime - 1;
+                    double endTime = System.currentTimeMillis() + sleepTime;
+                    while(System.currentTimeMillis() < endTime)
+                    {}
                 }
             }
             catch(InterruptedException e) {}
