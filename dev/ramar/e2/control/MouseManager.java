@@ -28,6 +28,10 @@ public abstract class MouseManager
 	public abstract double toRawX(double x);
 	public abstract double toRawY(double y);
 
+	public abstract void listen();
+	public abstract void ignore();
+
+
 	// synchronise on getting / setting data!
 	public final Vec2 position = new Vec2(0);
 
@@ -172,6 +176,28 @@ public abstract class MouseManager
 	{  return new ReleaseController();  }
 	public final ReleaseController release;
 
+
+	public void add(MouseListener ml, int... btns)
+	{
+		for( int btn : btns )
+		{
+			this.move.add(ml);
+			this.wheel.add(ml);
+			this.press.add(btn, ml);
+			this.release.add(btn, ml);
+		}
+	}
+
+	public void remove(MouseListener ml, int... btns)
+	{
+		for( int btn : btns )
+		{
+			this.move.remove(ml);
+			this.wheel.remove(ml);
+			this.press.remove(btn, ml);
+			this.release.remove(btn, ml);
+		}
+	}
 
 
 	public class MoveController

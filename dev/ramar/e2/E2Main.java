@@ -10,6 +10,7 @@ import dev.ramar.e2.structures.Vec2;
 import dev.ramar.e2.structures.Colour;
 
 import dev.ramar.e2.control.MouseManager;
+import dev.ramar.e2.control.KeyboardManager;
 
 public class E2Main
 {
@@ -60,12 +61,22 @@ public class E2Main
             {
                 this.pos.set(x, y);
             }
+
+            public void onPress(String key)
+            {
+                System.out.println("PRESS: " + key);
+            }
+            public void onRelease(String key)
+            {
+                System.out.println("RELEASE: " + key);
+            }
         };
 
         window.mouse.press.add(t1, 1, 3);
-        window.mouse.wheel.add(t1);
         window.mouse.release.add(t1, 1, 3);
         window.viewport.layers.add(t1);
+
+        window.keys.add(t1, "ESCAPE", "CNTRL", "ENTER", "w", "a", "s", "d");
 
         Test t2 = new Test()
         {
@@ -114,7 +125,7 @@ public class E2Main
         window.waitForClose();
     }
 
-    public class Test implements MouseManager.MouseListener, Drawable
+    public class Test implements MouseManager.MouseListener, Drawable, KeyboardManager.KeyListener
     {
         protected Vec2 pos = new Vec2(0);
         protected Vec2 off = new Vec2(0);
@@ -127,6 +138,12 @@ public class E2Main
                 off.add(0, power * 10);
             }
         }
+
+        public void onPress(String keyCode)
+        { }
+        public void onRelease(String keyCode)
+        { }
+
         public void onPress(int btn, double x, double y)
         {   
             if( btn == 1 )

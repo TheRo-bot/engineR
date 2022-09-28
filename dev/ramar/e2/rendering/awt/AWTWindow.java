@@ -3,7 +3,7 @@ package dev.ramar.e2.rendering.awt;
 import dev.ramar.e2.rendering.Window;
 
 import dev.ramar.e2.control.system.SystemMouseManager;
-import dev.ramar.e2.control.awt.AWTKeyboardManager;
+import dev.ramar.e2.control.system.SystemKeyboardManager;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -19,7 +19,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 
-public class AWTWindow extends Window<AWTViewport, SystemMouseManager, AWTKeyboardManager>
+public class AWTWindow extends Window<AWTViewport, SystemMouseManager, SystemKeyboardManager>
 {
     public AWTWindow()
     {}
@@ -30,8 +30,8 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, AWTKeyboa
     protected SystemMouseManager createMouseManager()
     {  return new SystemMouseManager(this);  }
 
-    protected AWTKeyboardManager createKeyManager()
-    {  return new AWTKeyboardManager();  }
+    protected SystemKeyboardManager createKeyManager()
+    {  return new SystemKeyboardManager(this);  }
 
 
     protected JFrame frame;
@@ -56,8 +56,15 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, AWTKeyboa
 
     private double mspf = 0.0;
 
+    public void shutdown()
+    {
+        this.keys.ignore();
+        this.keys.shutdown();
+        this.mouse.ignore();
+        this.mouse.shutdown();
+    }
 
-    public void initialise()
+    public void setup()
     {
         JFrame f = new JFrame();
         f.setSize((int)this.getPixelWidth(), (int)this.getPixelHeight());
@@ -150,13 +157,15 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, AWTKeyboa
                 while(System.currentTimeMillis() < endTime)
                 {}
             }
-        });
+        }, "AWTWindow_RenderThread");
     }
 
     @Override
     protected void onClose()
     {
+        System.out.println("onClose!");
         this.interrupt();
+        this.shutdown();
         this.frame.dispose();
         super.onClose();
     }
@@ -184,7 +193,7 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, AWTKeyboa
     public void show()
     {
         if( this.frame == null )
-            this.initialise();
+            this.setup();
 
         this.frame.setResizable(false);
         this.frame.setVisible(true);
@@ -196,18 +205,26 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, AWTKeyboa
         );
 
         this.inner.start();
+        this.mouse.listen();
+        this.keys.listen();
     }
 
     public void hide()
     {
         this.frame.setVisible(false);
+        this.mouse.ignore();
+        this.keys.ignore();
     }
 
     public void minimise()
-    {}
+    {
+        this.mouse.ignore();
+    }
 
     public void maximise()
-    {}
+    {
+        this.mouse.listen();
+    }
 
 
 
