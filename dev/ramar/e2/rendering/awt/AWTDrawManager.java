@@ -4,12 +4,12 @@ import dev.ramar.e2.rendering.DrawManager;
 
 import dev.ramar.e2.rendering.awt.drawing.rect.AWTRectDrawer;
 import dev.ramar.e2.rendering.awt.drawing.polygon.AWTPolygonDrawer;
-import dev.ramar.e2.rendering.awt.drawing.polyline.AWTPolylineDrawer;
+import dev.ramar.e2.rendering.awt.drawing.line.AWTLineDrawer;
 
 
 import java.awt.Graphics2D;
 
-public class AWTDrawManager extends DrawManager<AWTRectDrawer, AWTPolygonDrawer, AWTPolylineDrawer>
+public class AWTDrawManager extends DrawManager<AWTRectDrawer, AWTPolygonDrawer, AWTLineDrawer>
 {
     public AWTDrawManager()
     {}
@@ -18,7 +18,7 @@ public class AWTDrawManager extends DrawManager<AWTRectDrawer, AWTPolygonDrawer,
     {
         this.rect.setGraphics(g2d);
         this.polygon.setGraphics(g2d);
-        this.polyline.setGraphics(g2d);
+        this.line.setGraphics(g2d);
     }
 
     public AWTRectDrawer createRectDrawer()
@@ -31,9 +31,9 @@ public class AWTDrawManager extends DrawManager<AWTRectDrawer, AWTPolygonDrawer,
         return new AWTPolygonDrawer();
     }
 
-    public AWTPolylineDrawer createPolylineDrawer()
+    public AWTLineDrawer createLineDrawer()
     {
-        return new AWTPolylineDrawer();
+        return new AWTLineDrawer();
     }
 
 

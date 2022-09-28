@@ -179,10 +179,10 @@ public abstract class MouseManager
 
 	public void add(MouseListener ml, int... btns)
 	{
+		this.move.add(ml);
+		this.wheel.add(ml);
 		for( int btn : btns )
 		{
-			this.move.add(ml);
-			this.wheel.add(ml);
 			this.press.add(btn, ml);
 			this.release.add(btn, ml);
 		}

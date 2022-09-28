@@ -10,7 +10,7 @@ Abstract Class: DrawManager
 
 import dev.ramar.e2.rendering.drawing.rect.RectDrawer;
 import dev.ramar.e2.rendering.drawing.polygon.PolygonDrawer;
-import dev.ramar.e2.rendering.drawing.polyline.PolylineDrawer;
+import dev.ramar.e2.rendering.drawing.line.LineDrawer;
 
 /*
 Abstract Class: DrawManager
@@ -19,13 +19,13 @@ Abstract Class: DrawManager
    (so instead of going myViewport.stateless... you go myViewport.draw.rect)
    which essentially allows further methods to be less word-y 
 */
-public abstract class DrawManager<E extends RectDrawer, K extends PolygonDrawer, V extends PolylineDrawer>
+public abstract class DrawManager<E extends RectDrawer, K extends PolygonDrawer, V extends LineDrawer>
 {
     protected DrawManager()
     {
         this.rect = this.createRectDrawer();
         this.polygon = this.createPolygonDrawer();
-        this.polyline = this.createPolylineDrawer();
+        this.line = this.createLineDrawer();
     }
 
 
@@ -35,8 +35,8 @@ public abstract class DrawManager<E extends RectDrawer, K extends PolygonDrawer,
     public final K polygon;
     public abstract K createPolygonDrawer();
 
-    public final V polyline;
-    public abstract V createPolylineDrawer();
+    public final V line;
+    public abstract V createLineDrawer();
 
 
 }

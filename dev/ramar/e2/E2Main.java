@@ -5,12 +5,19 @@ import dev.ramar.e2.rendering.Window;
 
 import dev.ramar.e2.rendering.Drawable;
 import dev.ramar.e2.rendering.Viewport;
+import dev.ramar.e2.rendering.awt.AWTLayerManager.AWTLayer;
+
+import dev.ramar.e2.rendering.drawing.line.Line;
 
 import dev.ramar.e2.structures.Vec2;
 import dev.ramar.e2.structures.Colour;
 
 import dev.ramar.e2.control.MouseManager;
 import dev.ramar.e2.control.KeyboardManager;
+
+
+import java.util.*;
+/* List, ArrayList */
 
 public class E2Main
 {
@@ -32,12 +39,42 @@ public class E2Main
 	public E2Main()
 	{}
 
+
+    class Test2 extends Line implements MouseManager.MouseListener
+    {
+        public Test2(double x, double y, double x2, double y2)
+        {
+            super(x, y, x2, y2);
+        }
+        public void onMove(double x, double y)
+        {
+            this.to.set(x, y);
+        }
+    }
+
     public void start()
     {
         AWTWindow window = new AWTWindow();
         window.setSize(0.75, 0.75);
         window.setResolution(1920, 1080);
         window.show();
+
+        List<Test2> test2s = new ArrayList<>();
+        Random rd = new Random();
+        for( int ii = 0; ii < 1500; ii++ )
+        {
+            Line t2 = new Line();
+            t2.to = window.mouse.position;
+            t2.getMod()
+                .colour.with(rd.nextDouble(), rd.nextDouble(), rd.nextDouble(), 255)
+                .width.with(rd.nextInt(10))
+                .offset.with(
+                    rd.nextInt((int)window.getResolutionW()) - window.getResolutionW() * 0.5,
+                    rd.nextInt((int)window.getResolutionH()) - window.getResolutionH() * 0.5
+                )
+            ;
+            window.viewport.layers.addTo(1, t2);
+        }
 
         Test t = new Test()
         {

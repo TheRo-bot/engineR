@@ -47,4 +47,14 @@ public class ColourHelper<E extends ModHelperOwner>
 
         return this.owner;
     }
+
+    public E with(double r, double g, double b, double a)
+    {
+        int ri = (int)Math.round(Math.max(0, Math.min(1.0, r)) * 255);
+        int gi = (int)Math.round(Math.max(0, Math.min(1.0, g)) * 255);
+        int bi = (int)Math.round(Math.max(0, Math.min(1.0, b)) * 255);
+        int ai = (int)Math.round(Math.max(0, Math.min(1.0, a)) * 255);
+
+        return this.with(ri, gi, bi, ai);
+    }
 }

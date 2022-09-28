@@ -13,27 +13,33 @@ public abstract class LayerManager<E extends LayerManager.Layer>
     protected Map<Integer, E> layers = new TreeMap<>();
 
 
+    public E get(int zIndex)
+    {
+        E l = this.layers.get(zIndex);
+        if( l == null )
+        {
+            l = this.createLayer();
+
+            // if layer is ever null, then who the fuck implemented createLayer to be null
+            if( l == null )
+                throw new NullPointerException("who the fuck implemented createLayer to be null??? excuse me??");
+
+            this.layers.put(zIndex, l);
+        }
+
+        return l;
+    }
 
     public void add(Drawable d)
     {
         this.addTo(0, d);
     }
 
+
     public void addTo(int zIndex, Drawable d)
     {
-        E layer = null;
-        if( !this.layers.containsKey(zIndex) )
-        {
-            layer = this.createLayer();
-            if( layer == null )
-                throw new NullPointerException("who the fuck implemented createLayer to be null??? excuse me??");
+        E layer = this.get(zIndex);
 
-            this.layers.put(zIndex, layer);
-        }
-        else
-            layer = this.layers.get(zIndex);
-
-        // if layer is ever null, then who the fuck implemented createLayer to be null
         if( layer != null )
             layer.add(d);
     }

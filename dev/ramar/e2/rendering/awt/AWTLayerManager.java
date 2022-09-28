@@ -27,12 +27,21 @@ public class AWTLayerManager extends LayerManager<AWTLayerManager.AWTLayer>
 
     public class AWTLayer extends Layer
     {
+        private boolean ignoreOffset = false;
+        public void ignoreOffset() {  this.ignoreOffset = true;  } 
+        public void considerOffset() {  this.ignoreOffset = false;  } 
+
         public void drawAt(double x, double y, AWTViewport vp)
         {
             synchronized(this.drawables)
             {
                 for( Drawable d : this.drawables )
-                    d.drawAt(x, y, vp);
+                {
+                    if( ignoreOffset )
+                        d.drawAt(0, 0, vp);
+                    else
+                        d.drawAt(x, y, vp);
+                }
             }
         }
     }
