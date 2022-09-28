@@ -61,13 +61,13 @@ public class E2Main
 
         List<Test2> test2s = new ArrayList<>();
         Random rd = new Random();
-        for( int ii = 0; ii < 1500; ii++ )
+        for( int ii = 0; ii < 15000; ii++ )
         {
             Line t2 = new Line();
             t2.to = window.mouse.position;
             t2.getMod()
                 .colour.with(rd.nextDouble(), rd.nextDouble(), rd.nextDouble(), 255)
-                .width.with(rd.nextInt(10))
+                .width.with(1)
                 .offset.with(
                     rd.nextInt((int)window.getResolutionW()) - window.getResolutionW() * 0.5,
                     rd.nextInt((int)window.getResolutionH()) - window.getResolutionH() * 0.5
