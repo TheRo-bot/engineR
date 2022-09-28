@@ -53,8 +53,6 @@ public class E2Main
         window.mouse.release.add(t, 1, 3);
         window.viewport.layers.add(t);
 
-
-
         Test t1 = new Test()
         {
             public void onMove(double x, double y)

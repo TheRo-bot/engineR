@@ -73,6 +73,8 @@ public abstract class KeyboardManager
 	private Map<String, LocalList<PressListener>> pressers = new HashMap<>();
 	private Map<String, LocalList<ReleaseListener>> releasers = new HashMap<>();
 
+	public final LocalList<KeyAdapter> adapters = new LocalList<>();
+
 	public KeyboardManager()
 	{
 		this.press = new PressControl(this);
@@ -113,26 +115,54 @@ public abstract class KeyboardManager
 
 	protected void onPress(String id)
 	{
-		synchronized(this.pressers)
+		boolean consumed = false;
+		synchronized(this.adapters)
 		{
-			if( this.pressers.containsKey(id) )
+			for( KeyAdapter adapter : this.adapters.getList() )
 			{
-				LocalList<PressListener> toInvoke = this.pressers.get(id);
-				for(PressListener pl : toInvoke.getList() )
-					pl.onPress(id);
+				consumed = adapter.onPress(id);
+				if( consumed )
+					break;
+			}
+		}
+
+		if( !consumed )
+		{
+			synchronized(this.pressers)
+			{
+				if( this.pressers.containsKey(id) )
+				{
+					LocalList<PressListener> toInvoke = this.pressers.get(id);
+					for(PressListener pl : toInvoke.getList() )
+						pl.onPress(id);
+				}
 			}
 		}
 	}
 
 	protected void onRelease(String id)
 	{
-		synchronized(this.releasers)
+		boolean consumed = false;
+		synchronized(this.adapters)
 		{
-			if( this.releasers.containsKey(id) )
+			for( KeyAdapter adapter : this.adapters.getList() )
 			{
-				LocalList<ReleaseListener> toInvoke = this.releasers.get(id);
-				for(ReleaseListener pl : toInvoke.getList() )
-					pl.onRelease(id);
+				consumed = adapter.onRelease(id);
+				if( consumed )
+					break;
+			}
+		}
+
+		if( !consumed )
+		{
+			synchronized(this.releasers)
+			{
+				if( this.releasers.containsKey(id) )
+				{
+					LocalList<ReleaseListener> toInvoke = this.releasers.get(id);
+					for(ReleaseListener pl : toInvoke.getList() )
+						pl.onRelease(id);
+				}
 			}
 		}
 	}
@@ -148,6 +178,13 @@ public abstract class KeyboardManager
 	{
 		// public void onRelease(String id)		
 		// public void onPress(String id)
+	}
+
+	public interface KeyAdapter
+	{
+		// returns true if the key should be consumed
+		public default boolean onRelease(String id) { return false; }
+		public default boolean onPress(String id) { return false; }
 	}
 
 	public class LocalList<E> extends HiddenList
