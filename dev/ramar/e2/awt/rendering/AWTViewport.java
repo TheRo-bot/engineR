@@ -38,8 +38,8 @@ public class AWTViewport extends Viewport<AWTLayerManager, AWTDrawManager>
             ;
 
             this.draw.rect.poslen(0, 0, 
-                this.window.getResolutionW(),
-                this.window.getResolutionH()
+                this.window.getResolutionW() * 10,
+                this.window.getResolutionH() * 10
             );
 
             AffineTransform vpTransform = new AffineTransform();

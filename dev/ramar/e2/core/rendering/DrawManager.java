@@ -19,20 +19,24 @@ Abstract Class: DrawManager
    (so instead of going myViewport.stateless... you go myViewport.draw.rect)
    which essentially allows further methods to be less word-y 
 */
-public abstract class DrawManager<E extends RectDrawer, V extends LineDrawer>
+public abstract class DrawManager<E extends RectDrawer, K extends LineDrawer, V extends PolygonDrawer>
 {
     protected DrawManager()
     {
         this.rect = this.createRectDrawer();
         this.line = this.createLineDrawer();
+        this.polygon = this.createPolygonDrawer();
     }
 
 
     public final E rect;
     public abstract E createRectDrawer();
 
-    public final V line;
-    public abstract V createLineDrawer();
+    public final K line;
+    public abstract K createLineDrawer();
+
+    public final V polygon;
+    public abstract V createPolygonDrawer();
 
 
 }

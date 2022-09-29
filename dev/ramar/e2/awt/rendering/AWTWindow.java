@@ -212,15 +212,17 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, SystemKey
     @Override    
     public void setResolutionW(double w)
     {
-        super.setResolutionW(w);
+        this.res_x = w;
         this.updateScreenTransform();
+        this.mouse.poll();
     }
 
     @Override        
     public void setResolutionH(double h)
     {
-        super.setResolutionH(h);
+        this.res_y = h;
         this.updateScreenTransform();
+        this.mouse.poll();
     }
 
 

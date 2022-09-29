@@ -7,6 +7,8 @@ import dev.ramar.e2.core.rendering.Drawable;
 import dev.ramar.e2.core.rendering.Viewport;
 import dev.ramar.e2.awt.rendering.AWTLayerManager.AWTLayer;
 
+import dev.ramar.e2.awt.drawing.polygon.AWTPolygonDrawer;
+
 import dev.ramar.e2.core.drawing.line.Line;
 
 import dev.ramar.e2.core.structures.Vec2;
@@ -61,19 +63,31 @@ public class E2Main
 
         List<Test2> test2s = new ArrayList<>();
         Random rd = new Random();
-        for( int ii = 0; ii < 15000; ii++ )
+        for( int ii = 0; ii < 2000; ii++ )
         {
-            Line t2 = new Line();
-            t2.to = window.mouse.position;
-            t2.getMod()
-                .colour.with(rd.nextDouble(), rd.nextDouble(), rd.nextDouble(), 255)
-                .width.with(1)
-                .offset.with(
-                    rd.nextInt((int)window.getResolutionW()) - window.getResolutionW() * 0.5,
-                    rd.nextInt((int)window.getResolutionH()) - window.getResolutionH() * 0.5
-                )
-            ;
-            window.viewport.layers.addTo(1, t2);
+            window.viewport.layers.add(new Drawable()
+            {
+                double[] offsets = new double[]
+                {
+                    -500 / 10, -500 / 10,
+                    1000 / 10,    0 / 10,
+                       0 / 10, 1000 / 10,
+                   -1000 / 10,    0 / 10,
+                     500 / 10, -500 / 10
+                };
+
+                public void drawAt(double x, double y, Viewport vp)
+                {
+                    vp.draw.polygon.withMod()
+                        .colour.with(125, 125, 125, 255)
+                        .offset.with(x, y)
+                        .width.with(1)
+                        .fill.with()
+                    ;
+
+                    ((AWTPolygonDrawer)vp.draw.polygon).offsets(offsets);
+                }
+            });
         }
 
         Test t = new Test()
@@ -87,7 +101,6 @@ public class E2Main
             }
             public void onWheel(double x, double y, double power)
             {
-                System.out.println("wheel!");
                 double force = 0.1;
 
                 double w = window.getResolutionW() * (1 + (power * force));
@@ -104,7 +117,10 @@ public class E2Main
         {
             public void onMove(double x, double y)
             {
-                this.pos.set(x, y);
+                synchronized(this)
+                {
+                    this.pos.set(x, y);
+                }
             }
 
             public void onPress(String key)
@@ -119,7 +135,6 @@ public class E2Main
 
         window.mouse.press.add(t1, 1, 3);
         window.mouse.release.add(t1, 1, 3);
-        window.viewport.layers.add(t1);
 
         window.keys.add(t1, "ESCAPE", "CNTRL", "ENTER", "w", "a", "s", "d");
 

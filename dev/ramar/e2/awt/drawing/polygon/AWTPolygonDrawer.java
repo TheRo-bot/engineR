@@ -9,8 +9,10 @@ import dev.ramar.e2.core.structures.Colour;
 
 import java.awt.Stroke;
 import java.awt.BasicStroke;
-
+import java.awt.Color;
 import java.awt.Graphics2D;
+
+import java.awt.geom.AffineTransform;
 
 import java.util.Arrays;
 
@@ -47,13 +49,36 @@ public class AWTPolygonDrawer extends PolygonDrawer
     		flip = !flip;
     	}
 
-
-
-    	System.out.println("points:\n" + Arrays.toString(xs) + "\n" + Arrays.toString(ys));
+    	this.positions(xs, ys);
     }
     public void offsets(double... offsets)
     {
+    	PolygonMods mods = this.getMod();
+    	int xs[] = new int[(int)(offsets.length / 2)];
+    	int ys[] = new int[(int)(offsets.length / 2)];
 
+
+    	boolean flip = true;
+    	int dex = 0;
+    	double xbuf = 0.0,
+    		   ybuf = 0.0;
+    	for( double d : offsets )
+    	{
+    		if( flip )
+    		{
+    			xbuf += d;
+    			xs[dex] = (int)Math.round(xbuf);
+    		}
+    		else
+    		{
+    			ybuf += d;
+    			ys[dex] = (int)Math.round(ybuf);
+    			dex++;
+    		}
+    		flip = !flip;
+    	}
+
+    	this.positions(xs, ys);
     }
 
 
@@ -89,7 +114,7 @@ public class AWTPolygonDrawer extends PolygonDrawer
     		this.graphics.setColor(colour.convertToColor());
 
     		Stroke oldStroke = this.graphics.getStroke();
-    		this.graphics.setStroke(new BasicStroke((float)width, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+    		this.graphics.setStroke(new BasicStroke((float)width));
 
     		this.graphics.setTransform(at);
 

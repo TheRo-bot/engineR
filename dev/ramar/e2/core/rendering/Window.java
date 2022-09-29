@@ -140,8 +140,8 @@ public abstract class Window<E extends Viewport, K extends MouseManager, V exten
         {  return this.list;  }
     }
 
-    private double res_x = 1920.0,
-                   res_y = 1080.0;
+    protected double res_x = 1920.0,
+                     res_y = 1080.0;
 
     public double getResolutionW()
     {  return this.res_x;  }
