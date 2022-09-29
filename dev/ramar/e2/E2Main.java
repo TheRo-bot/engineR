@@ -1,19 +1,19 @@
 package dev.ramar.e2;
 
-import dev.ramar.e2.rendering.awt.AWTWindow;
-import dev.ramar.e2.rendering.Window;
+import dev.ramar.e2.awt.rendering.AWTWindow;
+import dev.ramar.e2.core.rendering.Window;
 
-import dev.ramar.e2.rendering.Drawable;
-import dev.ramar.e2.rendering.Viewport;
-import dev.ramar.e2.rendering.awt.AWTLayerManager.AWTLayer;
+import dev.ramar.e2.core.rendering.Drawable;
+import dev.ramar.e2.core.rendering.Viewport;
+import dev.ramar.e2.awt.rendering.AWTLayerManager.AWTLayer;
 
-import dev.ramar.e2.rendering.drawing.line.Line;
+import dev.ramar.e2.core.drawing.line.Line;
 
-import dev.ramar.e2.structures.Vec2;
-import dev.ramar.e2.structures.Colour;
+import dev.ramar.e2.core.structures.Vec2;
+import dev.ramar.e2.core.structures.Colour;
 
-import dev.ramar.e2.control.MouseManager;
-import dev.ramar.e2.control.KeyboardManager;
+import dev.ramar.e2.core.control.MouseManager;
+import dev.ramar.e2.core.control.KeyboardManager;
 
 
 import java.util.*;
