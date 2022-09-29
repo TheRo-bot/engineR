@@ -146,14 +146,25 @@ public abstract class Window<E extends Viewport, K extends MouseManager, V exten
     public double getResolutionW()
     {  return this.res_x;  }
 
+    public void setResolutionW(double w)
+    {
+        this.res_x = w;
+        this.mouse.poll();
+    }
+
     public double getResolutionH()
     {  return this.res_y;  }
 
-
-    public synchronized void setResolution(double x, double y)
+    public void setResolutionH(double h)
     {
-        this.res_x = x;
-        this.res_y = y;
+        this.res_y = h;
+        this.mouse.poll();
+    }
+
+    public synchronized void setResolution(double w, double h)
+    {
+        this.setResolutionW(w);
+        this.setResolutionH(h);
     }
 
 

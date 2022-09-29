@@ -194,11 +194,33 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, SystemKey
         if( Math.abs(frameW - screenW) > 0.1 || Math.abs(frameH - screenH) > 0.1 )
         {
             this.setPixelSize(frameW, frameH);
-            synchronized(this.screenTransform)
-            {
-                this.screenTransform.setToScale(frameW / this.getResolutionW(), frameH / this.getResolutionH());
-            }
+            this.updateScreenTransform();
         }
+    }
+
+    private void updateScreenTransform()
+    {
+        synchronized(this.screenTransform)
+        {
+            this.screenTransform.setToScale(
+                this.canvas.getWidth() / this.getResolutionW(),
+                this.canvas.getHeight() / this.getResolutionH()
+            );
+        }
+    }
+
+    @Override    
+    public void setResolutionW(double w)
+    {
+        super.setResolutionW(w);
+        this.updateScreenTransform();
+    }
+
+    @Override        
+    public void setResolutionH(double h)
+    {
+        super.setResolutionH(h);
+        this.updateScreenTransform();
     }
 
 
@@ -212,8 +234,8 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, SystemKey
 
         this.frame.requestFocus();
         this.screenTransform.setToScale(
-            this.frame.getWidth() / this.getResolutionW(),
-            this.frame.getHeight() / this.getResolutionH()
+            this.canvas.getWidth() / this.getResolutionW(),
+            this.canvas.getHeight() / this.getResolutionH()
         );
 
         this.inner.start();

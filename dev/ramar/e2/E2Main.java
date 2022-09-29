@@ -61,33 +61,30 @@ public class E2Main
 
         List<Test2> test2s = new ArrayList<>();
         Random rd = new Random();
-        for( int ii = 0; ii < 15000; ii++ )
-        {
-            Line t2 = new Line();
-            t2.to = window.mouse.position;
-            t2.getMod()
-                .colour.with(rd.nextDouble(), rd.nextDouble(), rd.nextDouble(), 255)
-                .width.with(1)
-                .offset.with(
-                    rd.nextInt((int)window.getResolutionW()) - window.getResolutionW() * 0.5,
-                    rd.nextInt((int)window.getResolutionH()) - window.getResolutionH() * 0.5
-                )
-            ;
-            window.viewport.layers.addTo(1, t2);
-        }
+
 
         Test t = new Test()
         {
             public void onMove(double x, double y)
             {
-                this.pos.set(x, y);
+                synchronized(this)
+                {
+                    this.pos.set(x, y);
+                }
+            }
+            public void onWheel(double x, double y, double power)
+            {
+                System.out.println("wheel!");
+                double force = 0.1;
+
+                double w = window.getResolutionW() * (1 + (power * force));
+                double h = window.getResolutionH() * (1 + (power * force));
+
+                window.setResolution(w, h);
             }
         };
 
-        window.mouse.move.add(t);
-        window.mouse.wheel.add(t);
-        window.mouse.press.add(t, 1, 3);
-        window.mouse.release.add(t, 1, 3);
+        window.mouse.add(t, 1, 3);
         window.viewport.layers.add(t);
 
         Test t1 = new Test()

@@ -35,6 +35,12 @@ public abstract class MouseManager
 	// synchronise on getting / setting data!
 	public final Vec2 position = new Vec2(0);
 
+	// sends an update to all listeners
+	public void poll()
+	{
+
+	}
+
 	// button id mapping:
 	/*
 	 1: left

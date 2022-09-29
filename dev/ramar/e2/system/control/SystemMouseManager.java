@@ -3,9 +3,13 @@ package dev.ramar.e2.system.control;
 import dev.ramar.e2.core.control.MouseManager;
 import dev.ramar.e2.core.rendering.Window;
 
+import dev.ramar.e2.core.structures.Vec2;
+
 import lc.kra.system.mouse.GlobalMouseHook;
 import lc.kra.system.mouse.event.GlobalMouseAdapter;
 import lc.kra.system.mouse.event.GlobalMouseEvent;
+
+import java.util.Map;
 /*
 MouseManager: SystemMouseManager
  - This uses system-hook from https://github.com/kristian/system-hook/
@@ -13,7 +17,12 @@ MouseManager: SystemMouseManager
 public class SystemMouseManager extends MouseManager
 {
 
+	public SystemMouseManager()
+	{
+	}
 	private Window window = null;
+
+	public final Vec2 rawPosition = new Vec2();
 
 	// remove the viewport's center positioning from the given x
     public double toRawX(double x)
@@ -37,6 +46,14 @@ public class SystemMouseManager extends MouseManager
 			y += wdow.getResolutionH() * 0.5;
 		}
 		return y;
+    }
+
+    public void poll()
+    {
+    	double x = this.rawPosition.getX(),
+    		   y = this.rawPosition.getY();
+
+    	this.adapter.mouseMoved(x, y);
     }
 
     protected boolean isListening = false;
@@ -65,7 +82,9 @@ public class SystemMouseManager extends MouseManager
 		this.mouseHook.shutdownHook();
 	}
 
-	protected GlobalMouseAdapter adapter = new GlobalMouseAdapter()
+	protected LocalMouseAdapter adapter = new LocalMouseAdapter();
+
+	private class LocalMouseAdapter extends GlobalMouseAdapter
 	{
 		private double convertX(double x)
 		{
@@ -138,6 +157,10 @@ public class SystemMouseManager extends MouseManager
 
 				if( this.isValidMouseAction(x, y) )
 				{
+					synchronized(rawPosition)
+					{
+						rawPosition.set(event.getX(), event.getY());
+					}
 					this.receivedDown = true;
 					SystemMouseManager.this.onPress(this.convertButton(event.getButton()));
 				}
@@ -145,21 +168,35 @@ public class SystemMouseManager extends MouseManager
 		}
 		
 		@Override 
-		public void mouseReleased(GlobalMouseEvent event)  {
+		public void mouseReleased(GlobalMouseEvent event)
+		{
+
 			if( this.receivedDown )
 			{
+				synchronized(rawPosition)
+				{
+					rawPosition.set(event.getX(), event.getY());
+				}
 				this.receivedDown = false;			
 				SystemMouseManager.this.onRelease(this.convertButton(event.getButton()));
 			}
 		}
 		
 
+		// monitor-relative position
         @Override
-        public void mouseMoved(GlobalMouseEvent e)
+        public void mouseMoved(GlobalMouseEvent event)
         {
-        	double x = this.convertX(e.getX()),
-        		   y = this.convertY(e.getY());
-        	SystemMouseManager.this.onMove(x, y);
+			synchronized(rawPosition)
+			{
+				rawPosition.set(event.getX(), event.getY());
+			}
+			this.mouseMoved(event.getX(), event.getY());
+        }
+
+        public void mouseMoved(double x, double y)
+        {
+			SystemMouseManager.this.onMove(this.convertX(x), this.convertY(y));
         }
 
 		@Override 
@@ -172,11 +209,15 @@ public class SystemMouseManager extends MouseManager
 
 				if( this.isValidMouseAction(x, y) )
 				{
+					synchronized(rawPosition)
+					{
+						rawPosition.set(event.getX(), event.getY());
+					}
 					SystemMouseManager.this.onWheel(event.getDelta() / -120.0);
 				}
 			}
 		}
-	};
+	}
 
 
 
