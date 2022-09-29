@@ -61,35 +61,6 @@ public class E2Main
         window.setResolution(1920, 1080);
         window.show();
 
-        List<Test2> test2s = new ArrayList<>();
-        Random rd = new Random();
-        for( int ii = 0; ii < 2000; ii++ )
-        {
-            window.viewport.layers.add(new Drawable()
-            {
-                double[] offsets = new double[]
-                {
-                    -500 / 10, -500 / 10,
-                    1000 / 10,    0 / 10,
-                       0 / 10, 1000 / 10,
-                   -1000 / 10,    0 / 10,
-                     500 / 10, -500 / 10
-                };
-
-                public void drawAt(double x, double y, Viewport vp)
-                {
-                    vp.draw.polygon.withMod()
-                        .colour.with(125, 125, 125, 255)
-                        .offset.with(x, y)
-                        .width.with(1)
-                        .fill.with()
-                    ;
-
-                    ((AWTPolygonDrawer)vp.draw.polygon).offsets(offsets);
-                }
-            });
-        }
-
         Test t = new Test()
         {
             public void onMove(double x, double y)
@@ -101,7 +72,7 @@ public class E2Main
             }
             public void onWheel(double x, double y, double power)
             {
-                double force = 0.1;
+                double force = 0.25;
 
                 double w = window.getResolutionW() * (1 + (power * force));
                 double h = window.getResolutionH() * (1 + (power * force));
@@ -111,7 +82,6 @@ public class E2Main
         };
 
         window.mouse.add(t, 1, 3);
-        window.viewport.layers.add(t);
 
         Test t1 = new Test()
         {
@@ -135,6 +105,7 @@ public class E2Main
 
         window.mouse.press.add(t1, 1, 3);
         window.mouse.release.add(t1, 1, 3);
+        window.viewport.layers.add(t1);
 
         window.keys.add(t1, "ESCAPE", "CNTRL", "ENTER", "w", "a", "s", "d");
 
