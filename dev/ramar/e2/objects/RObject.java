@@ -1,6 +1,7 @@
-package dev.ramr.e2.objects;
+package dev.ramar.e2.objects;
 
 import dev.ramar.e2.core.rendering.Drawable;
+import dev.ramar.e2.core.rendering.Viewport;
 
 public class RObject implements Drawable
 {
@@ -13,5 +14,9 @@ public class RObject implements Drawable
 	}
 
 	public void shutdown() 
+	{  }
+
+
+	public void drawAt(double x, double y, Viewport vp)
 	{  }
 }

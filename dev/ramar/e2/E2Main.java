@@ -18,6 +18,9 @@ import dev.ramar.e2.core.control.MouseManager;
 import dev.ramar.e2.core.control.KeyboardManager;
 
 
+import dev.ramar.e2.objects.Container;
+import dev.ramar.e2.objects.RObject;
+
 import java.util.*;
 /* List, ArrayList */
 
@@ -55,6 +58,87 @@ public class E2Main
     }
 
     public void start()
+    {
+        AWTWindow window = new AWTWindow();
+        window.setSize(0.75, 0.75);
+        window.setResolution(1920, 1080);
+        window.show();
+
+        Container container = new Container();
+        container.children.add(new RObject()
+        {
+            public void drawAt(double x, double y, Viewport vp)
+            {
+                vp.draw.rect.withMod()
+                    .offset.with(x, y)
+                    .colour.with(125, 125, 125, 255)
+                    .fill.with()
+                ;
+
+                vp.draw.rect.poslen(-10, -10, 20, 20);
+
+                vp.draw.rect.clearMod();
+            }
+        });
+
+        Test t = new Test()
+        {
+           private Vec2 start = null, origin = null;
+            public synchronized void onMove(double x, double y)
+            {
+                if( start != null )
+                {
+                    x = window.mouse.toRawX(x);
+                    y = window.mouse.toRawY(y);
+                    double xdist = (x - origin.getX()),
+                           ydist = (y - origin.getY());
+
+                    double cx = start.getX() + xdist,
+                           cy = start.getY() + ydist;
+
+                    window.viewport.setCenter(cx, cy);
+                }
+            }
+
+            public synchronized void onPress(int btn, double x, double y)
+            {
+                if( btn == 1 )
+                {
+                    this.start = new Vec2(window.viewport.getCenterX(), window.viewport.getCenterY());
+                    this.origin = new Vec2(window.mouse.toRawX(x), window.mouse.toRawY(y));
+                }
+            }
+
+            public synchronized void onRelease(int btn, double x, double y)
+            {
+                if( btn == 1 )
+                {
+                    this.start = null;
+                    this.origin = null;
+                }
+            }
+
+            public void onWheel(double x, double y, double power)
+            {
+                double force = 0.25;
+
+                double w = window.getResolutionW() * (1 + (power * force));
+                double h = window.getResolutionH() * (1 + (power * force));
+
+                // window.viewport.setCenter(window.mouse.toRawX(x), window.mouse.toRawY(y));
+                window.setResolution(w, h);
+            }
+        };
+
+        window.mouse.add(t, 1, 3);
+
+        window.viewport.layers.add(container);
+
+        window.waitForClose();
+    }
+
+
+    public void poggers()
     {
         AWTWindow window = new AWTWindow();
         window.setSize(0.75, 0.75);

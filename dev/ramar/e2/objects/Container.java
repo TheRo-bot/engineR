@@ -3,6 +3,8 @@ package dev.ramar.e2.objects;
 import dev.ramar.e2.core.rendering.Drawable;
 import dev.ramar.e2.core.rendering.Viewport;
 
+import dev.ramar.e2.core.structures.Vec2;
+
 import dev.ramar.utils.HiddenList;
 
 import java.util.List;
@@ -27,7 +29,7 @@ public class Container extends RObject
 		super.setup(parent);
 		synchronized(this.children)
 		{
-			for( RObject obj : this.children )
+			for( RObject obj : this.children.getList() )
 				obj.setup(this);
 		}
 	}
@@ -36,7 +38,7 @@ public class Container extends RObject
 	{
 		synchronized(this.children)
 		{
-			for( RObject obj : this.children )
+			for( RObject obj : this.children.getList() )
 				obj.shutdown();
 		}
 	}
@@ -46,7 +48,7 @@ public class Container extends RObject
 	{
 		synchronized(this.children)
 		{
-			for( RObject obj : this.children )
+			for( RObject obj : this.children.getList() )
 				obj.drawAt(x + position.getX(), y + position.getY(), vp);
 		}
 	}
