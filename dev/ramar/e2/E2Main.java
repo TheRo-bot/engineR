@@ -152,7 +152,6 @@ public class E2Main
         window.mouse.release.add(t2, 1);
         window.mouse.move.add(t2);
 
-
         window.waitForClose();
     }
 

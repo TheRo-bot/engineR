@@ -8,10 +8,24 @@ import dev.ramar.e2.system.control.SystemKeyboardManager;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import java.util.List;
+
 import java.awt.Canvas;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Cursor;
+
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DnDConstants;
+
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+
+import java.io.*;
 
 import java.awt.event.WindowListener;
 import java.awt.event.WindowEvent;
@@ -120,9 +134,42 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, SystemKey
             { }
         });
 
-        // this.canvas.addMouseListener(this.mouse.adapter);
-        // this.canvas.addMouseMotionListener(this.mouse.adapter);
-        // this.canvas.addMouseWheelListener(this.mouse.adapter);
+        // this.canvas.setDropTarget(new DropTarget()
+        // {
+        //     public void drop(DropTargetDropEvent dtde)
+        //     {
+        //         System.out.println("drop(" + dtde + ")");
+        //     }
+        //     public void dragEnter(DropTargetDragEvent dtde)
+        //     {
+        //         for( DataFlavor df : dtde.getCurrentDataFlavors() )
+        //         {
+        //             dtde.acceptDrag(DnDConstants.ACTION_MOVE);
+        //             try
+        //             {
+        //                 System.out.println(dtde.getTransferable().getTransferData(df));
+        //             }
+        //             catch(IOException e) {}
+        //             catch(UnsupportedFlavorException e) {}
+        //         }
+        //         // System.out.println(java.util.Arrays.toString(dte.getCurrentDataFlavors()));
+        //         // System.out.println("dragEnter(" + dte + ")");
+        //     }
+        //     public void dragOver(DropTargetDragEvent dtde)
+        //     {
+        //         dtde.acceptDrag(DnDConstants.ACTION_MOVE);        
+        //     }
+        //     public void dragExit(DropTargetEvent dte)
+        //     {
+        //         System.out.println("dragExit(" + dte + ")");
+        //     }
+        //     public void dropActionChanged(DropTargetDragEvent dtde)
+        //     {
+        //         dtde.acceptDrag(DnDConstants.ACTION_MOVE);        
+        //         System.out.println("dropActionChanged(" + dtde + ")");
+        //     }
+
+        // });
 
         this.inner = new Thread(() ->
         {
