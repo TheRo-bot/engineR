@@ -11,6 +11,8 @@ import dev.ramar.e2.core.control.KeyboardManager;
 import java.util.Map;
 import java.util.HashMap;
 
+import java.util.Set;
+import java.util.HashSet;
 
 /*
 KeyboardManager: SystemKeyboardManager
@@ -96,6 +98,36 @@ public class SystemKeyboardManager extends KeyboardManager
 		this.hook.shutdownHook();
 	}
 
+	@Override
+	protected void setVKey(String id, boolean pressed)
+	{
+		if( !pressed && this.pressed.contains(id) )
+			super.setVKey(id, pressed);
+	}
+
+	@Override
+	protected void onPress(String id)
+	{
+		super.onPress(id);
+		synchronized(this.pressed)
+		{
+			this.pressed.add(id);
+		}
+	}
+
+	@Override
+	protected void onRelease(String id)
+	{
+		super.onRelease(id);
+		synchronized(this.pressed)
+		{
+			this.pressed.remove(id);
+		}
+	}
+
+
+	private Set<String> pressed = new HashSet<>();
+
 	protected GlobalKeyAdapter adapter = new GlobalKeyAdapter()
 	{
 		@Override 
@@ -123,7 +155,7 @@ public class SystemKeyboardManager extends KeyboardManager
 			else
 			{
 				char c = event.getKeyChar();
-				if( (int)c != 0 )
+				if( (int)c != 0 && pressed.contains("" + c) )
 					SystemKeyboardManager.this.onRelease("" + c);
 			}
 		}
