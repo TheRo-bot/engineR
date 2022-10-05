@@ -83,68 +83,6 @@ public class E2Main
             }
         });
 
-        for( int ii = 0; ii < 1; ii++ )
-        {
-
-            BufferedText text = new BufferedText();
-
-            // new Thread(() ->
-            // {
-            // //     try
-            // //     {
-
-            // //         double dtg = 0.01;
-            // //         long lastTime = System.currentTimeMillis();
-            // //         while(true)
-            // //         {
-            // //             long thisTime = System.currentTimeMillis();
-            // //             double delta = (thisTime - lastTime) / 1000.0;
-            // //             dtg -= delta;
-            // //             if( dtg <= 0 )
-            // //             {
-            // //                 dtg = 0.01;
-            // //                 size += 0.1;
-            // //             }
-
-            // //             Thread.sleep(1);
-            // //         }
-            // //     }
-            // //     catch (InterruptedException e) {}
-            // // }).start();
-
-            double size = 150;
-
-            double width = 12 * 5;
-
-            text.textMods
-                .font.with("Calibri")
-                .size.with((int)Math.round(size))
-            ;
-            text.imageMods
-                .scale.with(width / size)
-            ;
-
-            text.updateBuffer();
-
-            if( text.getText() == null )
-                text.setText("ayo whatup");
-
-
-            container.children.add(text);
-
-            // container.children.add((double x, double y, Viewport vp) ->
-            // {
-            //     vp.draw.text.withMod()
-            //         .font.with("Calibri")
-            //         .size.with(75)
-            //         .offset.with(x, y)
-            //     ;
-
-            //     vp.draw.text.at(0, 0, "a123;[]'\\`,./pdIi");
-
-            //     vp.draw.text.clearMod();
-            // });
-        }
 
 
 
@@ -199,6 +137,51 @@ public class E2Main
         };
 
         window.mouse.add(t, 1, 3);
+        Random rd = new Random();
+        for( int ii = 0; ii < 1000; ii++ )
+        {
+            double r = 1 + 8 * ii / 1000;
+            BufferedText text = new BufferedText();
+
+            double size = 75;
+
+            double width = 12 * 5;
+
+            text.textMods
+                .font.with("Calibri")
+                .size.with((int)Math.round(size))
+            ;
+            text.imageMods
+                .scale.with(width / size)
+                .offset.with(
+                    rd.nextInt((int)(5000 * r)) - ((int)2500 * r),
+                    rd.nextInt((int)(5000 * r)) - ((int)2500 * r)
+                )
+            ;
+
+            text.updateBuffer();
+
+            if( text.getText() == null )
+                text.setText("yo whatup");
+
+
+            container.children.add(text);
+            System.out.println(ii);
+            // container.children.add((double x, double y, Viewport vp) ->
+            // {
+            //     vp.draw.text.withMod()
+            //         .font.with("Calibri")
+            //         .size.with(75)
+            //         .offset.with(x, y)
+            //     ;
+
+            //     vp.draw.text.at(0, 0, "a123;[]'\\`,./pdIi");
+
+            //     vp.draw.text.clearMod();
+            // });
+        }
+
+
 
         window.waitForClose();
     }

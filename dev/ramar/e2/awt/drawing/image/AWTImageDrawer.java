@@ -35,14 +35,16 @@ public class AWTImageDrawer extends ImageDrawer
 
         if( mod != null )
         {
-
         	scale = mod.scale.get();
+        	x += mod.offset.getX();
+        	y += mod.offset.getY();
         }
 
         AffineTransform origTrans = g2d.getTransform();
         AffineTransform at = new AffineTransform(origTrans);
         at.translate(x, y);
         at.scale(scale, scale);
+
         g2d.setTransform(at);
 
     	g2d.drawImage(im, null, null);
