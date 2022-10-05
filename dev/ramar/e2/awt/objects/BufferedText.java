@@ -90,6 +90,7 @@ public class BufferedText extends RObject
 		w = metrics.stringWidth(this.text);
 		h = (int)(this.getHeightFor(this.text, metrics) * 1.5);
 
+		System.out.println("w: " + w + ", h: " + h);
 		BufferedImage newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = newImage.createGraphics();
 

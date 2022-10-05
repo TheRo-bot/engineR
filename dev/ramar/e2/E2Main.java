@@ -138,12 +138,12 @@ public class E2Main
 
         window.mouse.add(t, 1, 3);
         Random rd = new Random();
-        for( int ii = 0; ii < 1000; ii++ )
+        for( int ii = 0; ii < 1; ii++ )
         {
-            double r = 1 + 8 * ii / 1000;
+            double r = 1 + 8 * ii / 1;
             BufferedText text = new BufferedText();
 
-            double size = 75;
+            double size = 150;
 
             double width = 12 * 5;
 
@@ -158,14 +158,27 @@ public class E2Main
                     rd.nextInt((int)(5000 * r)) - ((int)2500 * r)
                 )
             ;
+            container.children.add((double x, double y, Viewport vp) ->
+            {
+                vp.draw.text.withMod()
+                    .font.with("Calibri")
+                    .size.with((int)(150 * 0.4))
+                    .offset.with(x, y)
+                ;
+
+                vp.draw.text.at(0, 0, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+
+                vp.draw.text.clearMod();
+
+            });
 
             text.updateBuffer();
 
             if( text.getText() == null )
-                text.setText("yo whatup");
+                text.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
 
 
-            container.children.add(text);
+            // container.children.add(text);
             System.out.println(ii);
             // container.children.add((double x, double y, Viewport vp) ->
             // {
