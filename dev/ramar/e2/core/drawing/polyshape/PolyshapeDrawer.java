@@ -1,13 +1,13 @@
-package dev.ramar.e2.core.drawing.polygon;
+package dev.ramar.e2.core.drawing.polyshape;
 
 import dev.ramar.e2.core.drawing.Drawer;
 
 
-public abstract class PolygonDrawer extends Drawer<PolygonMods>
+public abstract class PolyshapeDrawer extends Drawer<PolyshapeMods>
 {
 
-    public PolygonMods withMod()
-    {  return this.withMod(new PolygonMods()); }
+    public PolyshapeMods withMod()
+    {  return this.withMod(new PolyshapeMods()); }
 
     // 1D array representing [x1, y1, x2, y2, ...., x(n), y(n)]
     public abstract void positions(double... poses);

@@ -9,8 +9,10 @@ Abstract Class: DrawManager
 */
 
 import dev.ramar.e2.core.drawing.rect.RectDrawer;
-import dev.ramar.e2.core.drawing.polygon.PolygonDrawer;
+import dev.ramar.e2.core.drawing.polyshape.PolyshapeDrawer;
 import dev.ramar.e2.core.drawing.line.LineDrawer;
+import dev.ramar.e2.core.drawing.text.TextDrawer;
+import dev.ramar.e2.core.drawing.image.ImageDrawer;
 
 /*
 Abstract Class: DrawManager
@@ -19,13 +21,16 @@ Abstract Class: DrawManager
    (so instead of going myViewport.stateless... you go myViewport.draw.rect)
    which essentially allows further methods to be less word-y 
 */
-public abstract class DrawManager<E extends RectDrawer, K extends LineDrawer, V extends PolygonDrawer>
+public abstract class DrawManager<E extends RectDrawer, K extends LineDrawer, V extends PolyshapeDrawer, 
+                                  L extends TextDrawer, B extends ImageDrawer>
 {
     protected DrawManager()
     {
         this.rect = this.createRectDrawer();
         this.line = this.createLineDrawer();
-        this.polygon = this.createPolygonDrawer();
+        this.polyshape = this.createPolyshapeDrawer();
+        this.text = this.createTextDrawer();
+        this.image = this.createImageDrawer();
     }
 
 
@@ -35,8 +40,14 @@ public abstract class DrawManager<E extends RectDrawer, K extends LineDrawer, V 
     public final K line;
     public abstract K createLineDrawer();
 
-    public final V polygon;
-    public abstract V createPolygonDrawer();
+    public final V polyshape;
+    public abstract V createPolyshapeDrawer();
 
 
+    public final L text;
+    public abstract L createTextDrawer();
+
+
+    public final B image;
+    public abstract B createImageDrawer();
 }

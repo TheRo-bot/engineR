@@ -18,4 +18,10 @@ public class RectMods implements Mod, ModHelperOwner
     public final BooleanHelper<RectMods>   fill = new BooleanHelper<>(this);
 
 
+    public void set(RectMods mods)
+    {
+        this.offset.set(mods.offset);
+        this.colour.set(mods.colour);
+        this.fill.set(mods.fill);
+    }
 }

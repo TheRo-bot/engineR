@@ -17,7 +17,7 @@ public class FloatHelper<E extends ModHelperOwner>
 
 
 
-    private float miter = 10.0f;
+    private float miter = 1.0f;
     public float get()
     {   return this.miter;   }
 

@@ -7,8 +7,6 @@ import dev.ramar.e2.core.rendering.Drawable;
 import dev.ramar.e2.core.rendering.Viewport;
 import dev.ramar.e2.awt.rendering.AWTLayerManager.AWTLayer;
 
-import dev.ramar.e2.awt.drawing.polygon.AWTPolygonDrawer;
-
 import dev.ramar.e2.core.drawing.line.Line;
 
 import dev.ramar.e2.core.structures.Vec2;
@@ -18,11 +16,13 @@ import dev.ramar.e2.core.control.MouseManager;
 import dev.ramar.e2.core.control.KeyboardManager;
 
 
-import dev.ramar.e2.objects.Container;
-import dev.ramar.e2.objects.RObject;
+import dev.ramar.e2.core.objects.*;
+import dev.ramar.e2.awt.objects.*;
 
 import java.util.*;
 /* List, ArrayList */
+
+import javax.swing.JFrame;
 
 public class E2Main
 {
@@ -59,12 +59,14 @@ public class E2Main
 
     public void start()
     {
+        Container container = new Container();
         AWTWindow window = new AWTWindow();
         window.setSize(0.75, 0.75);
         window.setResolution(1920, 1080);
         window.show();
+        window.viewport.layers.add(container);
 
-        Container container = new Container();
+
         container.children.add(new RObject()
         {
             public void drawAt(double x, double y, Viewport vp)
@@ -81,9 +83,75 @@ public class E2Main
             }
         });
 
+        for( int ii = 0; ii < 1; ii++ )
+        {
+
+            BufferedText text = new BufferedText();
+
+            // new Thread(() ->
+            // {
+            // //     try
+            // //     {
+
+            // //         double dtg = 0.01;
+            // //         long lastTime = System.currentTimeMillis();
+            // //         while(true)
+            // //         {
+            // //             long thisTime = System.currentTimeMillis();
+            // //             double delta = (thisTime - lastTime) / 1000.0;
+            // //             dtg -= delta;
+            // //             if( dtg <= 0 )
+            // //             {
+            // //                 dtg = 0.01;
+            // //                 size += 0.1;
+            // //             }
+
+            // //             Thread.sleep(1);
+            // //         }
+            // //     }
+            // //     catch (InterruptedException e) {}
+            // // }).start();
+
+            double size = 150;
+
+            double width = 12 * 5;
+
+            text.textMods
+                .font.with("Calibri")
+                .size.with((int)Math.round(size))
+            ;
+            text.imageMods
+                .scale.with(width / size)
+            ;
+
+            text.updateBuffer();
+
+            if( text.getText() == null )
+                text.setText("ayo whatup");
+
+
+            container.children.add(text);
+
+            // container.children.add((double x, double y, Viewport vp) ->
+            // {
+            //     vp.draw.text.withMod()
+            //         .font.with("Calibri")
+            //         .size.with(75)
+            //         .offset.with(x, y)
+            //     ;
+
+            //     vp.draw.text.at(0, 0, "a123;[]'\\`,./pdIi");
+
+            //     vp.draw.text.clearMod();
+            // });
+        }
+
+
+
+
         Test t = new Test()
         {
-           private Vec2 start = null, origin = null;
+            private Vec2 start = null, origin = null;
             public synchronized void onMove(double x, double y)
             {
                 if( start != null )
@@ -131,8 +199,6 @@ public class E2Main
         };
 
         window.mouse.add(t, 1, 3);
-
-        window.viewport.layers.add(container);
 
         window.waitForClose();
     }
@@ -239,7 +305,7 @@ public class E2Main
         window.waitForClose();
     }
 
-    public class Test implements MouseManager.MouseListener, Drawable, KeyboardManager.KeyListener
+    public class Test extends RObject implements MouseManager.MouseListener, KeyboardManager.KeyListener
     {
         protected Vec2 pos = new Vec2(0);
         protected Vec2 off = new Vec2(0);

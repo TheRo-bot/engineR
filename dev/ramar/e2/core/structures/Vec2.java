@@ -37,7 +37,7 @@ public class Vec2
 		this.y = c.y;
 	}
 
-	public int hashCode()
+	public synchronized int hashCode()
 	{
 		int hash = 7;
 
@@ -48,7 +48,7 @@ public class Vec2
 	}
 
 
-	public boolean equals(Object in)
+	public synchronized boolean equals(Object in)
 	{
 		boolean equal = false;
 		Vec2 inV;
@@ -63,25 +63,25 @@ public class Vec2
 		return equal;
 	}
 
-	public Vec2 clone()
+	public synchronized Vec2 clone()
 	{
 		return new Vec2(this);
 	}
 
 
-	public String toString()
+	public synchronized String toString()
 	{
 		return "(" + df.format(x) + ", " + df.format(y) + ")";
 	}
 
-	public double getX()
+	public synchronized double getX()
 	{   return x;   }
 
-	public double getY()
+	public synchronized double getY()
 	{   return y;   }
 
 
-	public Vec2 set(Vec2 pos)
+	public synchronized Vec2 set(Vec2 pos)
 	{
 		if( pos != null )
 		{
@@ -93,7 +93,7 @@ public class Vec2
 	}
 
 
-	public Vec2 set(double x, double y)
+	public synchronized Vec2 set(double x, double y)
 	{
 		this.setX(x);
 		this.setY(y);
@@ -101,7 +101,7 @@ public class Vec2
 		return this;
 	}
 
-	public Vec2 set(double c)
+	public synchronized Vec2 set(double c)
 	{
 		this.setX(c);
 		this.setY(c);
@@ -110,17 +110,17 @@ public class Vec2
 	}
 	
 
-	public void setX(double x)
+	public synchronized void setX(double x)
 	{
 		this.x = x;
 	}
 
-	public void setY(double y)
+	public synchronized void setY(double y)
 	{
 		this.y = y;
 	}
 
-	public Vec2 clear()
+	public synchronized Vec2 clear()
 	{
 		this.setX(0);
 		this.setY(0);
@@ -129,7 +129,7 @@ public class Vec2
 	}
 
 
-	public Vec2 add(Vec2 change)
+	public synchronized Vec2 add(Vec2 change)
 	{
 		if( change != null )
 		{
@@ -140,7 +140,7 @@ public class Vec2
 		return this;
 	}
 
-	public Vec2 add(double x, double y)
+	public synchronized Vec2 add(double x, double y)
 	{
 		this.setX(this.x + x);
 		this.setY(this.y + y);
@@ -149,12 +149,12 @@ public class Vec2
 	}
 
 
-	public Vec2 copy()
+	public synchronized Vec2 copy()
 	{
 		return new Vec2(this.x, this.y);
 	}
 
-	public Vec2 take(Vec2 change)
+	public synchronized Vec2 take(Vec2 change)
 	{
 		if( change != null )
 		{
@@ -165,7 +165,7 @@ public class Vec2
 		return this;
 	}
 
-	public Vec2 take(double x, double y)
+	public synchronized Vec2 take(double x, double y)
 	{
 		this.setX(this.x - x);
 		this.setY(this.y - y);
@@ -174,7 +174,7 @@ public class Vec2
 	}
 
 
-	public Vec2 multiply(Vec2 change)
+	public synchronized Vec2 multiply(Vec2 change)
 	{
 		if( change != null )
 		{
@@ -186,7 +186,7 @@ public class Vec2
 	}
 
 
-	public Vec2 multiply(double constant)
+	public synchronized Vec2 multiply(double constant)
 	{
 		this.setX(this.x * constant);
 		this.setY(this.y * constant);
@@ -195,7 +195,7 @@ public class Vec2
 	}
 
 
-	public Vec2 multiply(double x, double y)
+	public synchronized Vec2 multiply(double x, double y)
 	{
 		this.setX(this.x * x);
 		this.setY(this.y * y);
@@ -203,7 +203,7 @@ public class Vec2
 		return this;
 	}
 
-	public Vec2 divide(Vec2 change)
+	public synchronized Vec2 divide(Vec2 change)
 	{
 		if( change == null )
 			return this;
@@ -218,7 +218,7 @@ public class Vec2
 	}
 
 
-	public Vec2 divide(double x, double y)
+	public synchronized Vec2 divide(double x, double y)
 	{
 		if( x == 0.000 || y == 0.000 )
 			throw new ArithmeticException("Division by 0 (" + this.x + ", " + this.y + ") / (" + x + ", " + y + ")");
@@ -229,7 +229,7 @@ public class Vec2
 		return this;
 	}
 
-	public Vec2 divide(double constant)
+	public synchronized Vec2 divide(double constant)
 	{
 		if( constant == 0.000 )
 			throw new ArithmeticException("Division by 0 (" + x + ", " + y + ") / " + constant);

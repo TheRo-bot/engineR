@@ -1,4 +1,4 @@
-package dev.ramar.e2.objects;
+package dev.ramar.e2.core.objects;
 
 import dev.ramar.e2.core.rendering.Drawable;
 import dev.ramar.e2.core.rendering.Viewport;
@@ -18,9 +18,9 @@ public class Container extends RObject
 		this.onCreate();
 	}
 
-	public final Vec2 position = new Vec2(0);
+	public final Vec2 pos = new Vec2(0);
 
-	public final LocalList<RObject> children = new LocalList<>();
+	public final LocalList<Drawable> children = new LocalList<>();
 
 	protected void onCreate() {}
 
@@ -29,8 +29,9 @@ public class Container extends RObject
 		super.setup(parent);
 		synchronized(this.children)
 		{
-			for( RObject obj : this.children.getList() )
-				obj.setup(this);
+			for( Drawable draw : this.children.getList() )
+				if( draw instanceof RObject )
+					((RObject)draw).setup(this);
 		}
 	}
 
@@ -38,8 +39,9 @@ public class Container extends RObject
 	{
 		synchronized(this.children)
 		{
-			for( RObject obj : this.children.getList() )
-				obj.shutdown();
+			for( Drawable draw : this.children.getList() )
+				if( draw instanceof RObject )
+					((RObject)draw).shutdown();
 		}
 	}
 
@@ -48,8 +50,8 @@ public class Container extends RObject
 	{
 		synchronized(this.children)
 		{
-			for( RObject obj : this.children.getList() )
-				obj.drawAt(x + position.getX(), y + position.getY(), vp);
+			for( Drawable draw : this.children.getList() )
+				draw.drawAt(x + pos.getX(), y + pos.getY(), vp);
 		}
 	}
 

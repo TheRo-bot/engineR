@@ -10,8 +10,9 @@ import dev.ramar.e2.core.structures.Colour;
 
 import java.awt.Stroke;
 import java.awt.BasicStroke;
-
 import java.awt.Graphics2D;
+
+import java.awt.geom.AffineTransform;
 
 public class AWTRectDrawer extends RectDrawer
 {
@@ -68,11 +69,21 @@ public class AWTRectDrawer extends RectDrawer
 
         colour.fillG2D(g2d);
 
+        AffineTransform origTrans = g2d.getTransform();
+        AffineTransform at = new AffineTransform(origTrans);
+        at.translate(x, y);
+
+
+        Stroke origStroke = g2d.getStroke();
         g2d.setStroke(new BasicStroke(thickness, AWTRectDrawer.Defaults.CAP_STYLE, AWTRectDrawer.Defaults.JOIN_STYLE, AWTRectDrawer.Defaults.MITER));
+        g2d.setTransform(at);
 
         if( fill )
-            g2d.fillRect((int)x, (int)y, (int)w, (int)h);
+            g2d.fillRect(0, 0, (int)w, (int)h);
         else
-            g2d.drawRect((int)x, (int)y, (int)w, (int)h);
+            g2d.drawRect(0, 0, (int)w, (int)h);
+
+        g2d.setTransform(origTrans);
+        g2d.setStroke(origStroke);
     }
 }

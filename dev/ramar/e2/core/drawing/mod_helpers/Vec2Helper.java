@@ -13,7 +13,13 @@ public class Vec2Helper<E extends ModHelperOwner>
         this.owner = owner;
     }
 
+    public void set(Vec2Helper v2)
+    {
+        this.offset.set(v2.offset);
+    }
+
     private Vec2 offset = new Vec2();
+
     public Vec2 get()
     {   return this.offset;   }
 

@@ -17,6 +17,11 @@ public class ColourHelper<E extends ModHelperOwner>
         this.with(r, g, b, a);
     }
 
+    public void set(ColourHelper ch)
+    {
+        this.colour.set(ch.colour);
+    }
+
     /*
     Class-Field: colour
      - The colour of this rect!

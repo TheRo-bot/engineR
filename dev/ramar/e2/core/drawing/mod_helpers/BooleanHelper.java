@@ -16,7 +16,11 @@ public class BooleanHelper<E extends ModHelperOwner>
         this.with(v);
     }
 
-    
+    public void set(BooleanHelper bh)
+    {
+        this.value = bh.value;
+    }
+
     /*
     Class-Field: colour
      - The colour of this rect!

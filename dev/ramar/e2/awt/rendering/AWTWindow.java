@@ -29,6 +29,7 @@ import java.io.*;
 
 import java.awt.event.WindowListener;
 import java.awt.event.WindowEvent;
+import java.awt.RenderingHints;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
@@ -198,6 +199,10 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, SystemKey
 
                 // render!
                 Graphics2D g2d = (Graphics2D)bs.getDrawGraphics();
+                // RenderingHints rh = new RenderingHints(
+                //     RenderingHints.KEY_TEXT_ANTIALIASING,
+                //     RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+                // g2d.setRenderingHints(rh);
                 long startTime = System.nanoTime();
                 if( g2d != null )
                 {
