@@ -1,33 +1,28 @@
 package dev.ramar.e2;
 
-import dev.ramar.e2.structures.*;
+import dev.ramar.e2.awt.rendering.AWTWindow;
+import dev.ramar.e2.core.rendering.Window;
 
-import dev.ramar.e2.rendering.awt.AWTViewPort;
-import dev.ramar.e2.rendering.awt.AWTWindow;
-import dev.ramar.e2.rendering.*;
-import dev.ramar.e2.structures.WindowSettings;
+import dev.ramar.e2.core.rendering.Drawable;
+import dev.ramar.e2.core.rendering.Viewport;
+import dev.ramar.e2.awt.rendering.AWTLayerManager.AWTLayer;
 
-import dev.ramar.e2.rendering.Window.FullscreenState;
+import dev.ramar.e2.core.drawing.line.Line;
 
-import java.io.*;
+import dev.ramar.e2.core.structures.Vec2;
+import dev.ramar.e2.core.structures.Colour;
 
-import java.net.*;
+import dev.ramar.e2.core.control.MouseManager;
+import dev.ramar.e2.core.control.KeyboardManager;
+
+
+import dev.ramar.e2.core.objects.*;
+import dev.ramar.e2.awt.objects.*;
+
 import java.util.*;
+/* List, ArrayList */
 
-
-import dev.ramar.e2.rendering.control.KeyCombo;
-import dev.ramar.e2.rendering.control.KeyCombo.Directionality;
-
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-import dev.ramar.e2.rendering.awt.AWTImage;
-
-
-import java.awt.Cursor;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.image.MemoryImageSource;
+import javax.swing.JFrame;
 
 public class E2Main
 {
@@ -41,130 +36,193 @@ public class E2Main
 	{
 		Main.Entrypoints.addEntrypoint((String[] args) ->
         {
-        	E2Main em = new E2Main();
-            try
-            {
-                em.waitForClose();
-            	System.out.println("E2 close!");
-            }
-            catch(Exception e) 
-            {
-                System.out.println("A fatal exception occurred:");
-                e.printStackTrace();
-                System.out.println("Waiting for window close");
-                em.waitForClose();
-            }
+            E2Main main = new E2Main();
+            main.start();
         });
 	}
 
-    EngineR2 e2;
-    Random rd = new Random();
-
-
 	public E2Main()
-	{
-        List<EngineR2> instances = new ArrayList<>();
-
-        for( int ii = 0; ii < 1; ii++ )
-        {
-            e2 = new EngineR2();
-            e2.initialise(e2.setup()
-                .withSize(1280, 720)
-                .withFullscreenState(FullscreenState.WINDOWED)
-                .withTitle("EngineR2 Main")
-            );
-            instances.add(e2);
-        }
-
-        e2.viewport.draw.layered.layers.mid.add(new Drawable()
-        {
-            private List<Vec2> vecs = new LinkedList<>();
-            Vec2[] used = new Vec2[0];
-            private double timer = 0.01;
-            private double delta = timer;
-            private long lastTime = System.currentTimeMillis();
-            private int max = 500;
-            private Random rd = new Random();
-
-            public double rangeX(ViewPort vp)
-            {
-                return rd.nextInt(max) - max / 2.0  + rd.nextDouble();
-            }
-
-            public double rangeY(ViewPort vp)
-            {
-                return rd.nextInt(max) - max / 2.0 + rd.nextDouble();
-            }
+	{}
 
 
-            public void drawAt(double x, double y, ViewPort vp)
-            {
-                long currTime = System.currentTimeMillis();
-
-                delta -= (currTime - lastTime) / 1000.0;
-                this.lastTime = currTime;
-
-                if( delta <= 0 )
-                {
-                    delta = timer;
-                    if( rd.nextDouble() >= 0.9 )
-                        max = rd.nextInt(1000) + 1;
-
-                    vecs.add(new Vec2(rangeX(vp), rangeY(vp)));
-                    used = new Vec2[vecs.size()];
-                    vecs.toArray(used);
-
-                    // for( Vec2 v : used )
-                    // {
-                    //     int xFlip = rd.nextBoolean() ? 1 : -1,
-                    //         yFlip = rd.nextBoolean() ? 1 : -1;
-
-                    //     v.add((rd.nextInt(1) + rd.nextDouble()) * xFlip, (rd.nextInt(1) + rd.nextDouble()) * yFlip);
-                    // }
-                }
-
-                vp.draw.layered.polyline.withMod()
-                    .withColour(255, 0, 0, 255)
-                    .withThickness(2)
-                    // .fill.with()
-                    .withOffset(vp.getLogicalWidth() / 2, vp.getLogicalHeight() / 2)
-                    // .cap.with(dev.ramar.e2.rendering.drawing.CapStyle.Round)
-                    // .join.with(dev.ramar.e2.rendering.drawing.JoinStyle.Round)
-                ;
-
-                vp.draw.layered.polyline.points(used);
-
-                vp.draw.layered.polyline.clearMod();
-            }
-        });
-
-
-        // this is a test !
-        TestDemos td = new TestDemos(instances);
-    }
-
-    private boolean allDone = false;
-    public void waitForClose()
+    class Test2 extends Line implements MouseManager.MouseListener
     {
-        try
+        public Test2(double x, double y, double x2, double y2)
         {
-            e2.viewport.window.onClose.add(() ->
-            {
-                // try
-                // {
-                //     dev.ramar.e2.demos.combat.DeltaUpdater.getInstance().close();
-                // }
-                // catch(InterruptedException e) 
-                // {
-                //     System.out.println("Couldn't wait for deltaupdater to close!!");
-                // }
-                allDone = true;
-            });
-
-            while(! allDone )
-                Thread.sleep(100);
+            super(x, y, x2, y2);
         }
-        catch(InterruptedException e) {}
-        System.out.println("!!! closing");
+        public void onMove(double x, double y)
+        {
+            this.to.set(x, y);
+        }
     }
+
+    public void start()
+    {
+        Container container = new Container();
+
+        AWTWindow window = new AWTWindow();
+        window.setSize(0.75, 0.75);
+        window.setResolution(1920, 1080);
+        window.show();
+        window.viewport.layers.add(container);
+
+
+        window.waitForClose();
+    }
+
+
+    public void poggers()
+    {
+        AWTWindow window = new AWTWindow();
+        window.setSize(0.75, 0.75);
+        window.setResolution(1920, 1080);
+        window.show();
+
+        Test t = new Test()
+        {
+            public void onMove(double x, double y)
+            {
+                synchronized(this)
+                {
+                    this.pos.set(x, y);
+                }
+            }
+            public void onWheel(double x, double y, double power)
+            {
+                double force = 0.25;
+
+                double w = window.getResolutionW() * (1 + (power * force));
+                double h = window.getResolutionH() * (1 + (power * force));
+
+                window.setResolution(w, h);
+            }
+        };
+
+        window.mouse.add(t, 1, 3);
+
+        Test t1 = new Test()
+        {
+            public void onMove(double x, double y)
+            {
+                synchronized(this)
+                {
+                    this.pos.set(x, y);
+                }
+            }
+
+            public void onPress(String key)
+            {
+                System.out.println("PRESS: " + key);
+            }
+            public void onRelease(String key)
+            {
+                System.out.println("RELEASE: " + key);
+            }
+        };
+
+        window.mouse.press.add(t1, 1, 3);
+        window.mouse.release.add(t1, 1, 3);
+        window.viewport.layers.add(t1);
+
+        window.keys.add(t1, "ESCAPE", "CNTRL", "ENTER", "w", "a", "s", "d");
+
+        Test t2 = new Test()
+        {
+            private Vec2 start = null, origin = null;
+            public synchronized void onMove(double x, double y)
+            {
+                if( start != null )
+                {
+                    x = window.mouse.toRawX(x);
+                    y = window.mouse.toRawY(y);
+                    double xdist = (x - origin.getX()),
+                           ydist = (y - origin.getY());
+
+                    double cx = start.getX() + xdist,
+                           cy = start.getY() + ydist;
+
+                    window.viewport.setCenter(cx, cy);
+                }
+            }
+
+            public synchronized void onPress(int btn, double x, double y)
+            {
+                if( btn == 1 )
+                {
+                    this.start = new Vec2(window.viewport.getCenterX(), window.viewport.getCenterY());
+                    this.origin = new Vec2(window.mouse.toRawX(x), window.mouse.toRawY(y));
+                }
+            }
+
+            public synchronized void onRelease(int btn, double x, double y)
+            {
+                if( btn == 1 )
+                {
+                    this.start = null;
+                    this.origin = null;
+                }
+            }
+        };
+
+
+        window.mouse.press.add(t2, 1);
+        window.mouse.release.add(t2, 1);
+        window.mouse.move.add(t2);
+
+        window.waitForClose();
+    }
+
+    public class Test extends RObject implements MouseManager.MouseListener, KeyboardManager.KeyListener
+    {
+        protected Vec2 pos = new Vec2(0);
+        protected Vec2 off = new Vec2(0);
+        protected Colour colour = new Colour(255, 255, 255, 255);
+
+        public void onWheel(double x, double y, double power)
+        {
+            synchronized(this)
+            {
+                off.add(0, power * 10);
+            }
+        }
+
+        public void onPress(String keyCode)
+        { }
+        public void onRelease(String keyCode)
+        { }
+
+        public void onPress(int btn, double x, double y)
+        {   
+            if( btn == 1 )
+                this.colour.set(255, 0, 0, 255);
+            else if( btn == 3 )
+                this.colour.set(0, 255, 0, 255);
+        }
+
+        public void onRelease(int btn, double x, double y)
+        {
+            this.colour.set(255, 255, 255, 255);
+        }
+
+        public void drawAt(double x, double y, Viewport vp)
+        {
+            synchronized(this)
+            {
+                vp.draw.rect.withMod()
+                    .colour.with(this.colour)
+                    .fill.with()
+                    .offset.with(x, y)
+                    .offset.with(pos.getX(), pos.getY())
+                    .offset.with(off.getX(), off.getY())
+                ;   
+
+                int s = 30;
+                vp.draw.rect.poslen(s * -0.5, s * -0.5, s, s);
+
+                vp.draw.rect.clearMod();
+            }
+        }
+    }
+
 }
