@@ -42,7 +42,6 @@ public class AWTRectDrawer extends RectDrawer
     public void pospos(double x1, double y1, double x2, double y2)
     {
         this.poslen(x1, y1, x2 - x1, y2 - y1);
-
     }
 
     public void poslen(double x, double y, double w, double h)
@@ -56,6 +55,7 @@ public class AWTRectDrawer extends RectDrawer
         boolean fill = false;
         Colour colour = AWTRectDrawer.Defaults.DEFAULT_COLOUR;
 
+        double rotation = 0;
         int thickness = 1;
 
         if( mod != null )
@@ -65,6 +65,7 @@ public class AWTRectDrawer extends RectDrawer
 
             colour = mod.colour.get();
             fill = mod.fill.get();
+            rotation = mod.rotation.get();
         }   
 
         colour.fillG2D(g2d);
@@ -73,6 +74,9 @@ public class AWTRectDrawer extends RectDrawer
         AffineTransform at = new AffineTransform(origTrans);
         at.translate(x, y);
 
+        at.translate(w * 0.5, h * 0.5);
+        at.rotate(Math.toRadians(rotation));
+        at.translate(-w * 0.5, -h * 0.5);
 
         Stroke origStroke = g2d.getStroke();
         g2d.setStroke(new BasicStroke(thickness, AWTRectDrawer.Defaults.CAP_STYLE, AWTRectDrawer.Defaults.JOIN_STYLE, AWTRectDrawer.Defaults.MITER));

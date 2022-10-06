@@ -16,6 +16,7 @@ public class RectMods implements Mod, ModHelperOwner
     public final Vec2Helper<RectMods> offset = new Vec2Helper<>(this);
     public final ColourHelper<RectMods> colour = new ColourHelper<>(this);
     public final BooleanHelper<RectMods>   fill = new BooleanHelper<>(this);
+    public final DoubleHelper<RectMods> rotation = new DoubleHelper<>(this);
 
 
     public void set(RectMods mods)

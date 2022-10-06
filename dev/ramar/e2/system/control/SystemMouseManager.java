@@ -79,6 +79,7 @@ public class SystemMouseManager extends MouseManager
 
 	public void shutdown()
 	{
+		System.out.println("mouse shutdown");
 		this.mouseHook.shutdownHook();
 	}
 

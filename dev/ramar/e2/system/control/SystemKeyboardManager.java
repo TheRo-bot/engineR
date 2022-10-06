@@ -95,6 +95,7 @@ public class SystemKeyboardManager extends KeyboardManager
 
 	public void shutdown()
 	{
+		System.out.println("keyboard shutdown");
 		this.hook.shutdownHook();
 	}
 

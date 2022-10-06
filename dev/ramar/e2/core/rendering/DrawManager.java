@@ -13,6 +13,7 @@ import dev.ramar.e2.core.drawing.polyshape.PolyshapeDrawer;
 import dev.ramar.e2.core.drawing.line.LineDrawer;
 import dev.ramar.e2.core.drawing.text.TextDrawer;
 import dev.ramar.e2.core.drawing.image.ImageDrawer;
+import dev.ramar.e2.core.drawing.oval.OvalDrawer;
 
 /*
 Abstract Class: DrawManager
@@ -22,7 +23,7 @@ Abstract Class: DrawManager
    which essentially allows further methods to be less word-y 
 */
 public abstract class DrawManager<E extends RectDrawer, K extends LineDrawer, V extends PolyshapeDrawer, 
-                                  L extends TextDrawer, B extends ImageDrawer>
+                                  L extends TextDrawer, B extends ImageDrawer, G extends OvalDrawer>
 {
     protected DrawManager()
     {
@@ -31,6 +32,7 @@ public abstract class DrawManager<E extends RectDrawer, K extends LineDrawer, V 
         this.polyshape = this.createPolyshapeDrawer();
         this.text = this.createTextDrawer();
         this.image = this.createImageDrawer();
+        this.oval = this.createOvalDrawer();
     }
 
 
@@ -50,4 +52,8 @@ public abstract class DrawManager<E extends RectDrawer, K extends LineDrawer, V 
 
     public final B image;
     public abstract B createImageDrawer();
+
+
+    public final G oval;
+    public abstract G createOvalDrawer();
 }

@@ -83,10 +83,12 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, SystemKey
         this.keys.shutdown();
         this.mouse.ignore();
         this.mouse.shutdown();
+        this.stop();
     }
 
     private Thread shutdownHook = new Thread(() ->
     {
+        System.out.println("shutdown!");
         this.shutdown();
     });
 
@@ -319,25 +321,29 @@ public class AWTWindow extends Window<AWTViewport, SystemMouseManager, SystemKey
     public void interrupt()
     {
         if( this.inner != null )
+        {
             this.inner.interrupt();
+            System.out.println("interrupt() " + this.inner.isInterrupted());
+        }
     }
 
     public void waitForClose()
     {
-        if( this.inner != null )
+        try
         {
-            try
-            {
-                this.inner.join();
-            }
-            catch(InterruptedException e) {}
+            while(this.inner != null && !this.inner.isInterrupted())
+                Thread.sleep(10);
         }
+        catch(InterruptedException e) {}
     }
 
     public void stop()
     {
+        System.out.println("interrupt");
         this.interrupt();
+        System.out.println("waitForCLose");
         this.waitForClose();
+        System.out.println("<>");
     }
 
     public void redraw(Graphics2D g2d)

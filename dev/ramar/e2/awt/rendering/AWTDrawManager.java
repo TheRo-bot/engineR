@@ -7,11 +7,12 @@ import dev.ramar.e2.awt.drawing.line.AWTLineDrawer;
 import dev.ramar.e2.awt.drawing.polyshape.AWTPolyshapeDrawer;
 import dev.ramar.e2.awt.drawing.text.AWTTextDrawer;
 import dev.ramar.e2.awt.drawing.image.AWTImageDrawer;
+import dev.ramar.e2.awt.drawing.oval.AWTOvalDrawer;
 
 import java.awt.Graphics2D;
 
 public class AWTDrawManager extends DrawManager<AWTRectDrawer, AWTLineDrawer, AWTPolyshapeDrawer, 
-                                                AWTTextDrawer, AWTImageDrawer>
+                                                AWTTextDrawer, AWTImageDrawer, AWTOvalDrawer>
 {
     public AWTDrawManager()
     {}
@@ -23,6 +24,7 @@ public class AWTDrawManager extends DrawManager<AWTRectDrawer, AWTLineDrawer, AW
         this.polyshape.setGraphics(g2d);
         this.text.setGraphics(g2d);
         this.image.setGraphics(g2d);
+        this.oval.setGraphics(g2d);
     }
 
     public AWTRectDrawer createRectDrawer()
@@ -45,5 +47,8 @@ public class AWTDrawManager extends DrawManager<AWTRectDrawer, AWTLineDrawer, AW
 
     public AWTImageDrawer createImageDrawer()
     {  return new AWTImageDrawer();  }
+
+    public AWTOvalDrawer createOvalDrawer()
+    {  return new AWTOvalDrawer();  }
 
 }
