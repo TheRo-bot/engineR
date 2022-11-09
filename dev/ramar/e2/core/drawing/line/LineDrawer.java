@@ -6,6 +6,12 @@ import dev.ramar.e2.core.structures.Vec2;
 
 public abstract class LineDrawer extends Drawer<LineMods>
 {
+    public LineMods withMod()
+    {
+        return super.withMod(new LineMods());
+    }
+
+
     public abstract void pospos(double x1, double y1, double x2, double y2);
 
     public void poslen(double x, double y, double xd, double yd)
