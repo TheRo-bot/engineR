@@ -195,7 +195,6 @@ public abstract class KeyboardManager
 	}
 
 
-
 	public final PressControl press;
 	public final ReleaseControl release;
 
@@ -216,6 +215,23 @@ public abstract class KeyboardManager
 			this.release.remove(id, kl);
 		}
 	}
+
+
+	public void clear(KeyListener kl)
+	{
+		for( String s : this.pressers.keySet() )
+		{
+			LocalList<PressListener> li = this.pressers.get(s);
+			li.remove(kl);
+		}
+
+		for( String s : this.releasers.keySet() )
+		{
+			LocalList<ReleaseListener> li = this.releasers.get(s);
+			li.remove(kl);
+		}
+	}
+
 
 
 	public class PressControl
